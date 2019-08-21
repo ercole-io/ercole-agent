@@ -1,0 +1,13 @@
+[Unit]
+Description=Ercole Agent
+After=syslog.target network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ercole-agent/
+User=ercole
+ExecStart=/opt/ercole-agent/ercole-agent
+PIDFile=/opt/ercole-agent/run/ercole-agent.pid
+
+[Install]
+WantedBy=multi-user.target

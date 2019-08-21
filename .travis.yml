@@ -1,0 +1,79 @@
+os: linux
+
+dist: xenial
+
+language: go
+
+service:
+  - docker
+
+sudo: required
+
+env:
+  global:
+    - CGO_ENABLED=0 
+    - GOFLAGS='-a -x' 
+    - WORKSPACE='/project'
+
+
+# go:
+#   global:
+#     - 1.12.x
+#     - 1.3.x
+matrix:
+  include:
+    - go: 1.12.x
+      env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos7
+    - go: 1.12.x
+      env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos6
+    - go: 1.12.x
+      env: GOOS=windows GOARCH=amd64 DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/nsis
+    # - go: 1.3.x 
+    #   env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
+ 
+before_install:
+  - sudo docker pull ${PACKAGE_BUILD_IMAGE}
+  - if [ -z ${TRAVIS_TAG} ] || [ ${TRAVIS_TAG} == *-* ]; then export VERSION=latest; else export VERSION=${TRAVIS_TAG}; fi
+  - echo ${TRAVIS_TAG}
+  - echo ${VERSION}
+
+install:
+  - sudo docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
+  - if [ $DIST == "rhel5" ]; then cp -r vendor/* ${GOPATH}/src/; fi
+  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros"; fi
+
+script:
+  - if [ $DIST == "rhel5" ]; then mkdir -p ${GOPATH}/src/github.com/ercole-io; fi
+  - go build -o ${BIN} main.go
+  - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
+  - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
+  - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
+  - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/win/installer.nsi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild --quiet -bl package/${DIST}/ercole-agent.spec" || echo rpmbuild; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && tar -C ~/rpmbuild/SOURCES -cvzf ~/rpmbuild/SOURCES/ercole-agent-${VERSION}.tar.gz ercole-agent-${VERSION}"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild -bb package/${DIST}/ercole-agent.spec"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "find ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
+  - if [ $DIST_FAMILY == "WIN" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && makensis package/win/installer.nsi"; fi
+  - mkdir dist
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp ~/rpmbuild/RPMS/x86_64/ercole-agent-${VERSION}-1.el*.x86_64.rpm dist/"; fi
+  - if [ $DIST_FAMILY == "WIN" ]; then cp ercole-agent-setup-${VERSION}.exe dist/; fi
+
+
+after_success:
+  - ls
+  - file ${BIN}
+  - env
+  - ls dist
+ 
+deploy:
+  provider: releases
+  api_key:
+    secure: VAoAAMeiY8aPNruKyuor2Q1PmCjjzkN/dhc0GS0/YOVg6QAPptCCIlPIlUf696VPwM6Gbc/m2QIwZXClGo1aWnwGC2rHMtkTNd+gti04QxDkFxkMn5BiA36nZA7t1CKme7LiwnqFNnMySF65ZEnVFsAzO8GP6cPIzVqWLdtviu7K3vEVdD7LLbFVdpT5hHKlvdCb0ddKgY8iifD/CSf3f1ZwV4l1ZlLrJuouH0x3XKtOFTrV3jcPMuSXc//8G8SdxI9Xa/uab2zywLfxnWFNMal5tFLyOOn2MuFIE/PA6R4ZKSahtC43aG+x+G2wDDkpUVSBNlDSFZ3rO254lx3HcaWxdKKQflPf+rU2wnkHU4N1zEhTKBzC7QzvyPqe1nTks9P8RG0WuC+s8C9iINmrb1oLJGVp2cy49sJsQywiUpWGQODzA+HeTe+c+P7zy2yfmraACBM1pO26QjirukHRQLoEHTrh052seHuvmzT5ppj+Xvw0UOPVpobQVHhk8WludQijTt6FMpPrKFW02kDi9jB4PaqOgB0wdtVm34bhcbYQvvHU+lVU6FY6Ak0RDoO+2+owFFovkS0DDoXT2TcjLOONGmaiqMj0gsPpgxjIta73OIkL8Rc8Pk6zptLhiqBCGOZ7AXn7KugzpY+ugiJRt9GsMoMhp4UyUYcHUdNuCl4=
+  file_glob: true
+  file: dist/*
+  skip_cleanup: true
+  on:
+    tags: true
+

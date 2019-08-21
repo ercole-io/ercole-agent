@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Interactive script to move a standard ercole-agent installation
+# (application and log) to custom locations.
+
+DEF_PATH=/opt/ercole-agent/
+
+# Display a welcome message
+welcome () {
+    echo "This tool helps you move the ercole agent progam and log"
+    echo "to a custom location."
+    echo "Use this tool *after* completing a standard (rpm, pkg) installation."
+    echo ""
+}
+
+welcome
+
+# Check for standard installation location
+if [ ! -d $DEF_PATH ]; then
+    echo "ERROR: ercole agent does not seem to be installed in the default location: $DEF_PATH"
+    exit 1
+fi
+
+# Commmand line parameters: application dir, logs dir
+if [ ! -z  "$1" ]; then
+    CST_PATH=${1}
+fi
+if [ ! -z  "$2" ]; then
+    CST_LOGS=${2} 
+fi
+
+# Interactive parameters 
+if [ -z "$CST_PATH" ]; then
+    echo "Where shall we move the agent BINARIES to? (i.e. /mnt/apps/ercole-agent)"
+    read -e CST_PATH
+fi
+if [ -z "$CST_LOGS" ]; then
+    echo "Where shall the application LOGS be stored? (i.e. /mnt/logs/ercole-agent.log)"
+    read -e CST_LOGS
+fi
+
+USER_CONFIRMED="N"
+
+echo
+echo "Will move ercole-agent bins to $CST_PATH..."
+echo "Will move ercole-agent logs to $CST_LOGS..."
+echo "Last chance, are you sure? (y/N)"
+read -e USER_CONFIRMED
+
+if [ "$USER_CONFIRMED" = "y" ] || [ "$USER_CONFIRMED" = "Y" ]; then
+    echo "Moving ercole-agent bins to $CST_PATH..."
+    echo "Moving ercole-agent logs to $CST_LOGS..."
+else
+    echo "Aborting on user request."
+    exit 0
+fi
+
+# Add eventually the '/'
+if [[ ! ($CST_PATH =~ ^.*/$) ]]; then
+    CST_PATH=$CST_PATH/
+fi
+
+# Eventually create the directory
+mkdir -p $CST_PATH
+mkdir -p $(dirname $CST_LOGS)
+
+# Move the files
+mv $DEF_PATH* $CST_PATH
+
+# Replace all $DEF_PATH in the service files to $CST_PATH/$CST_LOGS
+if [ -f /etc/init.d/ercole-agent ]; then 
+    sed -i -e "s=$DEF_PATH=$CST_PATH=g" /etc/init.d/ercole-agent
+    sed -i -e "s=/var/log/ercole-agent.log=$CST_LOGS=g" /etc/init.d/ercole-agent
+fi
+if [ -f /etc/systemd/system/ercole-agent.service ]; then 
+    sed -i -e "s=$DEF_PATH=$CST_PATH=g" /etc/systemd/system/ercole-agent.service
+fi
+if [ -f /etc/logrotate.d/ercole-agent ]; then
+    sed -i -e "s=/var/log/ercole-agent.log=$CST_LOGS=g" /etc/logrotate.d/ercole-agent
+fi

@@ -1,0 +1,6 @@
+debug
+/ercole-agent
+*.exe
+build
+with.lst
+.vscode
