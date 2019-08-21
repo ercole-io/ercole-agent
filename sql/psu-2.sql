@@ -31,28 +31,34 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
    IF ( :VERSION = '12.1' AND :EXIST > 0 ) THEN 
    	  	with PSU as
 		(
-			select max(DESCRIPTION) as DESCRIPTION
-			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like 'DATABASE BUNDLE PATCH%'
-			or upper(DESCRIPTION) like 'DATABASE PATCH SET UPDATE%'
+			select DESCRIPTION as DESCRIPTION
+			from  registry$sqlpatch
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like 'DATABASE BUNDLE PATCH%'
+					or DESCRIPTION like 'DATABASE PATCH SET UPDATE%'
+				   )
 		),
 		DATA as
 		(
 			select 
 			case
-                                WHEN substr(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),1,1) = 1 THEN TO_DATE('140114','YYMMDD') 
-                                WHEN substr(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),1,1) = 2 THEN TO_DATE('150120','YYMMDD') 
-                                WHEN substr(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),1,1) = 3 THEN TO_DATE('150414','YYMMDD') 
-                                WHEN substr(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),1,1) = 4 THEN TO_DATE('150714','YYMMDD') 
-                                WHEN substr(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),1,1) = 5 THEN TO_DATE('151020','YYMMDD') 
+				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = 1 THEN TO_DATE('140114','YYMMDD') 
+				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = 2 THEN TO_DATE('150120','YYMMDD') 
+				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = 3 THEN TO_DATE('150414','YYMMDD') 
+				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = 4 THEN TO_DATE('150714','YYMMDD') 
+				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = 5 THEN TO_DATE('151020','YYMMDD') 
 				ELSE
-					TO_DATE(substr(max(DESCRIPTION), - instr(MAX(reverse(DESCRIPTION)), '.') + 1),'YYMMDD')
+					TO_DATE(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),'YYMMDD')
 			END as PSU_DATE
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like 'DATABASE BUNDLE PATCH%'
-			or upper(DESCRIPTION) like 'DATABASE PATCH SET UPDATE%'
+			where action_time = ( select max(action_time) 
+								  from  registry$sqlpatch 
+								  where ACTION='APPLY' 
+								  and DESCRIPTION like 'DATABASE BUNDLE PATCH%'
+								  or DESCRIPTION like 'DATABASE PATCH SET UPDATE%'
+	  							 )
 		),
 		STATE as
 		(
@@ -70,17 +76,23 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
    ELSIF ( :VERSION = '12.2' AND :EXIST > 0 ) THEN 
    	  	with PSU as
 		(
-			select max(DESCRIPTION) as DESCRIPTION
+			select DESCRIPTION as DESCRIPTION
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like 'DATABASE%RELEASE UPDATE%'
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like 'DATABASE%RELEASE UPDATE%'
+				   )
 		),
 		DATA as
 		(
-			select TO_DATE(substr(max(DESCRIPTION), - instr(max(reverse(DESCRIPTION)), '.') + 1),'YYMMDD') as PSU_DATE
+			select TO_DATE(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),'YYMMDD') as PSU_DATE
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like 'DATABASE%RELEASE UPDATE%'
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like 'DATABASE%RELEASE UPDATE%'
+				   )
 		),
 		STATE as
 		(
@@ -97,17 +109,23 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
    ELSIF ( :VERSION = '18.0' AND :EXIST > 0) THEN 
      	with PSU as
 		(
-			select max(DESCRIPTION) as DESCRIPTION
-			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like '%RELEASE UPDATE%'
+			select DESCRIPTION as DESCRIPTION
+			from  registry$sqlpatch
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like '%Release Update%'
+				   )
 		),
 		DATA as
 		(
 			select TO_DATE(Substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1), 1,instr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),' ') - 1),'YYMMDD') as PSU_DATE
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like '%RELEASE UPDATE%'
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like '%Release Update%'
+				   )
 		),
 		STATE as
 		(
@@ -124,17 +142,23 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
    ELSIF ( :VERSION = '19.0' AND :EXIST > 0) THEN 
      	with PSU as
 		(
-			select max(DESCRIPTION) as DESCRIPTION
+			select DESCRIPTION as DESCRIPTION
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like '%RELEASE UPDATE%'
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like '%Release Update%'
+				   )
 		),
 		DATA as
 		(
 			select TO_DATE(Substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1), 1,instr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),' ') - 1),'YYMMDD') as PSU_DATE
 			from  registry$sqlpatch 
-			where ACTION='APPLY' 
-			and upper(DESCRIPTION) like '%RELEASE UPDATE%'
+			where action_time = ( select max(action_time) 
+					from  registry$sqlpatch 
+					where ACTION='APPLY' 
+					and DESCRIPTION like '%Release Update%'
+				   )
 		),
 		STATE as
 		(
