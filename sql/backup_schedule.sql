@@ -83,7 +83,8 @@ select backup_type,
        round(avg(AVG_BCK_SIZE_MB)/1024) as AVG_BCK_SIZE_GB
 from backup  
 where backup_type in ('Db Full','Incr Lvl 0','Incr Lvl 1','Archivelog','Recvr Area','Datafile Full','Datafile Incr') 
-group by to_char(TRUNC(start_time)+(ROUND((start_time - TRUNC (start_time))* 96)/ 96),'HH24:MI'), backup_type,to_char(start_time, 'FmDay','nls_date_language=English')
+group by to_char(TRUNC(start_time)+(ROUND((start_time - TRUNC (start_time))* 96)/ 96),'HH24:MI'), backup_type,to_char(start_time, 'F
+mDay','nls_date_language=English')
 ),
 appo_multi_bck as
 (
@@ -94,7 +95,7 @@ order by 1
 ),
 one_time_bck as
 (
-select o.backup_type,
+select distinct o.backup_type,
        o.hour
 from output o 
 left join appo_multi_bck a on o.backup_type = a.backup_type and o.hour = a.hour
@@ -110,7 +111,7 @@ from one_time_bck
 )
 select o.backup_type, 
        o.HOUR,
-       rtrim(xmlagg(xmlelement(e, o.WEEK_DAY, ',')).extract('//text()').getclobval(), ', ') as WEEK_DAYS,
+       rtrim(xmlagg(xmlelement(e,o.WEEK_DAY, ',')).extract('//text()').getclobval(), ', ') as WEEK_DAYS,
        round(avg(o.AVG_BCK_SIZE_GB)) as AVG_BCK_SIZE_GB,
        :RETENTION as RETENTION
 from output o 
@@ -118,16 +119,3 @@ right outer join hour h on o.backup_type = h.backup_type and o.hour = h.hour
 group by o.backup_type,o.HOUR
 order by 1,2;
 exit
-
-/*
-Esempio output:
-
-BACKUP_TYPE   HOUR  WEEK_DAYS                                                              AVG_BCK_SIZE_GB RETENTION
-------------- ----- ---------------------------------------------------------------------- --------------- --------------------
-Archivelog    00:00 Tuesday,Saturday,Monday,Friday,Sunday,Thursday,Wednesday                             8 150 DAYS
-Archivelog    06:00 Monday,Saturday,Friday,Thursday,Sunday,Tuesday,Wednesday                             6 150 DAYS
-Archivelog    12:00 Tuesday,Sunday,Thursday,Wednesday,Friday,Saturday,Monday                             3 150 DAYS
-Archivelog    18:00 Monday,Thursday,Tuesday,Wednesday,Sunday,Saturday,Friday                             4 150 DAYS
-Incr Lvl 0    01:00 Sunday                                                                             627 150 DAYS
-Incr Lvl 1    01:00 Friday,Monday,Thursday,Saturday,Tuesday,Wednesday                                   38 150 DAYS
-*/
