@@ -83,8 +83,7 @@ select backup_type,
        round(avg(AVG_BCK_SIZE_MB)/1024) as AVG_BCK_SIZE_GB
 from backup  
 where backup_type in ('Db Full','Incr Lvl 0','Incr Lvl 1','Archivelog','Recvr Area','Datafile Full','Datafile Incr') 
-group by to_char(TRUNC(start_time)+(ROUND((start_time - TRUNC (start_time))* 96)/ 96),'HH24:MI'), backup_type,to_char(start_time, 'F
-mDay','nls_date_language=English')
+group by to_char(TRUNC(start_time)+(ROUND((start_time - TRUNC (start_time))* 96)/ 96),'HH24:MI'), backup_type,to_char(start_time, 'FmDay','nls_date_language=English')
 ),
 appo_multi_bck as
 (
@@ -95,7 +94,7 @@ order by 1
 ),
 one_time_bck as
 (
-select distinct o.backup_type,
+select o.backup_type,
        o.hour
 from output o 
 left join appo_multi_bck a on o.backup_type = a.backup_type and o.hour = a.hour
@@ -111,7 +110,7 @@ from one_time_bck
 )
 select o.backup_type, 
        o.HOUR,
-       rtrim(xmlagg(xmlelement(e,o.WEEK_DAY, ',')).extract('//text()').getclobval(), ', ') as WEEK_DAYS,
+       rtrim(xmlagg(xmlelement(e, o.WEEK_DAY, ',')).extract('//text()').getclobval(), ', ') as WEEK_DAYS,
        round(avg(o.AVG_BCK_SIZE_GB)) as AVG_BCK_SIZE_GB,
        :RETENTION as RETENTION
 from output o 
@@ -119,3 +118,4 @@ right outer join hour h on o.backup_type = h.backup_type and o.hour = h.hour
 group by o.backup_type,o.HOUR
 order by 1,2;
 exit
+
