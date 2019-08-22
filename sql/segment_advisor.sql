@@ -13,17 +13,17 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-col RECOMMENDATIONS for a120
-col SEGMENT_OWNER for a15
+col RECOMMENDATIONS for a300
+col SEGMENT_OWNER for a60
 col TABLESPACE_NAME like SEGMENT_OWNER
 col RECL_GB for 9999999
 col HOSTNAME for a255
-col SEGMENT_NAME for a30
+col SEGMENT_NAME for a82
 col SEGMENT_TYPE like SEGMENT_OWNER
 col PARTITION_NAME like SEGMENT_OWNER
 
 set autoprint on
-set lines 500 pages 50000
+set lines 900 pages 50000
 SET FEEDBACK OFF
 set colsep "|||"
 VARIABLE x refcursor;
