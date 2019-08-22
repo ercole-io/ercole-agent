@@ -411,4 +411,4 @@ select :DESCRIPTION as Description
            ,:PSU_DATE as PSU
 --         ,:STATUS as STATUS
 from dual WHERE :PSU_DATE != 'N/A';
-EXIT​
+EXIT
