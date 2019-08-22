@@ -103,7 +103,7 @@ func buildData(configuration config.Configuration) {
 	out = fetcher(configuration, "oratab")
 	dbs := marshal.Oratab(out)
 
-	var databases []model.Database
+	var databases []model.Database = []model.Database{}
 
 	for _, db := range dbs {
 
