@@ -105,6 +105,8 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
 				 WHEN COMMENTS = 'BP3'  THEN TO_DATE('150114','YYMMDD')
 				 WHEN COMMENTS = 'BP2'  THEN TO_DATE('151213','YYMMDD')
 				 WHEN COMMENTS = 'BP1'  THEN TO_DATE('151113','YYMMDD')
+                 ELSE
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
@@ -207,7 +209,9 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                  WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('150312','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('150212','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('150112','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('151211','YYMMDD')				 
+                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('151211','YYMMDD')
+                 ELSE
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')			 
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
@@ -301,7 +305,9 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                  WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('170211','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('180111','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('171210','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('081210','YYMMDD')				 
+                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('081210','YYMMDD')
+                 ELSE
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')				 
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
@@ -377,7 +383,9 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                  WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('081210','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('150410','YYMMDD')
                  WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('110310','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('100210','YYMMDD')				 
+                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('100210','YYMMDD')
+                 ELSE
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')				 
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
