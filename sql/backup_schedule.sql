@@ -94,7 +94,7 @@ order by 1
 ),
 one_time_bck as
 (
-select o.backup_type,
+select distinct o.backup_type,
        o.hour
 from output o 
 left join appo_multi_bck a on o.backup_type = a.backup_type and o.hour = a.hour
