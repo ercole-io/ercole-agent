@@ -180,42 +180,43 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
         ),
          DATA as
          (
+                select * from (
             select
              case
-                 WHEN MAX(COMMENTS) = 'BP28' THEN TO_DATE('150715','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP27' THEN TO_DATE('150415','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP26' THEN TO_DATE('150115','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP25' THEN TO_DATE('151014','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP24' THEN TO_DATE('150714','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP23' THEN TO_DATE('150414','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP22' THEN TO_DATE('150114','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP21' THEN TO_DATE('151013','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP20' THEN TO_DATE('150713','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP19' THEN TO_DATE('150613','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP18' THEN TO_DATE('150513','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP17' THEN TO_DATE('150413','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP16' THEN TO_DATE('150313','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP15' THEN TO_DATE('150213','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP14' THEN TO_DATE('150113','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP13' THEN TO_DATE('151212','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP12' THEN TO_DATE('151112','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP11' THEN TO_DATE('151012','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP10' THEN TO_DATE('150912','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP9'  THEN TO_DATE('150812','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP8'  THEN TO_DATE('150712','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP7'  THEN TO_DATE('150612','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP6'  THEN TO_DATE('150512','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP5'  THEN TO_DATE('150412','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('150312','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('150212','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('150112','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('151211','YYMMDD')
+                 WHEN COMMENTS = 'BP28' THEN TO_DATE('150715','YYMMDD')
+                 WHEN COMMENTS = 'BP27' THEN TO_DATE('150415','YYMMDD')
+                 WHEN COMMENTS = 'BP26' THEN TO_DATE('150115','YYMMDD')
+                 WHEN COMMENTS = 'BP25' THEN TO_DATE('151014','YYMMDD')
+                 WHEN COMMENTS = 'BP24' THEN TO_DATE('150714','YYMMDD')
+                 WHEN COMMENTS = 'BP23' THEN TO_DATE('150414','YYMMDD')
+                 WHEN COMMENTS = 'BP22' THEN TO_DATE('150114','YYMMDD')
+                 WHEN COMMENTS = 'BP21' THEN TO_DATE('151013','YYMMDD')
+                 WHEN COMMENTS = 'BP20' THEN TO_DATE('150713','YYMMDD')
+                 WHEN COMMENTS = 'BP19' THEN TO_DATE('150613','YYMMDD')
+                 WHEN COMMENTS = 'BP18' THEN TO_DATE('150513','YYMMDD')
+                 WHEN COMMENTS = 'BP17' THEN TO_DATE('150413','YYMMDD')
+                 WHEN COMMENTS = 'BP16' THEN TO_DATE('150313','YYMMDD')
+                 WHEN COMMENTS = 'BP15' THEN TO_DATE('150213','YYMMDD')
+                 WHEN COMMENTS = 'BP14' THEN TO_DATE('150113','YYMMDD')
+                 WHEN COMMENTS = 'BP13' THEN TO_DATE('151212','YYMMDD')
+                 WHEN COMMENTS = 'BP12' THEN TO_DATE('151112','YYMMDD')
+                 WHEN COMMENTS = 'BP11' THEN TO_DATE('151012','YYMMDD')
+                 WHEN COMMENTS = 'BP10' THEN TO_DATE('150912','YYMMDD')
+                 WHEN COMMENTS = 'BP9'  THEN TO_DATE('150812','YYMMDD')
+                 WHEN COMMENTS = 'BP8'  THEN TO_DATE('150712','YYMMDD')
+                 WHEN COMMENTS = 'BP7'  THEN TO_DATE('150612','YYMMDD')
+                 WHEN COMMENTS = 'BP6'  THEN TO_DATE('150512','YYMMDD')
+                 WHEN COMMENTS = 'BP5'  THEN TO_DATE('150412','YYMMDD')
+                 WHEN COMMENTS = 'BP4'  THEN TO_DATE('150312','YYMMDD')
+                 WHEN COMMENTS = 'BP3'  THEN TO_DATE('150212','YYMMDD')
+                 WHEN COMMENTS = 'BP2'  THEN TO_DATE('150112','YYMMDD')
+                 WHEN COMMENTS = 'BP1'  THEN TO_DATE('151211','YYMMDD')
                  ELSE
-                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')			 
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
-             and COMMENTS like 'BP%'
+             and COMMENTS like 'BP%' order by action_time DESC) where rownum=1
          ),
          STATE as
          (
@@ -282,36 +283,37 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
         ),
          DATA as
          (
+                select * from (
             select
              case
-                 WHEN MAX(COMMENTS) = 'BP22' THEN TO_DATE('151013','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP21' THEN TO_DATE('150713','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP20' THEN TO_DATE('150413','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP19' THEN TO_DATE('150113','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP18' THEN TO_DATE('151012','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP17' THEN TO_DATE('150712','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP16' THEN TO_DATE('150412','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP15' THEN TO_DATE('150112','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP14' THEN TO_DATE('150112','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP13' THEN TO_DATE('151011','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP12' THEN TO_DATE('151011','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP11' THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP10' THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP9'  THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP8'  THEN TO_DATE('150411','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP7'  THEN TO_DATE('150411','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP6'  THEN TO_DATE('150411','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP5'  THEN TO_DATE('180311','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('170211','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('180111','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('171210','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('081210','YYMMDD')
+                 WHEN COMMENTS = 'BP22' THEN TO_DATE('151013','YYMMDD')
+                 WHEN COMMENTS = 'BP21' THEN TO_DATE('150713','YYMMDD')
+                 WHEN COMMENTS = 'BP20' THEN TO_DATE('150413','YYMMDD')
+                 WHEN COMMENTS = 'BP19' THEN TO_DATE('150113','YYMMDD')
+                 WHEN COMMENTS = 'BP18' THEN TO_DATE('151012','YYMMDD')
+                 WHEN COMMENTS = 'BP17' THEN TO_DATE('150712','YYMMDD')
+                 WHEN COMMENTS = 'BP16' THEN TO_DATE('150412','YYMMDD')
+                 WHEN COMMENTS = 'BP15' THEN TO_DATE('150112','YYMMDD')
+                 WHEN COMMENTS = 'BP14' THEN TO_DATE('150112','YYMMDD')
+                 WHEN COMMENTS = 'BP13' THEN TO_DATE('151011','YYMMDD')
+                 WHEN COMMENTS = 'BP12' THEN TO_DATE('151011','YYMMDD')
+                 WHEN COMMENTS = 'BP11' THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP10' THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP9'  THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP8'  THEN TO_DATE('150411','YYMMDD')
+                 WHEN COMMENTS = 'BP7'  THEN TO_DATE('150411','YYMMDD')
+                 WHEN COMMENTS = 'BP6'  THEN TO_DATE('150411','YYMMDD')
+                 WHEN COMMENTS = 'BP5'  THEN TO_DATE('180311','YYMMDD')
+                 WHEN COMMENTS = 'BP4'  THEN TO_DATE('170211','YYMMDD')
+                 WHEN COMMENTS = 'BP3'  THEN TO_DATE('180111','YYMMDD')
+                 WHEN COMMENTS = 'BP2'  THEN TO_DATE('171210','YYMMDD')
+                 WHEN COMMENTS = 'BP1'  THEN TO_DATE('081210','YYMMDD')
                  ELSE
-                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')				 
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
-             and COMMENTS like 'BP%'
+             and COMMENTS like 'BP%' order by action_time DESC) where rownum=1
          ),
          STATE as
          (
@@ -370,26 +372,27 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
         ),
          DATA as
          (
+                select * from (
             select
              case
-                 WHEN MAX(COMMENTS) = 'BP12' THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP11' THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP10' THEN TO_DATE('150411','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP9'  THEN TO_DATE('150711','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP8'  THEN TO_DATE('150111','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP7'  THEN TO_DATE('151010','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP6'  THEN TO_DATE('150710','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP5'  THEN TO_DATE('081210','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP4'  THEN TO_DATE('081210','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP3'  THEN TO_DATE('150410','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP2'  THEN TO_DATE('110310','YYMMDD')
-                 WHEN MAX(COMMENTS) = 'BP1'  THEN TO_DATE('100210','YYMMDD')
+                 WHEN COMMENTS = 'BP12' THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP11' THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP10' THEN TO_DATE('150411','YYMMDD')
+                 WHEN COMMENTS = 'BP9'  THEN TO_DATE('150711','YYMMDD')
+                 WHEN COMMENTS = 'BP8'  THEN TO_DATE('150111','YYMMDD')
+                 WHEN COMMENTS = 'BP7'  THEN TO_DATE('151010','YYMMDD')
+                 WHEN COMMENTS = 'BP6'  THEN TO_DATE('150710','YYMMDD')
+                 WHEN COMMENTS = 'BP5'  THEN TO_DATE('081210','YYMMDD')
+                 WHEN COMMENTS = 'BP4'  THEN TO_DATE('081210','YYMMDD')
+                 WHEN COMMENTS = 'BP3'  THEN TO_DATE('150410','YYMMDD')
+                 WHEN COMMENTS = 'BP2'  THEN TO_DATE('110310','YYMMDD')
+                 WHEN COMMENTS = 'BP1'  THEN TO_DATE('100210','YYMMDD')
                  ELSE
-                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')				 
+                    TO_DATE(substr(COMMENTS,3,7), 'YYMMDD')
              END as PSU_DATE
              from  registry$history
              where ACTION='APPLY'
-             and COMMENTS like 'BP%'
+             and COMMENTS like 'BP%' order by action_time DESC) where rownum=1
          ),
          STATE as
          (
