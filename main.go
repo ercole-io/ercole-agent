@@ -37,6 +37,7 @@ import (
 )
 
 var logger service.Logger
+var version string = "latest"
 
 type program struct{}
 
@@ -192,6 +193,7 @@ func buildData(configuration config.Configuration) {
 	}
 	hostData.Environment = configuration.Envtype
 	hostData.Location = configuration.Location
+	hostData.Version = version
 
 	// Fill index fields
 	hdDatabases := ""

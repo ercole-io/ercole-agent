@@ -20,6 +20,7 @@ type HostData struct {
 	Hostname    string
 	Environment string
 	Location    string
+	Version     string
 	Databases   string
 	Schemas     string
 	Info        Host

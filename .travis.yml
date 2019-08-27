@@ -44,6 +44,8 @@ install:
 
 script:
   - if [ $DIST == "rhel5" ]; then mkdir -p ${GOPATH}/src/github.com/ercole-io; fi
+  - sed 's/"latest"/"${VERSION}"/' main.go > /tmp/main.go
+  - cp /tmp/main.go main.go
   - go build -o ${BIN} main.go
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
