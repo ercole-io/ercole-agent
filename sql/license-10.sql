@@ -164,13 +164,13 @@ end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Real Application Clusters;'||:ONE ||';' 
+'Real Application Clusters;'||:RAC ||';' 
 else 'Real Application Clusters;;'
 end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Real Application Clusters One Node;'||:RAC ||';' 
+'Real Application Clusters One Node;'||:ONE ||';' 
 else 'Real Application Clusters One Node;;'
 end
 from dual;
