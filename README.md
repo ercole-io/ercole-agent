@@ -1,5 +1,5 @@
 # ercole-agent
-[![Build Status](https://travis-ci.org/amreo/ercole-agent.svg?branch=master)](https://travis-ci.org/amreo/ercole-agent)
+[![Build Status](https://travis-ci.org/ercole-io/ercole-agent.svg?branch=master)](https://travis-ci.org/ercole-io/ercole-agent)
 
 This is the agent component for the Ercole project. Documentation available [here](https://ercole.netlify.com).
 
