@@ -16,104 +16,46 @@
 package marshal
 
 import (
-	"log"
+	"bufio"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/ercole-io/ercole-agent/model"
 )
 
 // Database returns information about database extracted
 // from the db fetcher command output.
 func Database(cmdOutput []byte) model.Database {
-
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(cmdOutput)))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	var db model.Database
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
-	doc.Find("tr").Each(func(r int, row *goquery.Selection) { // there should be only one
-
-		sel := row.Find("td")
-
-		for i := range sel.Nodes {
-			single := sel.Eq(i)
-			value := cleanTr(single.Text())
-			if i == 0 {
-				db.Name = value
-			}
-			if i == 1 {
-				db.UniqueName = value
-			}
-			if i == 2 {
-				db.InstanceNumber = value
-			}
-			if i == 3 {
-				db.Status = value
-			}
-			if i == 4 {
-				db.Version = value
-			}
-			if i == 5 {
-				db.Platform = value
-			}
-			if i == 6 {
-				db.Archivelog = value
-			}
-			if i == 7 {
-				db.Charset = value
-			}
-			if i == 8 {
-				db.NCharset = value
-			}
-			if i == 9 {
-				db.BlockSize = value
-			}
-			if i == 10 {
-				db.CPUCount = value
-			}
-			if i == 11 {
-				db.SGATarget = value
-			}
-			if i == 12 {
-				db.PGATarget = value
-			}
-			if i == 13 {
-				db.MemoryTarget = value
-			}
-			if i == 14 {
-				db.SGAMaxSize = value
-			}
-			if i == 15 {
-				db.SegmentsSize = value
-			}
-			if i == 16 {
-				db.Used = value
-			}
-			if i == 17 {
-				db.Allocated = value
-			}
-			if i == 18 {
-				db.Elapsed = value
-			}
-			if i == 19 {
-				db.DBTime = value
-			}
-			if i == 20 {
-				db.Work = value
-			}
-			if i == 21 {
-				db.ASM = parseBool(value)
-			}
-			if i == 22 {
-				db.Dataguard = parseBool(value)
-			}
+	for scanner.Scan() {
+		line := scanner.Text()
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 23 {
+			db.Name = strings.TrimSpace(splitted[0])
+			db.UniqueName = strings.TrimSpace(splitted[1])
+			db.InstanceNumber = strings.TrimSpace(splitted[2])
+			db.Status = strings.TrimSpace(splitted[3])
+			db.Version = strings.TrimSpace(splitted[4])
+			db.Platform = strings.TrimSpace(splitted[5])
+			db.Archivelog = strings.TrimSpace(splitted[6])
+			db.Charset = strings.TrimSpace(splitted[7])
+			db.NCharset = strings.TrimSpace(splitted[8])
+			db.BlockSize = strings.TrimSpace(splitted[9])
+			db.CPUCount = strings.TrimSpace(splitted[10])
+			db.SGATarget = strings.TrimSpace(splitted[11])
+			db.PGATarget = strings.TrimSpace(splitted[12])
+			db.MemoryTarget = strings.TrimSpace(splitted[13])
+			db.SGAMaxSize = strings.TrimSpace(splitted[14])
+			db.SegmentsSize = strings.TrimSpace(splitted[15])
+			db.Used = strings.TrimSpace(splitted[16])
+			db.Allocated = strings.TrimSpace(splitted[17])
+			db.Elapsed = strings.TrimSpace(splitted[18])
+			db.DBTime = strings.TrimSpace(splitted[19])
+			db.Work = strings.TrimSpace(splitted[20])
+			db.ASM = parseBool(strings.TrimSpace(splitted[21]))
+			db.Dataguard = parseBool(strings.TrimSpace(splitted[22]))
 		}
-
-	})
-
+	}
 	return db
 }
