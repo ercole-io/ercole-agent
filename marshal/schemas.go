@@ -16,57 +16,32 @@
 package marshal
 
 import (
-	"log"
+	"bufio"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/ercole-io/ercole-agent/model"
 )
 
 // Schemas returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
 func Schemas(cmdOutput []byte) []model.Schema {
+	schemas := []model.Schema{}
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(cmdOutput)))
+	for scanner.Scan() {
+		schema := new(model.Schema)
+		line := scanner.Text()
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 8 {
+			schema.Database = strings.TrimSpace(splitted[2])
+			schema.User = strings.TrimSpace(splitted[3])
+			schema.Total = parseInt(strings.TrimSpace(splitted[4]))
+			schema.Tables = parseInt(strings.TrimSpace(splitted[5]))
+			schema.Indexes = parseInt(strings.TrimSpace(splitted[6]))
+			schema.LOB = parseInt(strings.TrimSpace(splitted[7]))
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var scs []model.Schema
-
-	doc.Find("tr").Each(func(r int, row *goquery.Selection) {
-
-		var sc model.Schema
-
-		sel := row.Find("td")
-
-		for i := range sel.Nodes {
-			single := sel.Eq(i)
-			value := cleanTr(single.Text())
-			if i == 2 {
-				sc.Database = value
-			}
-			if i == 3 {
-				sc.User = value
-			}
-			if i == 4 {
-				sc.Total = parseInt(value)
-			}
-			if i == 5 {
-				sc.Tables = parseInt(value)
-			}
-			if i == 6 {
-				sc.Indexes = parseInt(value)
-			}
-			if i == 7 {
-				sc.LOB = parseInt(value)
-			}
+			schemas = append(schemas, *schema)
 		}
-
-		scs = append(scs, sc)
-
-	})
-
-	return scs
+	}
+	return schemas
 }

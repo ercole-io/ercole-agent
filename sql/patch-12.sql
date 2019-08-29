@@ -13,9 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set linesize 132  verify off
-set pagesize 0 feedback off
-set markup html on spool on
+set lines 8000 pages 0 feedback off verify off
+set colsep "|||"
 
 column "Nome_Acronimo" for a8
 column "DB_Name" for a10

@@ -16,60 +16,33 @@
 package marshal
 
 import (
-	"log"
+	"bufio"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/ercole-io/ercole-agent/model"
 )
 
 // Tablespaces returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
 func Tablespaces(cmdOutput []byte) []model.Tablespace {
+	tablespaces := []model.Tablespace{}
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(cmdOutput)))
+	for scanner.Scan() {
+		tablespace := new(model.Tablespace)
+		line := scanner.Text()
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 9 {
+			tablespace.Database = strings.TrimSpace(splitted[2])
+			tablespace.Name = strings.TrimSpace(splitted[3])
+			tablespace.MaxSize = strings.TrimSpace(splitted[4])
+			tablespace.Total = strings.TrimSpace(splitted[5])
+			tablespace.Used = strings.TrimSpace(splitted[6])
+			tablespace.UsedPerc = strings.TrimSpace(splitted[7])
+			tablespace.Status = strings.TrimSpace(splitted[8])
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var tbs []model.Tablespace
-
-	doc.Find("tr").Each(func(r int, row *goquery.Selection) {
-
-		var ts model.Tablespace
-
-		sel := row.Find("td")
-
-		for i := range sel.Nodes {
-			single := sel.Eq(i)
-			value := cleanTr(single.Text())
-			if i == 2 {
-				ts.Database = value
-			}
-			if i == 3 {
-				ts.Name = value
-			}
-			if i == 4 {
-				ts.MaxSize = value
-			}
-			if i == 5 {
-				ts.Total = value
-			}
-			if i == 6 {
-				ts.Used = value
-			}
-			if i == 7 {
-				ts.UsedPerc = value
-			}
-			if i == 8 {
-				ts.Status = value
-			}
+			tablespaces = append(tablespaces, *tablespace)
 		}
-
-		tbs = append(tbs, ts)
-
-	})
-
-	return tbs
+	}
+	return tablespaces
 }

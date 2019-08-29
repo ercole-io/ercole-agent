@@ -16,57 +16,32 @@
 package marshal
 
 import (
-	"log"
+	"bufio"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/ercole-io/ercole-agent/model"
 )
 
 // Patches returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
 func Patches(cmdOutput []byte) []model.Patch {
-
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(cmdOutput)))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	patches := []model.Patch{}
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
-	doc.Find("tr").Each(func(r int, row *goquery.Selection) {
+	for scanner.Scan() {
+		patch := new(model.Patch)
+		line := scanner.Text()
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 9 {
+			patch.Database = strings.TrimSpace(splitted[3])
+			patch.Version = strings.TrimSpace(splitted[4])
+			patch.PatchID = strings.TrimSpace(splitted[5])
+			patch.Action = strings.TrimSpace(splitted[6])
+			patch.Description = strings.TrimSpace(splitted[7])
+			patch.Date = strings.TrimSpace(splitted[8])
 
-		var p model.Patch
-
-		sel := row.Find("td")
-
-		for i := range sel.Nodes {
-			single := sel.Eq(i)
-			value := cleanTr(single.Text())
-			if i == 3 {
-				p.Database = value
-			}
-			if i == 4 {
-				p.Version = value
-			}
-			if i == 5 {
-				p.PatchID = value
-			}
-			if i == 6 {
-				p.Action = value
-			}
-			if i == 7 {
-				p.Description = value
-			}
-			if i == 8 {
-				p.Date = value
-			}
+			patches = append(patches, *patch)
 		}
-
-		patches = append(patches, p)
-
-	})
-
+	}
 	return patches
 }
