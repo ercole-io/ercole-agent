@@ -101,7 +101,7 @@ func buildData(configuration config.Configuration) {
 	out = fetcher(configuration, "filesystem")
 	filesystems := marshal.Filesystems(out)
 
-	out = fetcher(configuration, "oratab")
+	out = fetcher(configuration, "oratab", configuration.Oratab)
 	dbs := marshal.Oratab(out)
 
 	var databases []model.Database = []model.Database{}

@@ -8,5 +8,6 @@
     "frequency": 24,
     "forcestats": true,
     "enableservervalidation": false,
-    "forcepwshversion": "0"
+    "forcepwshversion": "0",
+    "oratab": "/etc/oratab"
 }
