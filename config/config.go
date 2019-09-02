@@ -71,6 +71,10 @@ func ReadConfig() Configuration {
 		log.Fatal("Unable to parse configuration file", err)
 	}
 
+	if conf.Oratab == "" {
+		conf.Oratab = "/etc/oratab"
+	}
+
 	return conf
 }
 
