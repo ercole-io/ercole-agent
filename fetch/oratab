@@ -15,4 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-grep -o '^[A-Za-Z0-9].*\:\/' /etc/oratab |awk -F ':' '{print $1}'
+ORATAB=$1
+
+if [ -z "$ORATAB" ]; then
+  echo "Missing ORATAB parameter"
+  exit 1
+fi
+
+grep -o '^[A-Za-Z0-9].*\:\/' $ORATAB|awk -F ':' '{print $1}'
