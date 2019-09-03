@@ -76,3 +76,8 @@ deploy:
   file_glob: true
   file: dist/*
   skip_cleanup: true
+  name: "latest"
+  body: "latest"
+  prerelease: true
+  overwrite: true
+
