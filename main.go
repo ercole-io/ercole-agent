@@ -108,11 +108,11 @@ func buildData(configuration config.Configuration) {
 
 	for _, db := range dbs {
 
-		out = fetcher(configuration, "dbstatus", db)
+		out = fetcher(configuration, "dbstatus", db.DBName, db.OracleHome)
 		dbStatus := strings.TrimSpace(string(out))
 
 		if dbStatus == "OPEN" {
-			out = fetcher(configuration, "dbversion", db)
+			out = fetcher(configuration, "dbversion", db.DBName, db.OracleHome)
 			outVersion := string(out)
 
 			dbVersion := "12"
@@ -125,42 +125,42 @@ func buildData(configuration config.Configuration) {
 			}
 
 			if configuration.Forcestats {
-				fetcher(configuration, "stats", db, dbVersion)
+				fetcher(configuration, "stats", db.DBName, db.OracleHome)
 			}
 
-			out = fetcher(configuration, "db", db, dbVersion)
+			out = fetcher(configuration, "db", db.DBName, db.OracleHome)
 			database := marshal.Database(out)
 
-			out = fetcher(configuration, "tablespace", db, dbVersion)
+			out = fetcher(configuration, "tablespace", db.DBName, db.OracleHome)
 			database.Tablespaces = marshal.Tablespaces(out)
 
-			out = fetcher(configuration, "schema", db, dbVersion)
+			out = fetcher(configuration, "schema", db.DBName, db.OracleHome)
 			database.Schemas = marshal.Schemas(out)
 
-			out = fetcher(configuration, "patch", db, dbVersion)
+			out = fetcher(configuration, "patch", db.DBName, dbVersion, db.OracleHome)
 			database.Patches = marshal.Patches(out)
 
-			out = fetcher(configuration, "feature", db, dbVersion)
+			out = fetcher(configuration, "feature", db.DBName, dbVersion, db.OracleHome)
 			database.Features = marshal.Features(out)
 
-			out = fetcher(configuration, "license", db, dbVersion, host.Type)
+			out = fetcher(configuration, "license", db.DBName, dbVersion, host.Type, db.OracleHome)
 			database.Licenses = marshal.Licenses(out)
 
-			out = fetcher(configuration, "addm", db, dbVersion)
+			out = fetcher(configuration, "addm", db.DBName, db.OracleHome)
 			database.ADDMs = marshal.Addms(out)
 
-			out = fetcher(configuration, "segmentadvisor", db, dbVersion)
+			out = fetcher(configuration, "segmentadvisor", db.DBName, db.OracleHome)
 			database.SegmentAdvisors = marshal.SegmentAdvisor(out)
 
-			out = fetcher(configuration, "psu", db, dbVersion)
+			out = fetcher(configuration, "psu", db.DBName, dbVersion, db.OracleHome)
 			database.LastPSUs = marshal.PSU(out)
 
-			out = fetcher(configuration, "backup", db, dbVersion)
+			out = fetcher(configuration, "backup", db.DBName, db.OracleHome)
 			database.Backups = marshal.Backups(out)
 
 			databases = append(databases, database)
 		} else if dbStatus == "MOUNTED" {
-			out = fetcher(configuration, "dbmounted", db)
+			out = fetcher(configuration, "dbmounted", db.DBName, db.OracleHome)
 			database := marshal.Database(out)
 			database.Tablespaces = []model.Tablespace{}
 			database.Schemas = []model.Schema{}
