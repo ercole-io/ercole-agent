@@ -18,6 +18,7 @@
 SID=$1
 DBV=$2
 TYPE=$3
+HOME=$4
 
 if [ -z "$SID" ]; then
   echo "Missing SID parameter"
@@ -34,12 +35,19 @@ if [ -z "$DBV" ]; then
   exit 1
 fi
 
+if [ -z "$HOME" ]; then
+  echo "Missing ORACLE_HOME parameter"
+  exit 1
+fi
+
+
 ERCOLE_HOME=$(dirname "$0")
 ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
 
 export ORAENV_ASK=NO 
 export ORACLE_SID=$SID
-. oraenv 1>/dev/null
+export ORACLE_HOME=$HOME
+export PATH=$HOME/bin:$PATH
 
 DB_VERSION=$(sqlplus -S / as sysdba << EOF
 set pages 0 feedback off

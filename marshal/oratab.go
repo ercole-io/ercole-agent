@@ -18,18 +18,26 @@ package marshal
 import (
 	"bufio"
 	"strings"
+
+	"github.com/ercole-io/ercole-agent/model"
 )
 
 // Oratab marshals a list of dbs (one per line)
-func Oratab(cmdOutput []byte) []string {
+func Oratab(cmdOutput []byte) []model.OratabEntry {
 
-	var dbs []string
+	var oratab []model.OratabEntry
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 	for scanner.Scan() {
+		oratabEntry := model.OratabEntry{}
 		line := scanner.Text()
-		dbs = append(dbs, line)
+		splitted := strings.Split(line, ":")
+
+		oratabEntry.DBName = strings.TrimSpace(splitted[0])
+		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
+
+		oratab = append(oratab, oratabEntry)
 	}
 
-	return dbs
+	return oratab
 }

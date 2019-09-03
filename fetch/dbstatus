@@ -16,15 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SID=$1
+HOME=$2
 
 if [ -z "$SID" ]; then
   echo "Missing SID parameter"
   exit 1
 fi
+if [ -z "$HOME" ]; then
+  echo "Missing ORACLE_HOME parameter"
+  exit 1
+fi
 
 export ORAENV_ASK=NO 
 export ORACLE_SID=$SID
-. oraenv 1>/dev/null
+export ORACLE_HOME=$HOME
+export PATH=$HOME/bin:$PATH
 
 DB_STATUS=$(sqlplus -S / as sysdba << EOF
 set pages 0 feedback off
