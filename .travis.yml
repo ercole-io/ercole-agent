@@ -76,3 +76,17 @@ deploy:
   file_glob: true
   file: dist/*
   skip_cleanup: true
+  on:
+    tags: true
+
+deploy:
+  provider: releases
+  api_key:
+    secure: VAoAAMeiY8aPNruKyuor2Q1PmCjjzkN/dhc0GS0/YOVg6QAPptCCIlPIlUf696VPwM6Gbc/m2QIwZXClGo1aWnwGC2rHMtkTNd+gti04QxDkFxkMn5BiA36nZA7t1CKme7LiwnqFNnMySF65ZEnVFsAzO8GP6cPIzVqWLdtviu7K3vEVdD7LLbFVdpT5hHKlvdCb0ddKgY8iifD/CSf3f1ZwV4l1ZlLrJuouH0x3XKtOFTrV3jcPMuSXc//8G8SdxI9Xa/uab2zywLfxnWFNMal5tFLyOOn2MuFIE/PA6R4ZKSahtC43aG+x+G2wDDkpUVSBNlDSFZ3rO254lx3HcaWxdKKQflPf+rU2wnkHU4N1zEhTKBzC7QzvyPqe1nTks9P8RG0WuC+s8C9iINmrb1oLJGVp2cy49sJsQywiUpWGQODzA+HeTe+c+P7zy2yfmraACBM1pO26QjirukHRQLoEHTrh052seHuvmzT5ppj+Xvw0UOPVpobQVHhk8WludQijTt6FMpPrKFW02kDi9jB4PaqOgB0wdtVm34bhcbYQvvHU+lVU6FY6Ak0RDoO+2+owFFovkS0DDoXT2TcjLOONGmaiqMj0gsPpgxjIta73OIkL8Rc8Pk6zptLhiqBCGOZ7AXn7KugzpY+ugiJRt9GsMoMhp4UyUYcHUdNuCl4=
+  file_glob: true
+  file: dist/*
+  skip_cleanup: true
+  name: "latest"
+  body: "latest"
+  prerelease: true
+  overwrite: true
