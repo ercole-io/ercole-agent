@@ -33,7 +33,7 @@ matrix:
  
 before_install:
   - sudo docker pull ${PACKAGE_BUILD_IMAGE}
-  - if [ -z ${TRAVIS_TAG} ] || [ ${TRAVIS_TAG} == *-* ]; then export VERSION=latest; else export VERSION=${TRAVIS_TAG}; fi
+  - if [ -z ${TRAVIS_TAG} ] || [[ ${TRAVIS_TAG} == *-* ]]; then export VERSION=latest; else export VERSION=${TRAVIS_TAG}; fi
   - echo ${TRAVIS_TAG}
   - echo ${VERSION}
 
