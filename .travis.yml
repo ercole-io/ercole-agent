@@ -69,13 +69,12 @@ after_success:
   - env
   - ls dist
  
- before_deploy:
-    - git tag -f travis-${VERSION}-build
-    - git remote add gh
-      https://simonerota:${GITHUB_RELEASE_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
-    - git push gh travis-${VERSION}-build || true
-    - git push -f gh travis-${VERSION}-build
-    - git remote remove gh
+before_deploy:
+  - git tag -f travis-${VERSION}-build
+  - git remote add gh https://simonerota:${GITHUB_RELEASE_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
+  - git push gh travis-${VERSION}-build || true
+  - git push -f gh travis-${VERSION}-build
+  - git remote remove gh
 
 deploy:
   provider: releases
