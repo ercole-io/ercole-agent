@@ -22,4 +22,4 @@ if [ -z "$ORATAB" ]; then
   exit 1
 fi
 
-sed 's/#.*$//' $ORATAB | grep -v "^$"
+sed 's/#.*$//' $ORATAB | grep -v "^$" | grep "^\s*[A-Za-z0-9].*\s*\:"
