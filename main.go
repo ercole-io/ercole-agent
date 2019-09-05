@@ -141,7 +141,12 @@ func buildData(configuration config.Configuration) {
 			database.Patches = marshal.Patches(out)
 
 			out = fetcher(configuration, "feature", db.DBName, dbVersion, db.OracleHome)
-			database.Features = marshal.Features(out)
+			if strings.Contains(string(out), "deadlocked on readable physical standby") {
+				log.Println("Detected bug active dataguard 2311894.1!")
+				database.Features = []model.Feature{}
+			} else {
+				database.Features = marshal.Features(out)
+			}
 
 			out = fetcher(configuration, "license", db.DBName, dbVersion, host.Type, db.OracleHome)
 			database.Licenses = marshal.Licenses(out)
