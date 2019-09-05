@@ -13,7 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set lines 16000 pages 0 feedback off verify off
+set lines 32767 pages 0 feedback off verify off
 set colsep "|||"
 col owner for a30
 col Nome_Acronimo for a8
