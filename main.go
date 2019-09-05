@@ -198,6 +198,7 @@ func buildData(configuration config.Configuration) {
 	}
 	hostData.Environment = configuration.Envtype
 	hostData.Location = configuration.Location
+	hostData.HostType = configuration.HostType
 	hostData.Version = version
 
 	// Fill index fields
