@@ -29,6 +29,7 @@ type Configuration struct {
 	Hostname               string
 	Envtype                string
 	Location               string
+	HostType               string
 	Serverurl              string
 	Serverusr              string
 	Serverpsw              string
@@ -73,6 +74,9 @@ func ReadConfig() Configuration {
 
 	if conf.Oratab == "" {
 		conf.Oratab = "/etc/oratab"
+	}
+	if conf.HostType == "" {
+		conf.HostType = "oracledb"
 	}
 
 	return conf
