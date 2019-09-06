@@ -19,6 +19,8 @@ branches:
   except:
     - /^travis-.*-build$/
 
+tags
+
 # go:
 #   global:
 #     - 1.12.x
@@ -73,11 +75,11 @@ after_success:
   - ls dist
  
 before_deploy:
-  - git tag -f travis-${VERSION}-build
-  - git remote add gh https://simonerota:${GITHUB_RELEASE_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git
-  - git push gh travis-${VERSION}-build || true
-  - git push -f gh travis-${VERSION}-build
-  - git remote remove gh
+  - if [[ ${VERSION} == "latest" ]]; then git tag -f travis-${VERSION}-build; fi
+  - if [[ ${VERSION} == "latest" ]]; then git remote add gh https://simonerota:${GITHUB_RELEASE_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git; fi
+  - if [[ ${VERSION} == "latest" ]]; then git push gh travis-${VERSION}-build || true; fi
+  - if [[ ${VERSION} == "latest" ]]; then git push -f gh travis-${VERSION}-build; fi
+  - if [[ ${VERSION} == "latest" ]]; then git remote remove gh; fi
 
 deploy:
   provider: releases
