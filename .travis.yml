@@ -71,10 +71,11 @@ after_success:
  
 before_deploy:
   - git tag -f travis-${VERSION}-build
-  - git remote add gh https://simonerota:${GITHUB_RELEASE_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
+  - git remote add gh https://simonerota:${GITHUB_RELEASE_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git
   - git push gh travis-${VERSION}-build || true
   - git push -f gh travis-${VERSION}-build
   - git remote remove gh
+  - echo "Hello"
 
 deploy:
   provider: releases
@@ -84,3 +85,5 @@ deploy:
   skip_cleanup: true
   name: $VERSION
   overwrite: true
+  on:
+    tags: false
