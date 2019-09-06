@@ -75,7 +75,6 @@ before_deploy:
   - git push gh travis-${VERSION}-build || true
   - git push -f gh travis-${VERSION}-build
   - git remote remove gh
-  - echo "Hello"
 
 deploy:
   provider: releases
