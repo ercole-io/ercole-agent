@@ -18,9 +18,7 @@ env:
 branches:
   except:
     - /^travis-.*-build$/
-
-tags
-
+    
 # go:
 #   global:
 #     - 1.12.x
@@ -90,5 +88,4 @@ deploy:
   name: $VERSION
   overwrite: true
   on:
-    tags: false
     all_branches: true
