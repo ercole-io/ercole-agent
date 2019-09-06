@@ -82,7 +82,5 @@ deploy:
   file_glob: true
   file: dist/*
   skip_cleanup: true
-  on:
-    tags: true
   name: $VERSION
   overwrite: true
