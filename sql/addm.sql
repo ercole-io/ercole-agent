@@ -145,12 +145,11 @@ and trunc(s.END_INTERVAL_TIME) >= trunc(sysdate - &&num_days) ;
         END IF;      
      END IF;     
   END IF;
-
-/* Delete ADDM TASK for instance */
-exec dbms_addm.delete('ERCOLE_TASK');
-
 END IF;
 END;
 /
+
+/* Delete ADDM TASK for instance */
+exec dbms_addm.delete('ERCOLE_TASK');
 
 exit
