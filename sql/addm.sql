@@ -140,7 +140,7 @@ and trunc(s.END_INTERVAL_TIME) >= trunc(sysdate - &&num_days) ;
              and d.TASK_NAME=f.TASK_NAME
              and r.REC_ID=a.REC_ID
              and f.FINDING_ID=r.FINDING_ID
-         --    and ROUND((100*r.BENEFIT)/d.DB_TIME,2) >=20
+             and ROUND((100*r.BENEFIT)/d.DB_TIME,2) >=20
              order by 6 desc;
         END IF;      
      END IF;     
