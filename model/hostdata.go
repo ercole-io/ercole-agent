@@ -17,13 +17,14 @@ package model
 
 // HostData holds the whole information that will be sent to the server.
 type HostData struct {
-	Hostname    string
-	Environment string
-	Location    string
-	HostType    string
-	Version     string
-	Databases   string
-	Schemas     string
-	Info        Host
-	Extra       ExtraInfo
+	Hostname              string
+	Environment           string
+	Location              string
+	HostType              string
+	Version               string
+	HostDataSchemaVersion int
+	Databases             string
+	Schemas               string
+	Info                  Host
+	Extra                 ExtraInfo
 }

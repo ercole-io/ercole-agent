@@ -37,7 +37,8 @@ import (
 )
 
 var logger service.Logger
-var version string = "latest"
+var version = "latest"
+var hostDataSchemaVersion = 1
 
 type program struct{}
 
@@ -104,7 +105,7 @@ func buildData(configuration config.Configuration) {
 	out = fetcher(configuration, "oratab", configuration.Oratab)
 	dbs := marshal.Oratab(out)
 
-	var databases []model.Database = []model.Database{}
+	var databases = []model.Database{}
 
 	for _, db := range dbs {
 
@@ -200,6 +201,7 @@ func buildData(configuration config.Configuration) {
 	hostData.Location = configuration.Location
 	hostData.HostType = configuration.HostType
 	hostData.Version = version
+	hostData.HostDataSchemaVersion = hostDataSchemaVersion
 
 	// Fill index fields
 	hdDatabases := ""
