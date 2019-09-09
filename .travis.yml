@@ -73,10 +73,10 @@ after_success:
   - ls dist
  
 before_deploy:
-  - if [[ ${VERSION} == "latest" ]]; then git tag -f travis-${VERSION}-build; fi
+  - if [[ ${VERSION} == "latest" ]]; then git tag -f latest; fi
   - if [[ ${VERSION} == "latest" ]]; then git remote add gh https://simonerota:${GITHUB_RELEASE_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git; fi
-  - if [[ ${VERSION} == "latest" ]]; then git push gh travis-${VERSION}-build || true; fi
-  - if [[ ${VERSION} == "latest" ]]; then git push -f gh travis-${VERSION}-build; fi
+  - if [[ ${VERSION} == "latest" ]]; then git push gh latest || true; fi
+  - if [[ ${VERSION} == "latest" ]]; then git push -f gh latest; fi
   - if [[ ${VERSION} == "latest" ]]; then git remote remove gh; fi
 
 deploy:
