@@ -145,6 +145,9 @@ func buildData(configuration config.Configuration) {
 			if strings.Contains(string(out), "deadlocked on readable physical standby") {
 				log.Println("Detected bug active dataguard 2311894.1!")
 				database.Features = []model.Feature{}
+			} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
+				log.Println("Detected error on active dataguard ORA-01555!")
+				database.Features = []model.Feature{}
 			} else {
 				database.Features = marshal.Features(out)
 			}
