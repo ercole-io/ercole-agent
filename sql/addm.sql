@@ -17,7 +17,7 @@ set lines 8000 pages 0 feedback off verify off
 set colsep "|||"
 set serverout on
 set autoprint on
-col HOST_NAME for a30
+col HOST_NAME for a60
 col TASK_NAME for a15 
 col "BENEFIT_%" for 999.99
 col FINDING for a600 
