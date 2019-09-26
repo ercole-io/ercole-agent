@@ -322,6 +322,9 @@ case
           when LTRIM(product,'.') like 'Partitioning' and usage is NULL and (select count(*) from dba_tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0
           then 
 		  to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
+																									WHEN LTRIM(product,'.') LIKE 'Active Data Guard'
+                                                                                                        AND (select usage from TAB where LTRIM(product,'.') LIKE 'GoldenGate' )>0
+                                                                                                        THEN ''||';'
           else 
 		  to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
       end	
