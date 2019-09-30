@@ -32,6 +32,12 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
+RUNNING=$(ps -ef | grep pmon_$SID | grep -v grep | wc -l)
+if [ "$RUNNING" -eq "0" ]; then
+  echo "unreachable!"
+  exit 0
+fi
+
 DB_STATUS=$(sqlplus -S / as sysdba << EOF
 set pages 0 feedback off
 select status from v\$instance;
