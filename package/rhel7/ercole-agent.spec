@@ -6,8 +6,8 @@ Summary:        Agent for ercole
 License:        Proprietary
 URL:            https://github.com/ercole-io/%{name}
 Source0:        https://github.com/ercole-io/%{name}/archive/%{name}-%{version}.tar.gz
-Requires: bc
-
+Requires: bc systemd
+BuildRequires: systemd
 
 Group:          Tools
 
@@ -34,13 +34,24 @@ exit 0
 %prep
 %setup -q -n %{name}-%{version}
 
-rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT/opt/ercole-agent install
-install -d $RPM_BUILD_ROOT/etc/systemd/system
-install -d $RPM_BUILD_ROOT/opt/ercole-agent/run
-install -m 644 package/rhel7/ercole-agent.service $RPM_BUILD_ROOT/etc/systemd/system/ercole-agent.service
+rm -rf %{buildroot}
+make DESTDIR=%{buildroot}/opt/ercole-agent install
+install -d %{buildroot}/etc/systemd/system
+install -d %{buildroot}/opt/ercole-agent/run
+install -d %{buildroot}%{_unitdir} 
+install -d %{buildroot}%{_presetdir}
+install -m 0644 package/rhel7/ercole-agent.service %{buildroot}%{_unitdir}/%{name}.service
+install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/60-%{name}.preset
 
 %post
+/usr/bin/systemctl preset %{name}.service >/dev/null 2>&1 ||:
+
+%preun
+/usr/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
+/usr/bin/systemctl stop %{name}.service >/dev/null 2>&1 ||:
+
+%postun
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 ||:
 
 %files
 %attr(-,ercole,-) /opt/ercole-agent/run
@@ -68,7 +79,6 @@ install -m 644 package/rhel7/ercole-agent.service $RPM_BUILD_ROOT/etc/systemd/sy
 /opt/ercole-agent/sql/schema.sql
 /opt/ercole-agent/sql/stats.sql
 /opt/ercole-agent/sql/ts.sql
-/etc/systemd/system/ercole-agent.service
 /opt/ercole-agent/fetch/dbmounted
 /opt/ercole-agent/fetch/dbversion
 /opt/ercole-agent/sql/dbmounted.sql
@@ -87,7 +97,8 @@ install -m 644 package/rhel7/ercole-agent.service $RPM_BUILD_ROOT/etc/systemd/sy
 /opt/ercole-agent/sql/segment_advisor.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/dbone.sql
-
+%{_unitdir}/ercole-agent.service
+%{_presetdir}/60-ercole-agent.preset
 
 %changelog
 * Mon May  7 2018 Simone Rota <srota2@sorint.it>
