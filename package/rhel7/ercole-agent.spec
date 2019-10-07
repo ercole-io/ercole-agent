@@ -97,8 +97,8 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/segment_advisor.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/dbone.sql
-%{_unitdir}/ercole-server.service
-%{_presetdir}/60-ercole-server.preset
+%{_unitdir}/ercole-agent.service
+%{_presetdir}/60-ercole-agent.preset
 
 %changelog
 * Mon May  7 2018 Simone Rota <srota2@sorint.it>
