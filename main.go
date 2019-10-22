@@ -38,7 +38,7 @@ import (
 
 var logger service.Logger
 var version = "latest"
-var hostDataSchemaVersion = 1
+var hostDataSchemaVersion = 3
 
 type program struct{}
 
