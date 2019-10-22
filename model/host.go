@@ -33,4 +33,5 @@ type Host struct {
 	OracleCluster  bool
 	VeritasCluster bool
 	SunCluster     bool
+	AixCluster     bool
 }
