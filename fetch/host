@@ -96,4 +96,5 @@ memorytotal: $MEM_TOTAL
 swaptotal: $SWP_TOTAL
 oraclecluster: $ORACLE_CLUSTER
 veritascluster: $VERITAS_CLUSTER
-suncluster: $SUN_CLUSTER" 
+suncluster: $SUN_CLUSTER
+aixcluster: N" 

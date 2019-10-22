@@ -88,6 +88,7 @@ function getSysinfo {
 	Write-Host "OracleCluster: N"
 	Write-Host "VeritasCluster: N"
 	Write-Host "SunCluster: N"
+	Write-Host "AixCluster: N"
 }
 
 function getPartitions {
