@@ -13,8 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set markup html on spool on
-set lines 200 pages 0 feedback off verify off
+set lines 32767 pages 0 feedback off verify off
+set colsep "|||"
 col owner for a30
 col Nome_Acronimo for a8
 col segment_name for a60
@@ -22,6 +22,7 @@ col segment_name for a60
 select 
 (select value from v$parameter where name='db_name') as Nome_DB,
 (select db_unique_name from v$database) as DB_Unique_name,
+(select instance_number from v$instance) as Instance_number,
 (select status from v$instance) as DB_Status,
 ((SELECT version FROM V$INSTANCE)||(select (case when UPPER(banner) like '%EXTREME%' then ' Extreme Edition' when UPPER(banner) like '%ENTERPRISE%' then ' Enterprise Edition' else ' Standard Edition' end) from v$version where rownum=1)) as Versione,
 (SELECT platform_name  FROM V$database) as platform,
