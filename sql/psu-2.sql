@@ -44,11 +44,12 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
 		(
 			select 
 			case
-				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = '1' THEN TO_DATE('140114','YYMMDD') 
-				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = '2' THEN TO_DATE('150120','YYMMDD') 
-				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = '3' THEN TO_DATE('150414','YYMMDD') 
-				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = '4' THEN TO_DATE('150714','YYMMDD') 
-				WHEN substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1) = '5' THEN TO_DATE('151020','YYMMDD') 
+		    WHEN length(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1)) = 6 THEN TO_DATE(substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,7),'YYMMDD')
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '1' THEN TO_DATE('140114','YYMMDD') 
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '2' THEN TO_DATE('150120','YYMMDD') 
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '3' THEN TO_DATE('150414','YYMMDD') 
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '4' THEN TO_DATE('150714','YYMMDD') 
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '5' THEN TO_DATE('151020','YYMMDD') 
 				ELSE
 					TO_DATE(substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,7),'YYMMDD')
 			END as PSU_DATE
