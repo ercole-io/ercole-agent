@@ -64,6 +64,8 @@ CHECK_TYPE_SERVER_OVM_DMESG=$(dmesg | grep OVM | wc -l)
 CHECK_TYPE_SERVER_OVM_LOG=$(grep -i ovm /var/log/dmesg | wc -l)
 CHECK_TYPE_SERVER_VMWARE=$(dmesg | grep VMware | wc -l)
 CHECK_TYPE_SERVER_VMWARE_LOG=$(grep VMware /var/log/dmesg* | wc -l)
+CHECK_TYPE_SERVER_HYPERV=$(dmesg | grep HyperV|wc -l)
+CHECK_TYPE_SERVER_HYPERV_LOG=$(grep HyperV /var/log/dmesg* | wc -l)
 # CHECK_TYPE_SERVER_AIX=$(uname -L | awk '{print $1}')
 # TODO: HPUX has a specific server type, see original script
 CHECK_TYPE_SERVER_HPUX=0
@@ -74,6 +76,9 @@ if [ "$CHECK_TYPE_SERVER_OVM_DMESG" -gt 0 ] || [ "$CHECK_TYPE_SERVER_OVM_LOG" -g
   VIRTUAL=Y
 elif [ $CHECK_TYPE_SERVER_VMWARE -gt 0 ] || [ "$CHECK_TYPE_SERVER_VMWARE_LOG" -gt 0 ]; then
   TYPE=VMWARE
+  VIRTUAL=Y
+elif [ $CHECK_TYPE_SERVER_HYPERV -gt 0 ] || [ "$CHECK_TYPE_SERVER_HYPERV_LOG" -gt 0 ]; then
+  TYPE=HYPERV
   VIRTUAL=Y
 elif [ $CHECK_TYPE_SERVER_HYPERVISOR -gt 0 ]; then
   TYPE=VMOTHER
