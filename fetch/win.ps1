@@ -464,6 +464,24 @@ function getDbSegmentAdvisor {
 	}
 }
 
+function getDbOpt {
+	param (
+		[Parameter(Mandatory=$true)]$d
+	)
+	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
+	if (!$dbs) { Write "" } #wrong or no instance
+	else {
+		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
+		$env:ORACLE_SID= $dbs.PathName.Split()[1]
+		if (!(Test-Path .\sql\opt.sql)) { Write-Warning "file opt.sql unavailable!"; throw }
+		else {
+			$ar = '-silent / as sysdba @".\sql\opt.sql" '+$d
+			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
+				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
+			}
+		}
+	}
+}
 
 switch($s.ToUpper()) {
 	"HOST"				{ getSysinfo }
@@ -483,5 +501,6 @@ switch($s.ToUpper()) {
 	"BACKUP"			{ getDbBackup $d }
 	"ADDM"				{ getDbADDM $d }
 	"SEGMENTADVISOR"	{ getDBSegmentAdvisor $d }
-	Default			{ Write-Host "wrong switch selection" }
+	"OPT"				{ getDbOpt $d }
+	Default				{ Write-Host "wrong switch selection" }
 }
