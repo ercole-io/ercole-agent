@@ -63,8 +63,7 @@ func cleanTr(s string) string {
 }
 
 func parseBool(s string) bool {
-
-	return s == "Y"
+	return s == "Y" || s == "TRUE" || s == "FALSE"
 }
 
 func parseInt(s string) int {

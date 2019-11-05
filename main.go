@@ -152,6 +152,9 @@ func buildData(configuration config.Configuration) {
 				database.Features = marshal.Features(out)
 			}
 
+			out = fetcher(configuration, "opt", db.DBName, dbVersion, db.OracleHome)
+			database.Features2 = marshal.Features2(out)
+
 			out = fetcher(configuration, "license", db.DBName, dbVersion, host.Type, db.OracleHome)
 			database.Licenses = marshal.Licenses(out)
 
