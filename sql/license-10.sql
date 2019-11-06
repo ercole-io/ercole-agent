@@ -248,25 +248,25 @@ end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Database Vault;'||:MASKING ||';' 
+'Database Vault;'||:VAULT ||';' 
 else 'Database Vault;;'
 end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Database In-Memory;'||:VAULT ||';' 
+'Database In-Memory;'||:MEMORY ||';' 
 else 'Database In-Memory;;'
 end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Database Gateway;'||:MEMORY ||';' 
+'Database Gateway;'||:GATEWAY ||';' 
 else 'Database Gateway;;'
 end
 from dual;
 select 
 case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
-'Data Masking Pack;'||:GATEWAY ||';' 
+'Data Masking Pack;'||:MASKING ||';' 
 else 'Data Masking Pack;;'
 end
 from dual;
