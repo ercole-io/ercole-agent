@@ -38,7 +38,7 @@ import (
 
 var logger service.Logger
 var version = "latest"
-var hostDataSchemaVersion = 3
+var hostDataSchemaVersion = 4
 
 type program struct{}
 
@@ -151,6 +151,9 @@ func buildData(configuration config.Configuration) {
 			} else {
 				database.Features = marshal.Features(out)
 			}
+
+			out = fetcher(configuration, "opt", db.DBName, dbVersion, db.OracleHome)
+			database.Features2 = marshal.Features2(out)
 
 			out = fetcher(configuration, "license", db.DBName, dbVersion, host.Type, db.OracleHome)
 			database.Licenses = marshal.Licenses(out)

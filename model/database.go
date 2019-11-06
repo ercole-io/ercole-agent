@@ -49,4 +49,5 @@ type Database struct {
 	SegmentAdvisors []SegmentAdvisor
 	LastPSUs        []PSU
 	Backups         []Backup
+	Features2       []Feature2
 }

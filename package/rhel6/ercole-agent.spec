@@ -50,6 +50,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/db
 /opt/ercole-agent/fetch/dbstatus
 /opt/ercole-agent/fetch/feature
+/opt/ercole-agent/fetch/opt
 /opt/ercole-agent/fetch/filesystem
 /opt/ercole-agent/fetch/host
 /opt/ercole-agent/fetch/license
@@ -62,6 +63,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/ercole-setup
 /opt/ercole-agent/sql/db.sql
 /opt/ercole-agent/sql/feature.sql
+/opt/ercole-agent/sql/opt.sql
 /opt/ercole-agent/sql/license.sql
 /opt/ercole-agent/sql/patch.sql
 /opt/ercole-agent/sql/schema.sql
