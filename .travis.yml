@@ -63,6 +63,7 @@ script:
   - if [ $DIST_FAMILY == "WIN" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && makensis package/win/installer.nsi"; fi
   - mkdir dist
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp ~/rpmbuild/RPMS/x86_64/ercole-agent-${VERSION}-1.el*.x86_64.rpm dist/"; fi
+  - if [ $DIST_FAMILY == "WIN" ]; then md5sum ercole-agent.exe dist/; fi
   - if [ $DIST_FAMILY == "WIN" ]; then cp ercole-agent-setup-${VERSION}.exe dist/; fi
 
 
