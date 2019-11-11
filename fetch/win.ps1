@@ -40,7 +40,7 @@ param (
     [Parameter()][string]$t
 )
 
-$constant = .25
+$constant = .50
 
 #### DO NOT EDIT BELOW THIS LINE ####
 
@@ -66,15 +66,17 @@ function getSysinfo {
 	$stmem	 = [math]::round($nfo_sys.totalphysicalmemory/1GB,0)
 	$stvmem	 = [math]::round($nfo_opsys.totalvirtualmemorysize/1MB,0)
 	Write-Host "Hostname:"$hname																	#hostname
-	if ($nfo_cpu -is [array]) {																		#cpu model, cores and threads
-		Write-Host "CPUModel:"$($nfo_cpu[0].name)													#is multisocket (pick the 1st label)
-		$crs += $($nfo_cpu | foreach { $_.numberofcores }).count; Write-Host "CPUCores:"$crs					
-		$sck += $($nfo_cpu | foreach { $_.numberoflogicalprocessors }).count; Write-Host "CPUThreads:"$sck
-	} else {																						#is singlesocket
+	$crs  = 0
+	$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
+	$sck = 0
+	$sck += $($nfo_cpu | foreach { $_.numberoflogicalprocessors } | Foreach { $sck += $_})
+	if ($nfo_cpu -is [array]) {   #cpu model, cores and threads
+		Write-Host "CPUModel:"$($nfo_cpu[0].name)  #is multisocket (pick the 1st label)
+	} else {	#is singlesocket
 		Write-Host "CPUModel:"$($nfo_cpu.name)
-		$crs += $($nfo_cpu | foreach { $_.numberofcores }); Write-Host "CPUCores:"$crs					
-		$sck += $($nfo_cpu | foreach { $_.numberoflogicalprocessors }); Write-Host "CPUThreads:"$sck
 	}
+	Write-Host "CPUCores:"$crs					
+	Write-Host "CPUThreads:"$sck
 	if ($(isVirtual) -eq "Y") {
 		Write-Host "Socket:0" 						#sockets no
 	} else {
@@ -295,17 +297,20 @@ function getDbLic {
 				"Y" {
 					switch ($edt.toUpper()) {
 						"ENT" { 
-							$crs = $nfo_cpu | foreach { $_.numberofcores }
+							$crs = 0
+							$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 							$core_factor = $constant * $crs
 							$factor = $constant
 						}
 						"EXE" { 
-							$crs = $nfo_cpu | foreach { $_.numberofcores }
+							$crs = 0
+							$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 							$core_factor = $constant * $crs
 							$factor = $constant
 						}
 						"STD" { 
-							$crs = $nfo_cpu | foreach { $_.numberofcores }
+							$crs = 0
+							$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 							$core_factor = $constant * $crs
 							$factor = $constant
 						}
@@ -314,12 +319,14 @@ function getDbLic {
 				"N" {
 					switch ($edt.toUpper()) {
 						"ENT" {
-							$crs = $nfo_cpu | foreach { $_.numberofcores }
+							$crs = 0
+							$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 							$core_factor = $constant * $crs
 							$factor = $constant
 						}
 						"EXE" { 
-							$crs = $nfo_cpu | foreach { $_.numberofcores }
+							$crs = 0
+							$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 							$core_factor = $constant * $crs
 							$factor = $constant
 						}
