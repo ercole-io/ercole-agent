@@ -37,7 +37,8 @@ param (
 	[Parameter(Mandatory=$true)][string]$s,
 	[Parameter()][string]$d,
 	[Parameter()][int]$v,
-    [Parameter()][string]$t
+	[Parameter()][string]$t,
+	[Parameter()][string]$oraclepath
 )
 
 $constant = .50
@@ -107,7 +108,7 @@ function getTab {
 	else {
 		if ($dbs -is [array]) {
 			foreach ($db in $dbs) {
-				write $db.PathName.Split()[1]
+				Write-Host $db.PathName.Split()[1]":"
 			}
 		}
 		else {
@@ -165,10 +166,9 @@ function getStatus {
 
 function getDb {
 	param (
-		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$true)]$d
 	)
-	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
+	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
 	else {
 		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
@@ -497,7 +497,7 @@ switch($s.ToUpper()) {
 	"DBVERSION"			{ getVer $d }
 	"STATS"				{ getStats $d }
 	"DBSTATUS"			{ getStatus $d }
-	"DB"				{ getDb $d $v }
+	"DB"				{ getDb $d }
 	"DBMOUNTED"			{ getDbMount $d $v }
 	"FEATURE"			{ getDbFeature $d $v }
 	"TABLESPACE"		{ getDbTbs $d }
