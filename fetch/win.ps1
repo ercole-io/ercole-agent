@@ -112,7 +112,7 @@ function getTab {
 			}
 		}
 		else {
-			write $dbs.PathName.Split()[1]
+			Write-Host $dbs.PathName.Split()[1]":"
 		}
 	}
 }
