@@ -41,6 +41,9 @@ param (
 	[Parameter()][string]$oraclepath
 )
 
+
+cd C:\ErcoleAgent
+
 $constant = .50
 
 #### DO NOT EDIT BELOW THIS LINE ####
