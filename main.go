@@ -116,14 +116,7 @@ func buildData(configuration config.Configuration) {
 			out = fetcher(configuration, "dbversion", db.DBName, db.OracleHome)
 			outVersion := string(out)
 
-			dbVersion := "12"
-			if strings.HasPrefix(outVersion, "11") {
-				dbVersion = "11"
-			} else if strings.HasPrefix(outVersion, "10") {
-				dbVersion = "10"
-			} else if strings.HasPrefix(outVersion, "9") {
-				dbVersion = "9"
-			}
+			dbVersion := strings.Split(outVersion, ".")[0]
 
 			if configuration.Forcestats {
 				fetcher(configuration, "stats", db.DBName, db.OracleHome)

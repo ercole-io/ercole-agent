@@ -62,6 +62,14 @@ function isVirtual {
 	if($ctr) { return "Y" } else { return "N" }
 }
 
+function getType {
+	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek')
+	foreach ($tier in $tiers) {
+		if ($nfo_sys.manufacturer -match $tier -or $nfo_sys.model -match $tier) { return $tier }
+	}
+	return "PH"
+}
+
 function checkCommand($cmdname)
 {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
@@ -86,6 +94,7 @@ function getSysinfo {
 	} else {
 		Write-Host "Socket:"$($nfo_cpu | foreach { $_.socketdesignation }).count 						#sockets no
 	}
+	Write-Host "Type:"$(getType)
 	Write-Host "Virtual:"$(isVirtual)																#virtual/physical
 	Write-Host "Kernel:"$($nfo_opsys.version)														#kernel version
 	Write-Host "OS:"$($nfo_opsys.caption)															#os

@@ -45,7 +45,7 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-if [ $DBV == "12" ]; then
+if [ $DBV -gt "11" ]; then
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/patch-12.sql
 else
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/patch.sql

@@ -42,7 +42,7 @@ export PATH=$HOME/bin:$PATH
 ERCOLE_HOME=$(dirname "$0")
 ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
 
-if [ $DBV == "10" ] ||  [ $DBV == "11" ]; then
+if [ $DBV -lt "12" ]; then
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/psu-1.sql
 else
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/psu-2.sql
