@@ -44,8 +44,8 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-if [ $DBV == "11" ] ||  [ $DBV == "12" ]; then
-  sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/feature.sql
-else
+if [ $DBV == "9" ] ||  [ $DBV == "10" ]; then
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/feature-10.sql
+else
+  sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/feature.sql
 fi
