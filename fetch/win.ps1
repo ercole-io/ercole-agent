@@ -65,7 +65,7 @@ function isVirtual {
 function getType {
 	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek')
 	foreach ($tier in $tiers) {
-		if ($nfo_sys.manufacturer -match $tier -or $nfo_sys.model -match $tier) { return $tier }
+		if ($nfo_sys.manufacturer -match $tier -or $nfo_sys.model -match $tier) { return $tier.ToUpper() }
 	}
 	return "PH"
 }
