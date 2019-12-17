@@ -52,9 +52,14 @@ func Database(cmdOutput []byte) model.Database {
 			db.Allocated = strings.TrimSpace(splitted[17])
 			db.Elapsed = strings.TrimSpace(splitted[18])
 			db.DBTime = strings.TrimSpace(splitted[19])
-			db.Work = strings.TrimSpace(splitted[20])
-			db.ASM = parseBool(strings.TrimSpace(splitted[21]))
-			db.Dataguard = parseBool(strings.TrimSpace(splitted[22]))
+			db.DailyCPUUsage = strings.TrimSpace(splitted[20])
+			db.Work = strings.TrimSpace(splitted[21])
+			db.ASM = parseBool(strings.TrimSpace(splitted[22]))
+			db.Dataguard = parseBool(strings.TrimSpace(splitted[23]))
+
+			if db.DailyCPUUsage == "" {
+				db.DailyCPUUsage = db.Work
+			}
 		}
 	}
 	return db
