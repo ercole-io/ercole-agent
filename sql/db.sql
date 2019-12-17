@@ -25,6 +25,7 @@ VARIABLE bid NUMBER;
 VARIABLE eid NUMBER;
 VARIABLE elapsed varchar2(100);
 VARIABLE dbtime  varchar2(100);
+VARIABLE cputime  varchar2(100);
 VARIABLE count_usage NUMBER;
 VARIABLE result varchar2(100);
 VARIABLE esclusion varchar2(100);
@@ -44,10 +45,30 @@ IF(:esclusion ='CRPL0ONP' or :esclusion ='GOLD0ONP') THEN
 END IF;
 
 IF (:count_usage > 0) THEN
-   	SELECT replace(replace(replace(output,'Elapsed:',''),chr(32), ''),'(mins)','')  into :elapsed FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <2 and output like '%Elapsed: %';
-	SELECT replace(replace(replace(output,'DB Time:',''),chr(32), ''),'(mins)','') into :dbtime FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <2 and output like '%DB Time: %';
-select to_char(round(((to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
-from dual;
+   	WITH awrr AS
+	  (SELECT *
+	   FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0))
+	   WHERE rownum <100)
+	SELECT
+	  (SELECT replace(replace(replace(OUTPUT,'Elapsed:',''),chr(32), ''),'(mins)','')
+	   FROM awrr
+	   WHERE rownum <2
+	     AND OUTPUT LIKE '%Elapsed: %') AS a,
+	  (SELECT replace(replace(replace(OUTPUT,'DB Time:',''),chr(32), ''),'(mins)','')
+	   FROM awrr
+	   WHERE rownum <2
+	     AND OUTPUT LIKE '%DB Time: %') AS b,
+	  (SELECT REGEXP_SUBSTR(replace(replace(OUTPUT,'DB CPU(s):',''),chr(32), '|'),'[^|]+',1,1)
+	   FROM awrr
+	   WHERE rownum <2
+	     AND OUTPUT LIKE '%DB CPU(s): %') AS c INTO :elapsed,
+	                                                :dbtime,
+	                                                :cputime
+	FROM awrr
+	WHERE rownum <2;
+
+	select to_char(round(((to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
+	from dual;
 
 IF (:result = 0) THEN
 select '1' into :result from dual;
@@ -57,6 +78,7 @@ ELSE
    	 SELECT 'N/A' into :elapsed from dual;
    	 SELECT 'N/A' into :dbtime from dual;
    	 SELECT 'N/A' into :result from dual;
+   	 SELECT 'N/A' into :cputime from dual;
 END IF;
 END;
 /
@@ -88,6 +110,11 @@ select
 	else 0 end as "elapsed" from dual),
 (select case when (select :dbtime from dual) != 'N/A' then 
 to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''') else 0 end as "dbtime" from dual),
+(select 
+	case when (select :cputime from dual) != 'N/A' 
+	then 
+		to_number(:cputime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''') 
+	else 0 end as "cputime" from dual),
 (select :result from dual),
 (select 
 	case when (select count(*) from dba_data_files where file_name like '+%') > 0 
