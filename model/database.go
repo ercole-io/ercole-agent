@@ -38,6 +38,7 @@ type Database struct {
 	Elapsed         string
 	DBTime          string
 	Work            string
+	DailyCPUUsage   string
 	ASM             bool
 	Dataguard       bool
 	Patches         []Patch
