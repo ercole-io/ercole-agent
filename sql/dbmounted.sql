@@ -44,7 +44,7 @@ select
 --(SELECT replace(replace(output,'Elapsed:',''),chr(32), '') FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <20 and output like '%Elapsed: %'),
 --(SELECT replace(replace(output,'DB Time:',''),chr(32), '') FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <20 and output like '%DB Time: %'),
 --:elapsed,:dbtime,(select :result from dual),
-'0','0','0',
+'0','0','0','0'
 (select case when (select count(*) from v$datafile where name like '+%') > 0 then 'Y' else 'N' end as "ASM" from dual ),
 case when ( select count(*) from V$DATAGUARD_CONFIG) > 1 then 'Y' else 'N' end  as "Dataguard"
 from dual;
