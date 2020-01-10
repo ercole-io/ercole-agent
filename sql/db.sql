@@ -184,7 +184,7 @@ SELECT
    FROM dual), CASE
                    WHEN
                           (SELECT count(*)
-                           FROM V_$DATAGUARD_CONFIG) > 1 THEN 'Y'
+                           FROM V$DATAGUARD_CONFIG) > 1 THEN 'Y'
                    ELSE 'N'
                END AS "Dataguard"
 FROM dual;
