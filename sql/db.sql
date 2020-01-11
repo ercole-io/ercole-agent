@@ -32,14 +32,18 @@ WITH strtime AS
   (SELECT max(startup_time) AS DATA,
           max(count(*))
    FROM dba_hist_snapshot
-   WHERE instance_number=(SELECT instance_number
+   WHERE BEGIN_INTERVAL_TIME > trunc(sysdate-nvl('&&1',30))
+     AND instance_number=
+       (SELECT instance_number
         FROM v$instance)
    GROUP BY startup_time)
 SELECT MIN (s.snap_id), MAX (s.snap_id) INTO :bid,
                                              :eid
 FROM dba_hist_snapshot s,
      strtime st
-WHERE s.startup_time=st.DATA;
+WHERE s.startup_time=st.DATA
+  AND s.BEGIN_INTERVAL_TIME > trunc(sysdate-nvl('&&1',30));
+
 
 SELECT dbid INTO :dbid FROM v$database;
 SELECT instance_number INTO :inst_num FROM v$instance;
