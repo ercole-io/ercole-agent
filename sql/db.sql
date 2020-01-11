@@ -83,7 +83,7 @@ IF (:count_usage > 0) THEN
 	FROM awrr
 	WHERE rownum <2;
 
-	select to_char(round(((to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
+	select to_char(round(((to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
 	from dual;
 
 IF (:result = 0) THEN
@@ -158,21 +158,21 @@ SELECT
   (SELECT CASE
               WHEN
                      (SELECT :elapsed
-                      FROM dual) != 'N/A' THEN to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+                      FROM dual) != 'N/A' THEN to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
               ELSE 0
           END AS "elapsed"
    FROM dual),
   (SELECT CASE
               WHEN
                      (SELECT :dbtime
-                      FROM dual) != 'N/A' THEN to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+                      FROM dual) != 'N/A' THEN to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
               ELSE 0
           END AS "dbtime"
    FROM dual),
   (SELECT CASE
               WHEN
                      (SELECT :cputime
-                      FROM dual) != 'N/A' THEN to_number(:cputime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+                      FROM dual) != 'N/A' THEN to_number(:cputime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
               ELSE 0
           END AS "cputime"
    FROM dual),
