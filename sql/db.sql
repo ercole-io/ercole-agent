@@ -26,6 +26,8 @@ VARIABLE cputime  varchar2(100);
 VARIABLE count_usage NUMBER;
 VARIABLE result varchar2(100);
 VARIABLE esclusion varchar2(100);
+VARIABLE CPUbid NUMBER;
+VARIABLE CPUeid NUMBER;
 
 BEGIN
 WITH strtime AS
@@ -43,6 +45,17 @@ FROM dba_hist_snapshot s,
      strtime st
 WHERE s.startup_time=st.DATA
   AND s.BEGIN_INTERVAL_TIME > trunc(sysdate-nvl('&&1',30));
+
+
+SELECT min(snap_id),
+       max(snap_id) INTO :CPUbid,
+                         :CPUeid
+FROM dba_hist_snapshot
+WHERE begin_interval_time > trunc(sysdate-1)
+  AND end_interval_time < trunc(sysdate)
+  AND instance_number=
+    (SELECT instance_number
+     FROM v$instance);
 
 
 SELECT dbid INTO :dbid FROM v$database;
@@ -82,6 +95,18 @@ IF (:count_usage > 0) THEN
 	                                                :cputime
 	FROM awrr
 	WHERE rownum <2;
+
+    WITH awrrCPU AS
+    (SELECT *
+     FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :CPUbid, :CPUeid, 0))
+     WHERE rownum <100)
+  SELECT
+    (SELECT REGEXP_SUBSTR(replace(replace(OUTPUT,'DB CPU(s):',''),chr(32), '|'),'[^|]+',1,1)
+     FROM awrr
+     WHERE rownum <2
+       AND OUTPUT LIKE '%DB CPU(s): %') AS c INTO :cputime
+  FROM awrrCPU
+  WHERE rownum <2;
 
 	select to_char(round(((to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
 	from dual;
