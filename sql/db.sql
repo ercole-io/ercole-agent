@@ -15,9 +15,6 @@
 
 set lines 32767 pages 0 feedback off verify off
 set colsep "|||"
-col owner for a30
-col Nome_Acronimo for a8
-col segment_name for a60
 
 VARIABLE dbid NUMBER;
 VARIABLE inst_num NUMBER;
@@ -29,18 +26,56 @@ VARIABLE cputime  varchar2(100);
 VARIABLE count_usage NUMBER;
 VARIABLE result varchar2(100);
 VARIABLE esclusion varchar2(100);
+VARIABLE CPUbid NUMBER;
+VARIABLE CPUeid NUMBER;
+
 BEGIN
-with strtime as
-(select max(startup_time) as data, max(count(*)) from dba_hist_snapshot where instance_number=(select instance_number from v$instance) group by startup_time)
-SELECT MIN (s.snap_id), MAX (s.snap_id) INTO :bid,:eid
-FROM dba_hist_snapshot s, strtime st
-where s.startup_time=st.data;
+
+SELECT 'N/A' into :elapsed from dual;
+SELECT 'N/A' into :dbtime from dual;
+SELECT 'N/A' into :result from dual;
+SELECT 'N/A' into :cputime from dual;
+
+WITH strtime AS
+  (SELECT max(startup_time) AS DATA,
+          max(count(*))
+   FROM dba_hist_snapshot
+   WHERE BEGIN_INTERVAL_TIME > trunc(sysdate-nvl('&&1',30))
+     AND instance_number=
+       (SELECT instance_number
+        FROM v$instance)
+   GROUP BY startup_time)
+SELECT MIN (s.snap_id), MAX (s.snap_id) INTO :bid,
+                                             :eid
+FROM dba_hist_snapshot s,
+     strtime st
+WHERE s.startup_time=st.DATA
+  AND s.BEGIN_INTERVAL_TIME > trunc(sysdate-nvl('&&1',30));
+
+
+SELECT min(snap_id),
+       max(snap_id) INTO :CPUbid,
+                         :CPUeid
+FROM dba_hist_snapshot
+WHERE begin_interval_time > trunc(sysdate-1)
+  AND end_interval_time < trunc(sysdate)
+  AND instance_number=
+    (SELECT instance_number
+     FROM v$instance);
+
+
 SELECT dbid INTO :dbid FROM v$database;
 SELECT instance_number INTO :inst_num FROM v$instance;
-select max(DETECTED_USAGES) INTO :count_usage from dba_feature_usage_statistics where name ='AWR Report' and dbid=:dbid;
+
+
+SELECT max(DETECTED_USAGES) INTO :count_usage
+FROM dba_feature_usage_statistics
+WHERE name ='AWR Report'
+  AND dbid=:dbid;
+
 -- Esclusione DATABASE 
 select name INTO :esclusion from v$database;
-IF(:esclusion ='CRPL0ONP' or :esclusion ='GOLD0ONP') THEN
+IF(:esclusion ='DB01' or :esclusion ='DB02') THEN
 	:count_usage := 0;
 END IF;
 
@@ -67,13 +102,24 @@ IF (:count_usage > 0) THEN
 	FROM awrr
 	WHERE rownum <2;
 
-	select to_char(round(((to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
+    WITH awrrCPU AS
+    (SELECT *
+     FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :CPUbid, :CPUeid, 0))
+     WHERE rownum <100)
+  SELECT
+    (SELECT REGEXP_SUBSTR(replace(replace(OUTPUT,'DB CPU(s):',''),chr(32), '|'),'[^|]+',1,1)
+     FROM awrrCPU
+     WHERE rownum <2
+       AND OUTPUT LIKE '%DB CPU(s): %') AS c INTO :cputime
+  FROM awrrCPU
+  WHERE rownum <2;
+
+	select to_char(round(((to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
 	from dual;
 
 IF (:result = 0) THEN
 select '1' into :result from dual;
 END IF;
-
 ELSE
    	 SELECT 'N/A' into :elapsed from dual;
    	 SELECT 'N/A' into :dbtime from dual;
@@ -83,46 +129,99 @@ END IF;
 END;
 /
 
-
-select 
-(select value from v$parameter where name='db_name') as Nome_DB,
-(select db_unique_name from v$database) as DB_Unique_name,
-(select instance_number from v$instance) as Instance_number,
-(select status from v$instance) as DB_Status,
-((SELECT version FROM V$INSTANCE)||(select (case when UPPER(banner) like '%EXTREME%' then ' Extreme Edition' when UPPER(banner) like '%ENTERPRISE%' then ' Enterprise Edition' else ' Standard Edition' end) from v$version where rownum=1)) as Versione,
-(SELECT platform_name  FROM V$database) as platform,
-(SELECT log_mode  FROM V$database) as archive,
-(select value from nls_database_parameters where parameter='NLS_CHARACTERSET') as Charset,
-(select value from nls_database_parameters where parameter='NLS_NCHAR_CHARACTERSET') as NCharset,
-(select value from v$parameter where name='db_block_size') as Blocksize,
-(select value from v$parameter where name='cpu_count') as Cpu_count,
-(select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='sga_target')  as Sga_Target,
-(select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='pga_aggregate_target') as Pga_Target,
-(select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='memory_target') as Pga_Target,
-(select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='sga_max_size') as sga_max_size,
-(select round(sum(bytes/1024/1024/1024)) from dba_segments) as Alloc,
-((select round(sum(bytes/1024/1024/1024)) from dba_data_files)+(select round(sum(bytes/1024/1024/1024)) from dba_temp_files)+(select round(sum(bytes/1024/1024/1024)) from v$log)),
-((select round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024))) from dba_data_files)+(select round(sum(bytes/1024/1024/1024)) from dba_temp_files)+(select round(sum(bytes/1024/1024/1024)) from v$log)),
-(select 
-	case when (select :elapsed from dual) != 'N/A' 
-	then 
-		to_number(:elapsed,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''') 
-	else 0 end as "elapsed" from dual),
-(select case when (select :dbtime from dual) != 'N/A' then 
-to_number(:dbtime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''') else 0 end as "dbtime" from dual),
-(select 
-	case when (select :cputime from dual) != 'N/A' 
-	then 
-		to_number(:cputime,'999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''') 
-	else 0 end as "cputime" from dual),
-(select :result from dual),
-(select 
-	case when (select count(*) from dba_data_files where file_name like '+%') > 0 
-		then 'Y' 
-		else 'N' end as "ASM" from dual ),
-	case when ( select count(*) from V_$DATAGUARD_CONFIG) > 1 
-		then 'Y' 
-		else 'N' end  as "Dataguard" 
-from dual;
+SELECT
+  (SELECT value
+   FROM v$parameter
+   WHERE name='db_name') AS Nome_DB,
+  (SELECT db_unique_name
+   FROM v$database) AS DB_Unique_name,
+  (SELECT instance_number
+   FROM v$instance) AS Instance_number,
+  (SELECT status
+   FROM v$instance) AS DB_Status, (
+                                     (SELECT VERSION
+                                      FROM V$INSTANCE)||
+                                     (SELECT (CASE WHEN UPPER(banner) LIKE '%EXTREME%' THEN ' Extreme Edition' WHEN UPPER(banner) LIKE '%ENTERPRISE%' THEN ' Enterprise Edition' ELSE ' Standard Edition' END)
+                                      FROM v$version
+                                      WHERE rownum=1)) AS Versione,
+  (SELECT platform_name
+   FROM V$database) AS platform,
+  (SELECT log_mode
+   FROM V$database) AS archive,
+  (SELECT value
+   FROM nls_database_parameters
+   WHERE PARAMETER='NLS_CHARACTERSET') AS Charset,
+  (SELECT value
+   FROM nls_database_parameters
+   WHERE PARAMETER='NLS_NCHAR_CHARACTERSET') AS NCharset,
+  (SELECT value
+   FROM v$parameter
+   WHERE name='db_block_size') AS Blocksize,
+  (SELECT value
+   FROM v$parameter
+   WHERE name='cpu_count') AS Cpu_count,
+  (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
+   FROM v$parameter
+   WHERE name='sga_target') AS Sga_Target,
+  (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
+   FROM v$parameter
+   WHERE name='pga_aggregate_target') AS Pga_Target,
+  (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
+   FROM v$parameter
+   WHERE name='memory_target') AS Pga_Target,
+  (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
+   FROM v$parameter
+   WHERE name='sga_max_size') AS sga_max_size,
+  (SELECT round(sum(bytes/1024/1024/1024))
+   FROM dba_segments) AS Alloc, (
+                                   (SELECT round(sum(bytes/1024/1024/1024))
+                                    FROM dba_data_files)+
+                                   (SELECT round(sum(bytes/1024/1024/1024))
+                                    FROM dba_temp_files)+
+                                   (SELECT round(sum(bytes/1024/1024/1024))
+                                    FROM v$log)), (
+                                                     (SELECT round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024)))
+                                                      FROM dba_data_files)+
+                                                     (SELECT round(sum(bytes/1024/1024/1024))
+                                                      FROM dba_temp_files)+
+                                                     (SELECT round(sum(bytes/1024/1024/1024))
+                                                      FROM v$log)),
+  (SELECT CASE
+              WHEN
+                     (SELECT :elapsed
+                      FROM dual) != 'N/A' THEN to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+              ELSE 0
+          END AS "elapsed"
+   FROM dual),
+  (SELECT CASE
+              WHEN
+                     (SELECT :dbtime
+                      FROM dual) != 'N/A' THEN to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+              ELSE 0
+          END AS "dbtime"
+   FROM dual),
+  (SELECT CASE
+              WHEN
+                     (SELECT :cputime
+                      FROM dual) != 'N/A' THEN to_number(:cputime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')
+              ELSE 0
+          END AS "cputime"
+   FROM dual),
+  (SELECT :result
+   FROM dual),
+  (SELECT CASE
+              WHEN
+                     (SELECT count(*)
+                      FROM dba_data_files
+                      WHERE file_name LIKE '+%') > 0 THEN 'Y'
+              ELSE 'N'
+          END AS "ASM"
+   FROM dual), CASE
+                   WHEN
+                          (SELECT count(*)
+                           FROM V$DATAGUARD_CONFIG) > 1 THEN 'Y'
+                   ELSE 'N'
+               END AS "Dataguard"
+FROM dual;
 
 exit

@@ -329,8 +329,8 @@ else usage
 end
 when LTRIM(product,'.') like 'Advanced Compression' and usage=' ' and 
 ((select count(*) from dba_tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or
-(select count(*) from dba_tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or
-(select count(*) from dba_tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0)
+(select count(*) from dba_tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0) or
+(select count(*) from dba_tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 
 then 'Y'
 when LTRIM(product,'.') like 'Partitioning' and usage=' ' and
 (select count(*) from dba_tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0 
