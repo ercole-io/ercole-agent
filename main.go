@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -122,7 +123,7 @@ func buildData(configuration config.Configuration) {
 				fetcher(configuration, "stats", db.DBName, db.OracleHome)
 			}
 
-			out = fetcher(configuration, "db", db.DBName, db.OracleHome)
+			out = fetcher(configuration, "db", db.DBName, db.OracleHome, strconv.Itoa(configuration.AWR))
 			database := marshal.Database(out)
 
 			out = fetcher(configuration, "tablespace", db.DBName, db.OracleHome)
