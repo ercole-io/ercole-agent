@@ -30,6 +30,12 @@ VARIABLE CPUbid NUMBER;
 VARIABLE CPUeid NUMBER;
 
 BEGIN
+
+SELECT 'N/A' into :elapsed from dual;
+SELECT 'N/A' into :dbtime from dual;
+SELECT 'N/A' into :result from dual;
+SELECT 'N/A' into :cputime from dual;
+
 WITH strtime AS
   (SELECT max(startup_time) AS DATA,
           max(count(*))
@@ -102,7 +108,7 @@ IF (:count_usage > 0) THEN
      WHERE rownum <100)
   SELECT
     (SELECT REGEXP_SUBSTR(replace(replace(OUTPUT,'DB CPU(s):',''),chr(32), '|'),'[^|]+',1,1)
-     FROM awrr
+     FROM awrrCPU
      WHERE rownum <2
        AND OUTPUT LIKE '%DB CPU(s): %') AS c INTO :cputime
   FROM awrrCPU
