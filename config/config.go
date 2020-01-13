@@ -38,6 +38,7 @@ type Configuration struct {
 	EnableServerValidation bool
 	ForcePwshVersion       string
 	Oratab                 string
+	AWR                    int
 }
 
 // ReadConfig reads the configuration file from the current dir

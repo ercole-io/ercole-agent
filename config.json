@@ -9,5 +9,6 @@
     "forcestats": true,
     "enableservervalidation": false,
     "forcepwshversion": "0",
-    "oratab": "/etc/oratab"
+    "oratab": "/etc/oratab",
+    "AWR": 30
 }
