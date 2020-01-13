@@ -40,4 +40,4 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/db.sql $AWR
+sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/db.sql $AWR
