@@ -31,7 +31,7 @@ func Database(cmdOutput []byte) model.Database {
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 23 {
+		if len(splitted) == 24 {
 			db.Name = strings.TrimSpace(splitted[0])
 			db.UniqueName = strings.TrimSpace(splitted[1])
 			db.InstanceNumber = strings.TrimSpace(splitted[2])
