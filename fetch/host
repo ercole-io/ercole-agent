@@ -30,6 +30,13 @@ if [[ $VIRTUAL = 'Y' ]]; then
 else
   SOCKET=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
 fi 
+
+if [[ $(echo $CPU_MODEL| grep -c "@") -eq 0 ]]; then
+	CPU_EXTRA_SPEED=@$(grep "cpu MHz" /proc/cpuinfo | head -n 1 | awk -F ":" '{ print $NF }')Mhz
+else
+	CPU_EXTRA_SPEED=
+fi
+
 KERNEL=$(uname -r)
 OS=$(cat /etc/redhat-release)
 if [[ $? != 0 ]]; then
@@ -89,7 +96,7 @@ else
 fi
 
 echo -n "hostname: $HOSTNAME
-cpumodel: $CPU_MODEL
+cpumodel: $CPU_MODEL $CPU_EXTRA_SPEED
 cputhreads: $CPU_THREAD
 cpucores: $CPU_CORES
 socket: $SOCKET
