@@ -8,6 +8,7 @@ WorkingDirectory=/opt/ercole-agent/
 User=ercole
 ExecStart=/opt/ercole-agent/ercole-agent
 PIDFile=/opt/ercole-agent/run/ercole-agent.pid
+#LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target
