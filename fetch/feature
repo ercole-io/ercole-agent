@@ -44,8 +44,16 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
+DB_ONE=x$(sqlplus -S / as sysdba << EOF
+set pages 0 feedback off
+HOST srvctl config database -d $DB_NAME |grep -o One
+exit
+EOF
+)
+
+
 if [ $DBV == "9" ] ||  [ $DBV == "10" ]; then
-  sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/feature-10.sql
+  sqlplus -S "/ AS SYSDBA"  @${ERCOLE_HOME}/sql/feature-10.sql
 else
-  sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/feature.sql
+  sqlplus -S "/ AS SYSDBA"  @${ERCOLE_HOME}/sql/feature.sql $DB_ONE
 fi
