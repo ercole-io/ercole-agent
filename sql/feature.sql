@@ -316,50 +316,109 @@ order by decode(substr(m.PRODUCT, 1, 1), '.', 2, 1), m.PRODUCT
 
 
 
-select distinct LTRIM(product,'.') as a,
-case
-when (select version from v$instance) like '12%' and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters')='Y' and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters One Node')='Y' then 
-case when LTRIM(product,'.') like 'Real Application Clusters' then ' ' 
-else usage
-end
-when (select version from v$instance) like '11%' and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters')='Y' and (select count(*) from gv$instance) = 1 and (select usage from TAB1 where LTRIM(product,'.') like 'Real Application Clusters')='Y' then
-case when LTRIM(product,'.') like 'Real Application Clusters One Node' then 'Y'
-when LTRIM(product,'.') like 'Real Application Clusters' then ' '
-else usage
-end
-when LTRIM(product,'.') like 'Advanced Compression' and usage=' ' and 
-((select count(*) from dba_tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or
-(select count(*) from dba_tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0) or
-(select count(*) from dba_tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 
-then 'Y'
-when LTRIM(product,'.') like 'Partitioning' and usage=' ' and
-(select count(*) from dba_tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0 
-then 'Y'
-else usage end
-as utilizzo
-from TAB where product is not null order by a desc;
+SELECT DISTINCT LTRIM(product,'.') AS a,
+                CASE
+                    WHEN
+                           (SELECT VERSION
+                            FROM v$instance) LIKE '12%'
+                         AND
+                           (SELECT USAGE
+                            FROM TAB
+                            WHERE LTRIM(product,'.') LIKE 'Real Application Clusters')='Y'
+                         AND
+                           (SELECT USAGE
+                            FROM TAB
+                            WHERE LTRIM(product,'.') LIKE 'Real Application Clusters One Node')='Y' THEN CASE
+                                                                                                             WHEN LTRIM(product,'.') LIKE 'Real Application Clusters' THEN ' '
+                                                                                                             ELSE USAGE
+                                                                                                         END
+                    WHEN
+                           (SELECT VERSION
+                            FROM v$instance) LIKE '11%'
+                         AND
+                           (SELECT USAGE
+                            FROM TAB
+                            WHERE LTRIM(product,'.') LIKE 'Real Application Clusters')='Y'
+                            AND '&1'='xOne'
+                         AND
+                           (SELECT count(*)
+                            FROM gv$instance) = 1
+                         AND
+                           (SELECT USAGE
+                            FROM TAB1
+                            WHERE LTRIM(product,'.') LIKE 'Real Application Clusters')='Y' THEN CASE
+                                                                                                    WHEN LTRIM(product,'.') LIKE 'Real Application Clusters One Node' THEN 'Y'
+                                                                                                    WHEN LTRIM(product,'.') LIKE 'Real Application Clusters' THEN ' '
+                                                                                                    ELSE USAGE
+                                                                                                END
+                    WHEN LTRIM(product,'.') LIKE 'Advanced Compression'
+                         AND USAGE=' '
+                         AND (
+                                (SELECT count(*)
+                                 FROM dba_tables
+                                 WHERE OWNER NOT in('SYS','SYSMAN','SYSTEM','APEX%')
+                                   AND compress_for NOT IN ('NULL',
+                                                            'BASIC'))>0
+                              OR
+                                (SELECT count(*)
+                                 FROM dba_tab_subpartitions
+                                 WHERE table_owner NOT IN('SYS',
+                                                          'SYSMAN',
+                                                          'SYSTEM',
+                                                          'APEX%')
+                                   AND compress_for NOT IN ('NULL',
+                                                            'BASIC'))>0)
+                         OR
+                           (SELECT count(*)
+                            FROM dba_tab_partitions
+                            WHERE table_owner NOT IN('SYS',
+                                                     'SYSMAN',
+                                                     'SYSTEM',
+                                                     'APEX%')
+                              AND compress_for NOT IN ('NULL',
+                                                       'BASIC'))>0 THEN 'Y'
+                    WHEN LTRIM(product,'.') LIKE 'Partitioning'
+                         AND USAGE=' '
+                         AND
+                           (SELECT count(*)
+                            FROM dba_tables
+                            WHERE partitioned = 'YES'
+                              AND OWNER NOT IN ('SYS',
+                                                'SYSTEM',
+                                                'AUDSYS',
+                                                'MDSYS'))>0 THEN 'Y'
+                    ELSE USAGE
+                END AS utilizzo
+FROM TAB
+WHERE product IS NOT NULL
+ORDER BY a DESC;
 
 
 
 CURSOR db_info_cur is
-select 
-(SELECT HOST_NAME FROM V$instance) as Hostname,
-(select value from v$parameter where name='db_name') as Nome_DB,
-(select db_unique_name from v$database) as DB_Unique_name
-from dual;
+	SELECT
+	  (SELECT HOST_NAME
+	   FROM V$instance) AS Hostname,
+	
+	  (SELECT value
+	   FROM v$parameter
+	   WHERE name='db_name') AS Nome_DB,
+	
+	  (SELECT db_unique_name
+	   FROM v$database) AS DB_Unique_name
+	FROM dual;
 db_info db_info_cur%ROWTYPE;
 BEGIN
-OPEN db_info_cur;
-FETCH db_info_cur into db_info;
--- dbms_output.put('<tr><td>'||db_info.Hostname||'</td><td>NONE</td>'||'</td><td>'||db_info.Nome_DB||'</td><td>'||db_info.DB_Unique_name||'</td>');
-CLOSE db_info_cur;
-for I in feature_map LOOP
-BEGIN
-dbms_output.put(I.a||':'||I.utilizzo);
-dbms_output.new_line;
-END;
-END LOOP;
---dbms_output.put('</tr>');
+	OPEN db_info_cur;
+	FETCH db_info_cur into db_info;
+	CLOSE db_info_cur;
+	for I in feature_map LOOP
+		BEGIN
+			dbms_output.put(I.a||':'||I.utilizzo);
+			dbms_output.new_line;
+		END;
+	END LOOP;
 END;
 /
+
 exit
