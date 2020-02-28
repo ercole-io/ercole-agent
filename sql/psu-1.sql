@@ -31,26 +31,26 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
 SELECT version into :EXTENDVERSION from v$instance;
 SELECT count(*) INTO :EXIST
 FROM registry$history
-WHERE COMMENTS LIKE 'PSU%'
+WHERE (COMMENTS LIKE 'PSU%'
   OR COMMENTS LIKE 'BP%'
   OR COMMENTS LIKE '%DATABASE PATCH SET UPDATE%'
-  OR COMMENTS LIKE 'BP%' ;
+  OR COMMENTS LIKE 'BP%') and version=substr(:EXTENDVERSION,0,8);
 select * into :BP from (select COMMENTS from  registry$history order by action_time DESC) where rownum=1;
 -- 11.2
- IF ( :EXTENDVERSION = '11.2.0.4.0' AND :EXIST > 0 AND :BP not like '%BP%') THEN 
+ IF ( :EXTENDVERSION = '11.2.0.4.0' AND :EXIST > 0 AND :BP not like '%BP%') THEN
         with PSU as
                 (
                         select COMMENTS as COMMENTS
                         from  registry$history
                         where action_time = (select max(action_time)
                             from registry$history
-                        where ACTION='APPLY' 
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         )
                 ),
                 DATA as
                 (
-                        select 
+                        select
                         case
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '1' THEN TO_DATE('140115','YYMMDD')
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '2' THEN TO_DATE('140415','YYMMDD')
@@ -66,21 +66,21 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         )
                 ),
                 STATE as
                 (
-                        select 
-                        case   
-                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO' 
-                                ELSE 'OK' 
+                        select
+                        case
+                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO'
+                                ELSE 'OK'
                         END as "STATUS"
                         from DATA
                 )
-                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS 
-                into :DESCRIPTION,:PSU_DATE,:STATUS 
+                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
+                into :DESCRIPTION,:PSU_DATE,:STATUS
                 from PSU,DATA,STATE;
          ELSIF ( :EXTENDVERSION = '11.2.0.4.0' AND :EXIST > 0 AND :BP like '%BP%') THEN
          with PSU as
@@ -89,7 +89,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY'
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'BP%'
                         )
         ),
@@ -123,7 +123,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
              where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
              and COMMENTS like 'BP%'
              )
          ),
@@ -139,21 +139,21 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
          select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
          into :DESCRIPTION,:PSU_DATE,:STATUS
          from PSU,DATA,STATE;
-   ELSIF ( :EXTENDVERSION = '11.2.0.3.0' AND :EXIST > 0 AND :BP not like '%BP%') THEN 
+   ELSIF ( :EXTENDVERSION = '11.2.0.3.0' AND :EXIST > 0 AND :BP not like '%BP%') THEN
         with PSU as
                 (
                         select COMMENTS as COMMENTS
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY'
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         or COMMENTS like '%DATABASE PATCH SET UPDATE%'
                         )
                 ),
                 DATA as
                 (
-                        select 
+                        select
                         case
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '15' THEN TO_DATE('150714','YYMMDD')
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '14' THEN TO_DATE('150414','YYMMDD')
@@ -174,23 +174,23 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         or COMMENTS like '%DATABASE PATCH SET UPDATE%'
                         )
                 ),
                 STATE as
                 (
-                        select 
-                        case   
-                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO' 
-                                ELSE 'OK' 
+                        select
+                        case
+                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO'
+                                ELSE 'OK'
                         END as "STATUS"
                         from DATA
                 )
-                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS 
-                into :DESCRIPTION,:PSU_DATE,:STATUS 
-                from PSU,DATA,STATE; 
+                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
+                into :DESCRIPTION,:PSU_DATE,:STATUS
+                from PSU,DATA,STATE;
          ELSIF ( :EXTENDVERSION = '11.2.0.3.0' AND :EXIST > 0 AND :BP like '%BP%') THEN
          with PSU as
          (
@@ -198,7 +198,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
             where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
              and COMMENTS like 'BP%'
              )
         ),
@@ -240,7 +240,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
              where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
              and COMMENTS like 'BP%'
              )
          ),
@@ -256,21 +256,21 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
          select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
          into :DESCRIPTION,:PSU_DATE,:STATUS
          from PSU,DATA,STATE;
-   ELSIF ( :EXTENDVERSION = '11.2.0.2.0'  AND :EXIST > 0  AND :BP not like '%BP%') THEN 
+   ELSIF ( :EXTENDVERSION = '11.2.0.2.0'  AND :EXIST > 0  AND :BP not like '%BP%') THEN
         with PSU as
                 (
                         select COMMENTS as COMMENTS
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
-                        and COMMENTS like 'PSU%'
+                        where ACTION='APPLY'
+                        and COMMENTS like 'PSU%' and version=substr(:EXTENDVERSION,0,8)
                         or COMMENTS like '%DATABASE PATCH SET UPDATE%'
                         )
                 ),
                 DATA as
                 (
-                        select 
+                        select
                         case
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '1' THEN TO_DATE('110118','YYMMDD')
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '2' THEN TO_DATE('110512','YYMMDD')
@@ -288,22 +288,22 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                         from  registry$history
                          where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
-                        and COMMENTS like 'PSU%'
+                        where ACTION='APPLY'
+                        and COMMENTS like 'PSU%' and version=substr(:EXTENDVERSION,0,8)
                         or COMMENTS like '%DATABASE PATCH SET UPDATE%'
                         )
                 ),
                 STATE as
                 (
-                        select 
-                        case   
-                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO' 
-                                ELSE 'OK' 
+                        select
+                        case
+                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO'
+                                ELSE 'OK'
                         END as "STATUS"
                         from DATA
                 )
-                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS 
-                into :DESCRIPTION,:PSU_DATE,:STATUS 
+                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
+                into :DESCRIPTION,:PSU_DATE,:STATUS
                 from PSU,DATA,STATE;
          ELSIF ( :EXTENDVERSION = '11.2.0.2.0' AND :EXIST > 0 AND :BP like '%BP%') THEN
          with PSU as
@@ -312,7 +312,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
               where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
              and COMMENTS like 'BP%'
              )
         ),
@@ -348,8 +348,8 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
              where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
-             and COMMENTS like 'BP%' 
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
+             and COMMENTS like 'BP%'
              )
          ),
          STATE as
@@ -363,21 +363,21 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
          )
          select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
          into :DESCRIPTION,:PSU_DATE,:STATUS
-         from PSU,DATA,STATE;                               
-   ELSIF ( :EXTENDVERSION = '11.2.0.1.0' AND :EXIST > 0  AND :BP not like '%BP%') THEN 
+         from PSU,DATA,STATE;
+   ELSIF ( :EXTENDVERSION = '11.2.0.1.0' AND :EXIST > 0  AND :BP not like '%BP%') THEN
         with PSU as
                 (
                         select COMMENTS as COMMENTS
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         )
                 ),
                 DATA as
                 (
-                        select 
+                        select
                         case
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '1' THEN TO_DATE('100413','YYMMDD')
                                 WHEN substr(COMMENTS, - instr(reverse(COMMENTS), '.') + 1) = '2' THEN TO_DATE('100713','YYMMDD')
@@ -389,21 +389,21 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
                         from  registry$history
                         where action_time = (select max(action_time)
                         from registry$history
-                        where ACTION='APPLY' 
+                        where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
                         and COMMENTS like 'PSU%'
                         )
                 ),
                 STATE as
                 (
-                        select 
-                        case   
-                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO' 
-                                ELSE 'OK' 
+                        select
+                        case
+                                WHEN PSU_DATE < SYSDATE-180 THEN 'KO'
+                                ELSE 'OK'
                         END as "STATUS"
                         from DATA
                 )
-                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS 
-                into :DESCRIPTION,:PSU_DATE,:STATUS 
+                select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
+                into :DESCRIPTION,:PSU_DATE,:STATUS
                 from PSU,DATA,STATE;
          ELSIF ( :EXTENDVERSION = '11.2.0.1.0' AND :EXIST > 0 AND :BP like '%BP%') THEN
          with PSU as
@@ -412,7 +412,7 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
              where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
              and COMMENTS like 'BP%'
              )
         ),
@@ -438,8 +438,8 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
              from  registry$history
              where action_time = (select max(action_time)
              from registry$history
-             where ACTION='APPLY'
-             and COMMENTS like 'BP%' 
+             where ACTION='APPLY' and version=substr(:EXTENDVERSION,0,8)
+             and COMMENTS like 'BP%'
              )
          ),
          STATE as
@@ -453,12 +453,12 @@ select * into :BP from (select COMMENTS from  registry$history order by action_t
          )
          select distinct COMMENTS as DESCRIPTION,PSU_DATE,STATUS
          into :DESCRIPTION,:PSU_DATE,:STATUS
-         from PSU,DATA,STATE;                                       
+         from PSU,DATA,STATE;
     ELSE
-        select 'N/A','N/A','N/A' 
-                into :DESCRIPTION,:PSU_DATE,:STATUS 
+        select 'N/A','N/A','N/A'
+                into :DESCRIPTION,:PSU_DATE,:STATUS
                 from dual;
-   END IF; 
+   END IF;
 
 END;
 /
@@ -466,8 +466,10 @@ END;
 col Description for a70
 col PSU for a40
 col STATUS for a40
-select :DESCRIPTION as Description 
+select :DESCRIPTION as Description
            ,:PSU_DATE as PSU
 --         ,:STATUS as STATUS
 from dual WHERE :PSU_DATE != 'N/A';
+
+
 EXIT

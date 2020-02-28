@@ -44,8 +44,8 @@ SELECT DBMS_DB_VERSION.VERSION || '.' || DBMS_DB_VERSION.RELEASE into :VERSION F
 		(
 			select 
 			case
-		    WHEN length(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1)) = 6 THEN TO_DATE(substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,7),'YYMMDD')
-			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '1' THEN TO_DATE('140114','YYMMDD') 
+		    WHEN length(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1)) >= 6 THEN TO_DATE(substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,7),'YYMMDD')
+			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '1' THEN TO_DATE('141014','YYMMDD') 
 			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '2' THEN TO_DATE('150120','YYMMDD') 
 			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '3' THEN TO_DATE('150414','YYMMDD') 
 			WHEN substr(substr(DESCRIPTION, - instr(reverse(DESCRIPTION), '.') + 1),1,1) = '4' THEN TO_DATE('150714','YYMMDD') 
@@ -189,3 +189,5 @@ select :DESCRIPTION as Description
 	   ,:PSU_DATE as PSU
 --	   ,:STATUS as STATUS
 from dual WHERE :PSU_DATE != 'N/A';
+
+EXIT
