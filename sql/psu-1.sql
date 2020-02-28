@@ -472,4 +472,4 @@ select :DESCRIPTION as Description
 from dual WHERE :PSU_DATE != 'N/A';
 
 
-EXIST
+EXIT
