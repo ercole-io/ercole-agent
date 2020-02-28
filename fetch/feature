@@ -44,6 +44,13 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
+DB_NAME=$(sqlplus -S / as sysdba << EOF
+set pages 0 feedback off
+select name from v\$database;
+exit
+EOF
+)
+
 DB_ONE=x$(sqlplus -S / as sysdba << EOF
 set pages 0 feedback off
 HOST srvctl config database -d $DB_NAME |grep -o One

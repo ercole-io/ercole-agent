@@ -313,9 +313,6 @@ select
   having not (max(CON_ID) in (-1, 0) and grouping_id(CON_ID) = 1)            -- aggregation not needed for non-container databases
 order by decode(substr(m.PRODUCT, 1, 1), '.', 2, 1), m.PRODUCT
 )
-
-
-
 SELECT DISTINCT LTRIM(product,'.') AS a,
                 CASE
                     WHEN
@@ -342,15 +339,11 @@ SELECT DISTINCT LTRIM(product,'.') AS a,
                             AND '&1'='xOne'
                          AND
                            (SELECT count(*)
-                            FROM gv$instance) = 1
-                         AND
-                           (SELECT USAGE
-                            FROM TAB1
-                            WHERE LTRIM(product,'.') LIKE 'Real Application Clusters')='Y' THEN CASE
-                                                                                                    WHEN LTRIM(product,'.') LIKE 'Real Application Clusters One Node' THEN 'Y'
-                                                                                                    WHEN LTRIM(product,'.') LIKE 'Real Application Clusters' THEN ' '
-                                                                                                    ELSE USAGE
-                                                                                                END
+                            FROM gv$instance) = 1  THEN CASE
+                                                                WHEN LTRIM(product,'.') LIKE 'Real Application Clusters One Node' THEN 'Y'
+                                                                WHEN LTRIM(product,'.') LIKE 'Real Application Clusters' THEN ' '
+                                                                ELSE USAGE
+                                                            END
                     WHEN LTRIM(product,'.') LIKE 'Advanced Compression'
                          AND USAGE=' '
                          AND (
