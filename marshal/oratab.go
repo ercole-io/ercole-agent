@@ -22,7 +22,7 @@ import (
 	"github.com/ercole-io/ercole-agent/model"
 )
 
-// Oratab marshals a list of dbs (one per line)
+// Oratab marshals a list of dbs (one per line) from the oratab command
 func Oratab(cmdOutput []byte) []model.OratabEntry {
 
 	var oratab []model.OratabEntry
