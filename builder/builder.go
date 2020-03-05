@@ -1,9 +1,11 @@
 package builder
 
 import (
+	"context"
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/marshal"
@@ -56,7 +58,7 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 	databaseChannel := make(chan model.Database, len(oratabEntries))
 
 	for _, entry := range oratabEntries {
-		utils.RunInRoutine(configuration, func() {
+		utils.RunRoutine(configuration, func() {
 			databaseChannel <- getDatabase(configuration, entry, hostType)
 		})
 	}
@@ -70,75 +72,124 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 }
 
 func getDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) model.Database {
-	out := fetcher(configuration, "dbstatus", entry.DBName, entry.OracleHome)
-	dbStatus := strings.TrimSpace(string(out))
+	dbStatusOut := fetcher(configuration, "dbstatus", entry.DBName, entry.OracleHome)
+	dbStatus := strings.TrimSpace(string(dbStatusOut))
+
 	var database model.Database
 
-	if dbStatus == "OPEN" {
-		out = fetcher(configuration, "dbversion", entry.DBName, entry.OracleHome)
-		outVersion := string(out)
+	switch dbStatus {
+	case "OPEN":
+		database = getOpenDatabase(configuration, entry, hostType)
+	case "MOUNTED":
+		{
+			out := fetcher(configuration, "dbmounted", entry.DBName, entry.OracleHome)
+			database = marshal.Database(out)
 
-		dbVersion := strings.Split(outVersion, ".")[0]
-
-		if configuration.Forcestats {
-			fetcher(configuration, "stats", entry.DBName, entry.OracleHome)
+			database.Tablespaces = []model.Tablespace{}
+			database.Schemas = []model.Schema{}
+			database.Patches = []model.Patch{}
+			database.Features = []model.Feature{}
+			database.Licenses = []model.License{}
+			database.ADDMs = []model.Addm{}
+			database.SegmentAdvisors = []model.SegmentAdvisor{}
+			database.LastPSUs = []model.PSU{}
+			database.Backups = []model.Backup{}
 		}
+	default:
+		log.Println("Error! DBName: " + entry.DBName + "OracleHome: " + entry.OracleHome + "  Wrong dbStatus: " + dbStatus)
+	}
 
-		out = fetcher(configuration, "db", entry.DBName, entry.OracleHome, strconv.Itoa(configuration.AWR))
-		database = marshal.Database(out)
+	return database
+}
 
-		out = fetcher(configuration, "tablespace", entry.DBName, entry.OracleHome)
+func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) model.Database {
+	dbVersionOut := fetcher(configuration, "dbversion", entry.DBName, entry.OracleHome)
+	dbVersion := strings.Split(string(dbVersionOut), ".")[0]
+
+	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
+	if configuration.Forcestats {
+		utils.RunRoutine(configuration, func() {
+			fetcher(configuration, "stats", entry.DBName, entry.OracleHome)
+
+			cancelStatsCtx()
+		})
+	} else {
+		cancelStatsCtx()
+	}
+
+	out := fetcher(configuration, "db", entry.DBName, entry.OracleHome, strconv.Itoa(configuration.AWR))
+	database := marshal.Database(out)
+
+	var wg sync.WaitGroup
+
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "tablespace", entry.DBName, entry.OracleHome)
 		database.Tablespaces = marshal.Tablespaces(out)
+	}, &wg)
 
-		out = fetcher(configuration, "schema", entry.DBName, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "schema", entry.DBName, entry.OracleHome)
 		database.Schemas = marshal.Schemas(out)
+	}, &wg)
 
-		out = fetcher(configuration, "patch", entry.DBName, dbVersion, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "patch", entry.DBName, dbVersion, entry.OracleHome)
 		database.Patches = marshal.Patches(out)
+	}, &wg)
 
-		out = fetcher(configuration, "feature", entry.DBName, dbVersion, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		<-statsCtx.Done()
+
+		out := fetcher(configuration, "feature", entry.DBName, dbVersion, entry.OracleHome)
+
 		if strings.Contains(string(out), "deadlocked on readable physical standby") {
 			log.Println("Detected bug active dataguard 2311894.1!")
 			database.Features = []model.Feature{}
+
 		} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
 			log.Println("Detected error on active dataguard ORA-01555!")
 			database.Features = []model.Feature{}
+
 		} else {
 			database.Features = marshal.Features(out)
 		}
+	}, &wg)
 
-		out = fetcher(configuration, "opt", entry.DBName, dbVersion, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		<-statsCtx.Done()
+
+		out := fetcher(configuration, "opt", entry.DBName, dbVersion, entry.OracleHome)
 		database.Features2 = marshal.Features2(out)
+	}, &wg)
 
-		out = fetcher(configuration, "license", entry.DBName, dbVersion, hostType, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		<-statsCtx.Done()
+
+		out := fetcher(configuration, "license", entry.DBName, dbVersion, hostType, entry.OracleHome)
 		database.Licenses = marshal.Licenses(out)
+	}, &wg)
 
-		out = fetcher(configuration, "addm", entry.DBName, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "addm", entry.DBName, entry.OracleHome)
 		database.ADDMs = marshal.Addms(out)
+	}, &wg)
 
-		out = fetcher(configuration, "segmentadvisor", entry.DBName, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "segmentadvisor", entry.DBName, entry.OracleHome)
 		database.SegmentAdvisors = marshal.SegmentAdvisor(out)
+	}, &wg)
 
-		out = fetcher(configuration, "psu", entry.DBName, dbVersion, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "psu", entry.DBName, dbVersion, entry.OracleHome)
 		database.LastPSUs = marshal.PSU(out)
+	}, &wg)
 
-		out = fetcher(configuration, "backup", entry.DBName, entry.OracleHome)
+	utils.RunRoutineInGroup(configuration, func() {
+		out := fetcher(configuration, "backup", entry.DBName, entry.OracleHome)
 		database.Backups = marshal.Backups(out)
+	}, &wg)
 
-	} else if dbStatus == "MOUNTED" {
-		out = fetcher(configuration, "dbmounted", entry.DBName, entry.OracleHome)
-		database = marshal.Database(out)
-
-		database.Tablespaces = []model.Tablespace{}
-		database.Schemas = []model.Schema{}
-		database.Patches = []model.Patch{}
-		database.Features = []model.Feature{}
-		database.Licenses = []model.License{}
-		database.ADDMs = []model.Addm{}
-		database.SegmentAdvisors = []model.SegmentAdvisor{}
-		database.LastPSUs = []model.PSU{}
-		database.Backups = []model.Backup{}
-	}
+	wg.Wait()
 
 	return database
 }
