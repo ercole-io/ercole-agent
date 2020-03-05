@@ -8,15 +8,10 @@ import (
 
 // RunRoutine will run function in a separeted goroutine and wait or not due to config.
 func RunRoutine(configuration config.Configuration, function func()) {
-	done := make(chan bool, 1)
-
-	go func(done chan<- bool) {
+	if configuration.ParallelizeRequests {
+		go function()
+	} else {
 		function()
-		done <- true
-	}(done)
-
-	if !configuration.ParallelizeRequests {
-		<-done
 	}
 }
 
@@ -24,15 +19,14 @@ func RunRoutine(configuration config.Configuration, function func()) {
 // Increment waitGroup counter and notify when done.
 func RunRoutineInGroup(configuration config.Configuration, function func(), waitGroup *sync.WaitGroup) {
 	waitGroup.Add(1)
-	done := make(chan bool, 1)
 
-	go func(done chan<- bool) {
+	if configuration.ParallelizeRequests {
+		go func() {
+			function()
+			waitGroup.Done()
+		}()
+	} else {
 		function()
-		done <- true
 		waitGroup.Done()
-	}(done)
-
-	if !configuration.ParallelizeRequests {
-		<-done
 	}
 }
