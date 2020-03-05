@@ -16,10 +16,6 @@ import (
 func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int) *model.HostData {
 	hostData := new(model.HostData)
 
-	if configuration.Hostname != "default" {
-		hostData.Hostname = configuration.Hostname
-	}
-
 	hostData.Environment = configuration.Envtype
 	hostData.Location = configuration.Location
 	hostData.HostType = configuration.HostType
@@ -27,6 +23,9 @@ func BuildData(configuration config.Configuration, version string, hostDataSchem
 	hostData.HostDataSchemaVersion = hostDataSchemaVersion
 	hostData.Info = *getHost(configuration)
 	hostData.Hostname = hostData.Info.Hostname
+	if configuration.Hostname != "default" {
+		hostData.Hostname = configuration.Hostname
+	}
 
 	hostData.Extra.Filesystems = getFilesystems(configuration)
 	hostData.Extra.Databases = getDatabases(configuration, hostData.Info.Type)
