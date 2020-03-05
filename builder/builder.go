@@ -8,6 +8,7 @@ import (
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/utils"
 )
 
 func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int) *model.HostData {
@@ -50,13 +51,19 @@ func getFilesystems(configuration config.Configuration) []model.Filesystem {
 
 func getDatabases(configuration config.Configuration, hostType string) []model.Database {
 	out := fetcher(configuration, "oratab", configuration.Oratab)
-	dbs := marshal.Oratab(out)
+	oratabEntries := marshal.Oratab(out)
+
+	databaseChannel := make(chan model.Database, len(oratabEntries))
+
+	for _, entry := range oratabEntries {
+		utils.RunInRoutine(configuration, func() {
+			databaseChannel <- getDatabase(configuration, entry, hostType)
+		})
+	}
 
 	var databases = []model.Database{}
-
-	for _, entry := range dbs {
-		database := getDatabase(configuration, entry, hostType)
-		databases = append(databases, database)
+	for i := 0; i < len(oratabEntries); i++ {
+		databases = append(databases, <-databaseChannel)
 	}
 
 	return databases

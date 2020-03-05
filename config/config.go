@@ -39,12 +39,12 @@ type Configuration struct {
 	ForcePwshVersion       string
 	Oratab                 string
 	AWR                    int
+	ParallelizeRequests    bool
 }
 
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
 func ReadConfig() Configuration {
-
 	baseDir := GetBaseDir()
 	configFile := ""
 	if runtime.GOOS == "windows" {
