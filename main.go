@@ -22,14 +22,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os/exec"
-	"runtime"
-	"strconv"
-	"strings"
 	"time"
 
+	"github.com/ercole-io/ercole-agent/builder"
 	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/scheduler"
 	"github.com/ercole-io/ercole-agent/scheduler/storage"
@@ -47,14 +43,16 @@ func (p *program) Start(s service.Service) error {
 	go p.run()
 	return nil
 }
+
 func (p *program) run() {
 	configuration := config.ReadConfig()
-	buildData(configuration) // first run
+
+	doBuildAndSend(configuration)
 
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
-	_, err := scheduler.RunEvery(time.Duration(configuration.Frequency)*time.Hour, buildData, configuration)
+	_, err := scheduler.RunEvery(time.Duration(configuration.Frequency)*time.Hour, doBuildAndSend, configuration)
 
 	if err != nil {
 		log.Fatal("Error sending data", err)
@@ -64,166 +62,12 @@ func (p *program) run() {
 	scheduler.Wait()
 }
 
-func (p *program) Stop(s service.Service) error {
-	return nil
-}
-
-func main() {
-
-	svcConfig := &service.Config{
-		Name:        "ErcoleAgent",
-		DisplayName: "The Ercole Agent",
-		Description: "Asset management agent from the Ercole project.",
-	}
-
-	prg := &program{}
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logger, err = s.Logger(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = s.Run()
-	if err != nil {
-		logger.Error(err)
-	}
-
-}
-
-func buildData(configuration config.Configuration) {
-
-	out := fetcher(configuration, "host")
-	host := marshal.Host(out)
-
-	host.Environment = configuration.Envtype
-	host.Location = configuration.Location
-
-	out = fetcher(configuration, "filesystem")
-	filesystems := marshal.Filesystems(out)
-
-	out = fetcher(configuration, "oratab", configuration.Oratab)
-	dbs := marshal.Oratab(out)
-
-	var databases = []model.Database{}
-
-	for _, db := range dbs {
-
-		out = fetcher(configuration, "dbstatus", db.DBName, db.OracleHome)
-		dbStatus := strings.TrimSpace(string(out))
-
-		if dbStatus == "OPEN" {
-			out = fetcher(configuration, "dbversion", db.DBName, db.OracleHome)
-			outVersion := string(out)
-
-			dbVersion := strings.Split(outVersion, ".")[0]
-
-			if configuration.Forcestats {
-				fetcher(configuration, "stats", db.DBName, db.OracleHome)
-			}
-
-			out = fetcher(configuration, "db", db.DBName, db.OracleHome, strconv.Itoa(configuration.AWR))
-			database := marshal.Database(out)
-
-			out = fetcher(configuration, "tablespace", db.DBName, db.OracleHome)
-			database.Tablespaces = marshal.Tablespaces(out)
-
-			out = fetcher(configuration, "schema", db.DBName, db.OracleHome)
-			database.Schemas = marshal.Schemas(out)
-
-			out = fetcher(configuration, "patch", db.DBName, dbVersion, db.OracleHome)
-			database.Patches = marshal.Patches(out)
-
-			out = fetcher(configuration, "feature", db.DBName, dbVersion, db.OracleHome)
-			if strings.Contains(string(out), "deadlocked on readable physical standby") {
-				log.Println("Detected bug active dataguard 2311894.1!")
-				database.Features = []model.Feature{}
-			} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
-				log.Println("Detected error on active dataguard ORA-01555!")
-				database.Features = []model.Feature{}
-			} else {
-				database.Features = marshal.Features(out)
-			}
-
-			out = fetcher(configuration, "opt", db.DBName, dbVersion, db.OracleHome)
-			database.Features2 = marshal.Features2(out)
-
-			out = fetcher(configuration, "license", db.DBName, dbVersion, host.Type, db.OracleHome)
-			database.Licenses = marshal.Licenses(out)
-
-			out = fetcher(configuration, "addm", db.DBName, db.OracleHome)
-			database.ADDMs = marshal.Addms(out)
-
-			out = fetcher(configuration, "segmentadvisor", db.DBName, db.OracleHome)
-			database.SegmentAdvisors = marshal.SegmentAdvisor(out)
-
-			out = fetcher(configuration, "psu", db.DBName, dbVersion, db.OracleHome)
-			database.LastPSUs = marshal.PSU(out)
-
-			out = fetcher(configuration, "backup", db.DBName, db.OracleHome)
-			database.Backups = marshal.Backups(out)
-
-			databases = append(databases, database)
-		} else if dbStatus == "MOUNTED" {
-			out = fetcher(configuration, "dbmounted", db.DBName, db.OracleHome)
-			database := marshal.Database(out)
-			database.Tablespaces = []model.Tablespace{}
-			database.Schemas = []model.Schema{}
-			database.Patches = []model.Patch{}
-			database.Features = []model.Feature{}
-			database.Licenses = []model.License{}
-			database.ADDMs = []model.Addm{}
-			database.SegmentAdvisors = []model.SegmentAdvisor{}
-			database.LastPSUs = []model.PSU{}
-			database.Backups = []model.Backup{}
-
-			databases = append(databases, database)
-		}
-	}
-
-	hostData := new(model.HostData)
-
-	extraInfo := new(model.ExtraInfo)
-	extraInfo.Filesystems = filesystems
-
-	extraInfo.Databases = databases
-
-	hostData.Extra = *extraInfo
-
-	hostData.Info = host
-	hostData.Hostname = host.Hostname
-	// override host name with the one in config if != default
-	if configuration.Hostname != "default" {
-		hostData.Hostname = configuration.Hostname
-	}
-	hostData.Environment = configuration.Envtype
-	hostData.Location = configuration.Location
-	hostData.HostType = configuration.HostType
-	hostData.Version = version
-	hostData.HostDataSchemaVersion = hostDataSchemaVersion
-
-	// Fill index fields
-	hdDatabases := ""
-	hdSchemas := ""
-	for _, db := range databases {
-		hdDatabases += db.Name + " "
-		for _, sc := range db.Schemas {
-			hdSchemas += sc.User + " "
-		}
-	}
-	hdDatabases = strings.TrimSpace(hdDatabases)
-	hostData.Databases = hdDatabases
-
-	hdSchemas = strings.TrimSpace(hdSchemas)
-	hostData.Schemas = hdSchemas
-
+func doBuildAndSend(configuration config.Configuration) {
+	hostData := builder.BuildData(configuration, version, hostDataSchemaVersion)
 	sendData(hostData, configuration)
-
 }
 
 func sendData(data *model.HostData, configuration config.Configuration) {
-
 	log.Println("Sending data...")
 
 	b, _ := json.Marshal(data)
@@ -260,52 +104,30 @@ func sendData(data *model.HostData, configuration config.Configuration) {
 	}
 
 	log.Println("Sending result:", sendResult)
-
 }
 
-func fetcher(configuration config.Configuration, fetcherName string, params ...string) []byte {
-	var (
-		cmd    *exec.Cmd
-		err    error
-		psexe  string
-		stdout bytes.Buffer
-		stderr bytes.Buffer
-	)
+func (p *program) Stop(s service.Service) error {
+	return nil
+}
 
-	baseDir := config.GetBaseDir()
-
-	if runtime.GOOS == "windows" {
-		psexe, err = exec.LookPath("powershell.exe")
-		if err != nil {
-			log.Fatal(psexe)
-		}
-		if configuration.ForcePwshVersion == "0" {
-			params = append([]string{"-ExecutionPolicy", "Bypass", "-File", baseDir + "\\fetch\\win.ps1", "-s", fetcherName}, params...)
-		} else {
-			params = append([]string{"-version", configuration.ForcePwshVersion, "-ExecutionPolicy", "Bypass", "-File", baseDir + "\\fetch\\win.ps1", "-s", fetcherName}, params...)
-		}
-		log.Println("Fetching " + psexe + " " + strings.Join(params, " "))
-
-		cmd = exec.Command(psexe, params...)
-	} else {
-		log.Println("Fetching " + baseDir + "/fetch/" + fetcherName + " " + strings.Join(params, " "))
-		cmd = exec.Command(baseDir+"/fetch/"+fetcherName, params...)
+func main() {
+	svcConfig := &service.Config{
+		Name:        "ErcoleAgent",
+		DisplayName: "The Ercole Agent",
+		Description: "Asset management agent from the Ercole project.",
 	}
 
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err = cmd.Run()
-	if len(stderr.Bytes()) > 0 {
-		log.Print(string(stderr.Bytes()))
-	}
-
+	prg := &program{}
+	s, err := service.New(prg, svcConfig)
 	if err != nil {
-		if fetcherName != "dbstatus" {
-			log.Fatal(err)
-		} else {
-			return []byte("UNREACHABLE") // fallback
-		}
+		log.Fatal(err)
 	}
-
-	return stdout.Bytes()
+	logger, err = s.Logger(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = s.Run()
+	if err != nil {
+		logger.Error(err)
+	}
 }

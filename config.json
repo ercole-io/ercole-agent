@@ -10,5 +10,6 @@
     "enableservervalidation": false,
     "forcepwshversion": "0",
     "oratab": "/etc/oratab",
-    "AWR": 30
+    "AWR": 30,    
+    "parallelizeRequests": true
 }
