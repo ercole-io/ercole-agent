@@ -54,7 +54,7 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 	out := fetcher(configuration, "oratab", configuration.Oratab)
 	oratabEntries := marshal.Oratab(out)
 
-	databaseChannel := make(chan model.Database, len(oratabEntries))
+	databaseChannel := make(chan *model.Database, len(oratabEntries))
 
 	for _, entry := range oratabEntries {
 		utils.RunRoutine(configuration, func() {
@@ -64,17 +64,20 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 
 	var databases = []model.Database{}
 	for i := 0; i < len(oratabEntries); i++ {
-		databases = append(databases, <-databaseChannel)
+		db := (<-databaseChannel)
+		if db != nil {
+			databases = append(databases, *db)
+		}
 	}
 
 	return databases
 }
 
-func getDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) model.Database {
+func getDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) *model.Database {
 	dbStatusOut := fetcher(configuration, "dbstatus", entry.DBName, entry.OracleHome)
 	dbStatus := strings.TrimSpace(string(dbStatusOut))
 
-	var database model.Database
+	var database *model.Database
 
 	switch dbStatus {
 	case "OPEN":
@@ -82,7 +85,8 @@ func getDatabase(configuration config.Configuration, entry model.OratabEntry, ho
 	case "MOUNTED":
 		{
 			out := fetcher(configuration, "dbmounted", entry.DBName, entry.OracleHome)
-			database = marshal.Database(out)
+			tmp := marshal.Database(out)
+			database = &tmp
 
 			database.Tablespaces = []model.Tablespace{}
 			database.Schemas = []model.Schema{}
@@ -95,13 +99,14 @@ func getDatabase(configuration config.Configuration, entry model.OratabEntry, ho
 			database.Backups = []model.Backup{}
 		}
 	default:
-		log.Println("Error! DBName: " + entry.DBName + "OracleHome: " + entry.OracleHome + "  Wrong dbStatus: " + dbStatus)
+		log.Println("Error! DBName: [" + entry.DBName + "] OracleHome: [" + entry.OracleHome + "]  Wrong dbStatus: [" + dbStatus + "]")
+		return nil
 	}
 
 	return database
 }
 
-func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) model.Database {
+func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) *model.Database {
 	dbVersionOut := fetcher(configuration, "dbversion", entry.DBName, entry.OracleHome)
 	dbVersion := strings.Split(string(dbVersionOut), ".")[0]
 
@@ -117,7 +122,8 @@ func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry
 	}
 
 	out := fetcher(configuration, "db", entry.DBName, entry.OracleHome, strconv.Itoa(configuration.AWR))
-	database := marshal.Database(out)
+	tmp := marshal.Database(out)
+	database := &tmp
 
 	var wg sync.WaitGroup
 
