@@ -56,7 +56,9 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 
 	databaseChannel := make(chan *model.Database, len(oratabEntries))
 
-	for _, entry := range oratabEntries {
+	for i := range oratabEntries {
+		entry := oratabEntries[i]
+
 		utils.RunRoutine(configuration, func() {
 			databaseChannel <- getDatabase(configuration, entry, hostType)
 		})
