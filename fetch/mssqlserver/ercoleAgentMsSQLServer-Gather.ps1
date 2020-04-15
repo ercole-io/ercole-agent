@@ -15,10 +15,10 @@
 
 param(
     [Parameter(Mandatory=$false)][string]$instance ="DESKTOP-QN4D1T4\SQL2014",
-    [Parameter(Mandatory=$false)][string]$sqlDir ="..\sql\",
-    [Parameter(Mandatory=$false)][string]$outDir ="..\Output\",
+    [Parameter(Mandatory=$false)][string]$sqlDir ="..\..\sql\mssqlserver\",
+    [Parameter(Mandatory=$false)][string]$outDir ="..\..\Output\",
     [Parameter(Mandatory=$false)][ValidateSet("json")] [string]$outputType ="json",
-    [Parameter(Mandatory=$false)][bool]$installInfo = $false
+    [Parameter(Mandatory=$false)][bool]$installInfo = $true
 )
 
 function main(){
