@@ -15,7 +15,7 @@
 
 param(
     [Parameter(Mandatory=$false)][string]$majorVersion = $null,
-    [Parameter(Mandatory=$false)][string]$outDir ="..\Output\"
+    [Parameter(Mandatory=$false)][string]$outDir ="..\..\Output\"
 )
 
 
@@ -24,8 +24,11 @@ function convertReportToJson([string]$setupBootstrap){
     $SetupBootstrapLog = [System.IO.Path]::Combine($SetupBootstrap, 'Log')
     $lastDir = Get-ChildItem -LiteralPath $SetupBootstrapLog -Directory |Sort LastWriteTime |Select name -last 1
     $reportPath = [System.IO.Path]::Combine($SetupBootstrapLog, $lastDir.Name)
-    [xml]$xvar = Get-Content $($reportPath+'\SqlDiscoveryReport.xml')
-    $xvar.ArrayOfDiscoveryInformation.DiscoveryInformation|Select Product, Instance, InstanceID, Feature, Language, Edition, Version, Clustered, Configured |ConvertTo-Json|Out-File -LiteralPath  $("$outDir"+'hostSqlFeatures.json')
+    $reportFile = $($reportPath+'\SqlDiscoveryReport.xml')
+    if ([System.IO.File]::Exists($reportFile)){
+        [xml]$xvar = Get-Content $reportFile
+        $xvar.ArrayOfDiscoveryInformation.DiscoveryInformation|Select Product, Instance, InstanceID, Feature, Language, Edition, Version, Clustered, Configured |ConvertTo-Json|Out-File -LiteralPath  $("$outDir"+'hostSqlFeatures.json')
+    }
 }
 
 function getNewerVersionPath([string]$targetVersion){
