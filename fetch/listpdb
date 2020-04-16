@@ -27,12 +27,12 @@ if [ -z "$HOME" ]; then
   exit 1
 fi
 
+ERCOLE_HOME=$(dirname "$0")
+ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
+
 export ORAENV_ASK=NO 
 export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-ERCOLE_HOME=$(dirname "$0")
-ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
-
-sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/schema.sql
+sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/listpdb.sql 
