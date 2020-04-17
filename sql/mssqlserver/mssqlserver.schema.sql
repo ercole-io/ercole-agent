@@ -36,6 +36,9 @@
 		    on part.partition_id = au.container_id
 )
 SELECT
+	@@SERVERNAME AS [servername],
+	DB_ID() AS [database_id],
+	DB_NAME() AS [database_name],
 	[ONE].[allocation_type],
 	convert( decimal(36,3), SUM( ([ONE].[used_pages] * (8E/1024)) ) ) AS [used_mb],
 	convert( decimal(36,3), SUM( ([ONE].[total_pages] * (8E/1024)) ) ) AS [allocated_mb]

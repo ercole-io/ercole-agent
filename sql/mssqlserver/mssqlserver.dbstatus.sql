@@ -13,7 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SELECT 
+SELECT
+	name as [database_name], 
 	state_desc as [status]
 FROM 
 	sys.databases
