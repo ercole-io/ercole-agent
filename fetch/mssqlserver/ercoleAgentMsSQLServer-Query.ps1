@@ -19,9 +19,10 @@ param(
     [Parameter(Mandatory=$false)][string]$dbName ="master",
     [Parameter(Mandatory=$false)][string]$username = $null,
     [Parameter(Mandatory=$false)][string]$passwordEncryp = $null,
-    [Parameter(Mandatory=$false)][string]$queryPath = "C:\Danilo\Sorint\Ercole-Agent\sql\mssqlserver\mssqlserver.dbmounted.10.sql",
-    [Parameter(Mandatory=$false)][string]$outputFile = "C:\Danilo\Sorint\Ercole-Agent\Output\dbmounted.json",
+    [Parameter(Mandatory=$false)][string]$queryPath = "C:\Danilo\Sorint\LocalDev-Ercole-Agent\sql\mssqlserver\mssqlserver.dbmounted.10.sql",
+    [Parameter(Mandatory=$false)][string]$outputFile = "C:\Danilo\Sorint\LocalDev-Ercole-Agent\Output\dbmounted.json",
     [Parameter(Mandatory=$false)][ValidateSet("csv", "json")] [string]$outputType ="json",
+    [Parameter(Mandatory=$false)][ValidateSet("file","object")] [string]$outputAs ="object",
     [Parameter(Mandatory=$false)] [Object]$parameters =$null
 )
 
@@ -110,9 +111,20 @@ function main(){
 
         $results = SQLQuery -ServerInstance $instance -Database $dbName -Query $query -as DataTable -Username $username -Password $passwordEncryp -Parameters $Parameters
         if ($OutputType -eq "json"){
-            $results |Select $results.Columns.ColumnName |ConvertTo-Json |Out-File -FilePath $OutputFile
+            if ($outputAs -eq "file"){
+                $results |Select $results.Columns.ColumnName |ConvertTo-Json |Out-File -FilePath $OutputFile
+            }
+            else {
+                $results |Select $results.Columns.ColumnName |ConvertTo-Json
+            }
+
         }elseif ($OutputType -eq "csv"){
-            $results|ConvertTo-Csv -NoTypeInformation -Delimiter ';'|Out-File -FilePath $OutputFile
+            if ($outputAs -eq "file"){
+                $results|ConvertTo-Csv -NoTypeInformation -Delimiter ';'|Out-File -FilePath $OutputFile
+            }
+            else {
+                $results|ConvertTo-Csv -NoTypeInformation -Delimiter ';'
+            }
         }
 
         

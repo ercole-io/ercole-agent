@@ -14,8 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 param(
-    [Parameter(Mandatory=$false)][string]$majorVersion = $null,
-    [Parameter(Mandatory=$false)][string]$outDir ="..\..\Output\"
+    [Parameter(Mandatory=$false)][string]$majorVersion = '12',
+    [Parameter(Mandatory=$false)][string]$outDir ="..\..\Output\",
+    [Parameter(Mandatory=$false)][ValidateSet("file","object")] [string]$outputAs ="objetc"
 )
 
 
@@ -25,10 +26,16 @@ function convertReportToJson([string]$setupBootstrap){
     $lastDir = Get-ChildItem -LiteralPath $SetupBootstrapLog -Directory |Sort LastWriteTime |Select name -last 1
     $reportPath = [System.IO.Path]::Combine($SetupBootstrapLog, $lastDir.Name)
     $reportFile = $($reportPath+'\SqlDiscoveryReport.xml')
+    $result = $null
     if ([System.IO.File]::Exists($reportFile)){
         [xml]$xvar = Get-Content $reportFile
-        $xvar.ArrayOfDiscoveryInformation.DiscoveryInformation|Select Product, Instance, InstanceID, Feature, Language, Edition, Version, Clustered, Configured |ConvertTo-Json|Out-File -LiteralPath  $("$outDir"+'hostSqlFeatures.json')
+        $result = $xvar.ArrayOfDiscoveryInformation.DiscoveryInformation `
+            |Select Product, Instance, InstanceID, Feature, Language, Edition, Version, Clustered, Configured
+        #$xvar.ArrayOfDiscoveryInformation.DiscoveryInformation `
+        #    |Select Product, Instance, InstanceID, Feature, Language, Edition, Version, Clustered, Configured `
+        #    |ConvertTo-Json|Out-File -LiteralPath  $("$outDir"+'hostSqlFeatures.json')
     }
+    return $result
 }
 
 function getNewerVersionPath([string]$targetVersion){
@@ -87,7 +94,7 @@ function getNewerVersionPath([string]$targetVersion){
                 {
                     $setupExeFound = $true
                     Start-Process -FilePath $setupExe -ArgumentList "/q /Action=RunDiscovery" -Wait
-                    convertReportToJson -setupBootstrap $SetupBootstrap
+                    $finalResult = convertReportToJson -setupBootstrap $SetupBootstrap
                     break
                 }
             }
@@ -98,7 +105,7 @@ function getNewerVersionPath([string]$targetVersion){
             break
         }
     }
-        return $setupExeFound
+    return $finalResult
 }
 
 
@@ -146,11 +153,11 @@ function main(){
         $outDir = $($outDir.ToString()+'\' )
     }
 
-    [bool] $result = $false
+    $result = $null
 
     if ([string]::IsNullOrEmpty($majorVersion)){
         $result = getNewerVersionPath -targetVersion $null
-        if (-not $result){
+        if (-not [string]::IsNullOrEmpty($result)){
             $result = getOlderVersionPath -targetVersion $null    
         }
     }elseif ($majorVersion -ge '10'){
@@ -159,7 +166,13 @@ function main(){
         $result = getOlderVersionPath -targetVersion $majorVersion
     }
 
-    if(-Not $result){
+    if (-not [string]::IsNullOrEmpty($result)){
+        if ($outputAs -eq "file"){
+            $result|ConvertTo-Json|Out-File -LiteralPath  $("$outDir"+'hostSqlFeatures.json')
+        }else{
+            $result|ConvertTo-Json
+        }
+    }else{
         Write-Host "No installed SQL Server features found." -ForegroundColor Yellow 
     }
 }
