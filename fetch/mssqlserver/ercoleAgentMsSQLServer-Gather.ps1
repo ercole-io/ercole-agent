@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 param(
-    [Parameter(Mandatory=$false)][string]$instance =$null,
-    [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver\",
+    [Parameter(Mandatory=$false)][string]$instance = $null,
+    [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver",
     [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "listInstances"
 )
 
@@ -242,6 +242,7 @@ function executeQueue([System.Collections.ArrayList]$queryList, [System.Collecti
                     if ($($dbInfo.state_desc) -eq 'ONLINE'){
                         $dbQueryList| ForEach-Object{
                             $dbItemList = $_;
+                            $auxLayout = $($dbItemList.layout)
                             $queryPath = $($dbItemList.queryPath);
                             $parameters = @{
                                 pdatabase_id =  @{name='pdatabase_id'; value=$($dbInfo.database_id); datatype='Int'; size=$null; precision=$null}
@@ -312,6 +313,8 @@ function listInstances(){
             $statusDesc = 'Stopped'
         }elseif ($execResult.Status -eq 4){
             $statusDesc = 'Running'
+        }else{
+            $statusDesc = 'other'
         }
         $resultList.Add(@{name=$($currItem.Name); status=$statusDesc; displayName = $($currItem.DisplayName); connString=$connString})|Out-Null
     }

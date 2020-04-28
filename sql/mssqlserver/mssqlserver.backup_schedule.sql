@@ -61,7 +61,7 @@ GROUP BY
 ) 
 SELECT [TWO].database_name, 
 	[TWO].type as [backup_type],  
-	[TWO].Rounded as [hour],
+	CONVERT(VARCHAR(5),[TWO].Rounded) as [hour],
 	CAST(ROUND(AVG([TWO].backup_size_gb),3)  AS DECIMAL(12,3)) as [avg_bck_size_gb],
 	--STRING_AGG([TWO].start_wd, ',') as [DaysOfWeek] --only for Version >= 2016
 	SUBSTRING(
