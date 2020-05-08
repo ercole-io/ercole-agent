@@ -40,8 +40,10 @@ func (cf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 
 	baseDir := config.GetBaseDir()
 
-	log.Println("Fetching " + baseDir + "/fetch/" + fetcherName + " " + strings.Join(params, " "))
-	cmd = exec.Command(baseDir+"/fetch/"+fetcherName, params...)
+	cmdName := baseDir + "/fetch/linux" + fetcherName + ".sh"
+	log.Println("Fetching", cmdName, strings.Join(params, " "))
+
+	cmd = exec.Command(cmdName, params...)
 
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
