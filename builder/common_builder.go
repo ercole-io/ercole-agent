@@ -17,32 +17,37 @@ package builder
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/fetcher"
-	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
 )
 
 // CommonBuilder for Linux and Windows hosts
 type CommonBuilder struct {
-	fetcher       fetcher.CommonFetcher
+	fetcher       fetcher.Fetcher
 	configuration config.Configuration
 }
 
 // NewCommonBuilder initialize an appropriate builder for Linux or Windows
 func NewCommonBuilder(configuration config.Configuration) CommonBuilder {
-	var fetcherImpl fetcher.CommonFetcher
+	var fetcherImpl fetcher.Fetcher
 
 	if runtime.GOOS == "windows" {
-		fetcherImpl = &fetcher.WindowsFetcherImpl{
+		//fetcherImpl = &fetcher.WindowsFetcherImpl{
+		//	Configuration: configuration,
+		//}
+		fetcherImpl = &fetcher.CommonFetcherImpl{
 			Configuration: configuration,
+			SpecializedFetcher: &fetcher.WindowsFetcherImpl{
+				Configuration: configuration,
+			},
 		}
 
 	} else {
@@ -50,15 +55,24 @@ func NewCommonBuilder(configuration config.Configuration) CommonBuilder {
 			log.Printf("Unknow runtime.GOOS: [%v], I'll try with linux\n", runtime.GOOS)
 		}
 
-		fetcherImpl = &fetcher.LinuxFetcherImpl{
+		//fetcherImpl = &fetcher.LinuxFetcherImpl{
+		//	Configuration: configuration,
+		//}
+		fetcherImpl = &fetcher.CommonFetcherImpl{
 			Configuration: configuration,
+			SpecializedFetcher: &fetcher.LinuxFetcherImpl{
+				Configuration: configuration,
+			},
 		}
+
 	}
 
 	builder := CommonBuilder{
 		fetcher:       fetcherImpl,
 		configuration: configuration,
 	}
+
+	fmt.Println(builder.fetcher.GetSpecializedFetcherName())
 
 	return builder
 }
@@ -72,15 +86,14 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Hostname = b.configuration.Hostname
 	}
 
-	hostData.Extra.Filesystems = b.getFilesystems()
+	hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
 	hostData.Extra.Databases = b.getOracleDbs(hostData.Info.Type)
 
 	hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
 }
 
 func (b *CommonBuilder) getHost() *model.Host {
-	out := b.fetcher.Execute("host")
-	host := marshal.Host(out)
+	host := b.fetcher.GetHost()
 
 	host.Environment = b.configuration.Envtype
 	host.Location = b.configuration.Location
@@ -88,14 +101,8 @@ func (b *CommonBuilder) getHost() *model.Host {
 	return &host
 }
 
-func (b *CommonBuilder) getFilesystems() []model.Filesystem {
-	out := b.fetcher.Execute("filesystem")
-	return marshal.Filesystems(out)
-}
-
 func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
-	out := b.fetcher.Execute("oratab", b.configuration.Oratab)
-	oratabEntries := marshal.Oratab(out)
+	oratabEntries := b.fetcher.GetOratabEntries()
 
 	databaseChannel := make(chan *model.Database, len(oratabEntries))
 
@@ -119,9 +126,7 @@ func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
 }
 
 func (b *CommonBuilder) getOracleDb(entry model.OratabEntry, hostType string) *model.Database {
-	dbStatusOut := b.fetcher.Execute("dbstatus", entry.DBName, entry.OracleHome)
-	dbStatus := strings.TrimSpace(string(dbStatusOut))
-
+	dbStatus := b.fetcher.GetDbStatus(entry)
 	var database *model.Database
 
 	switch dbStatus {
@@ -129,9 +134,7 @@ func (b *CommonBuilder) getOracleDb(entry model.OratabEntry, hostType string) *m
 		database = b.getOpenDatabase(entry, hostType)
 	case "MOUNTED":
 		{
-			out := b.fetcher.Execute("dbmounted", entry.DBName, entry.OracleHome)
-			tmp := marshal.Database(out)
-			database = &tmp
+			*database = b.fetcher.GetMountedDb(entry)
 
 			database.Tablespaces = []model.Tablespace{}
 			database.Schemas = []model.Schema{}
@@ -152,13 +155,12 @@ func (b *CommonBuilder) getOracleDb(entry model.OratabEntry, hostType string) *m
 }
 
 func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string) *model.Database {
-	dbVersionOut := b.fetcher.Execute("dbversion", entry.DBName, entry.OracleHome)
-	dbVersion := strings.Split(string(dbVersionOut), ".")[0]
+	dbVersion := b.fetcher.GetDbVersion(entry)
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
-			b.fetcher.Execute("stats", entry.DBName, entry.OracleHome)
+			b.fetcher.RunStats(entry)
 
 			cancelStatsCtx()
 		})
@@ -166,82 +168,59 @@ func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string
 		cancelStatsCtx()
 	}
 
-	out := b.fetcher.Execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(b.configuration.AWR))
-	tmp := marshal.Database(out)
-	database := &tmp
+	database := b.fetcher.GetOpenDb(entry)
 
 	var wg sync.WaitGroup
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("tablespace", entry.DBName, entry.OracleHome)
-		database.Tablespaces = marshal.Tablespaces(out)
+		database.Tablespaces = b.fetcher.GetTablespaces(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("schema", entry.DBName, entry.OracleHome)
-		database.Schemas = marshal.Schemas(out)
+		database.Schemas = b.fetcher.GetSchemas(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("patch", entry.DBName, dbVersion, entry.OracleHome)
-		database.Patches = marshal.Patches(out)
-	}, &wg)
-
-	utils.RunRoutineInGroup(b.configuration, func() {
-		<-statsCtx.Done()
-
-		out := b.fetcher.Execute("feature", entry.DBName, dbVersion, entry.OracleHome)
-
-		if strings.Contains(string(out), "deadlocked on readable physical standby") {
-			log.Println("Detected bug active dataguard 2311894.1!")
-			database.Features = []model.Feature{}
-
-		} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
-			log.Println("Detected error on active dataguard ORA-01555!")
-			database.Features = []model.Feature{}
-
-		} else {
-			database.Features = marshal.Features(out)
-		}
+		database.Patches = b.fetcher.GetPatches(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		out := b.fetcher.Execute("opt", entry.DBName, dbVersion, entry.OracleHome)
-		database.Features2 = marshal.Features2(out)
+		database.Features = b.fetcher.GetFeatures(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		out := b.fetcher.Execute("license", entry.DBName, dbVersion, hostType, entry.OracleHome)
-		database.Licenses = marshal.Licenses(out)
+		database.Features2 = b.fetcher.GetFeatures2(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("addm", entry.DBName, entry.OracleHome)
-		database.ADDMs = marshal.Addms(out)
+		<-statsCtx.Done()
+
+		database.Licenses = b.fetcher.GetLicenses(entry, dbVersion, hostType)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("segmentadvisor", entry.DBName, entry.OracleHome)
-		database.SegmentAdvisors = marshal.SegmentAdvisor(out)
+		database.ADDMs = b.fetcher.GetADDMs(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("psu", entry.DBName, dbVersion, entry.OracleHome)
-		database.LastPSUs = marshal.PSU(out)
+		database.SegmentAdvisors = b.fetcher.GetSegmentAdvisors(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		out := b.fetcher.Execute("backup", entry.DBName, entry.OracleHome)
-		database.Backups = marshal.Backups(out)
+		database.LastPSUs = b.fetcher.GetLastPSUs(entry, dbVersion)
+	}, &wg)
+
+	utils.RunRoutineInGroup(b.configuration, func() {
+		database.Backups = b.fetcher.GetBackups(entry)
 	}, &wg)
 
 	wg.Wait()
 
-	return database
+	return &database
 }
 
 func (b *CommonBuilder) getDatabasesAndSchemaNames(databases []model.Database) (databasesNames, schemasNames string) {
