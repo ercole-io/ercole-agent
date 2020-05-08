@@ -45,21 +45,21 @@ fi
 MEM_TOTAL=$(echo "$(($(free -k | grep Mem | awk -F ' ' '{print $2}')/1024/1024))")
 SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}')/1024/1024))")
 
-CHECK_SUN_CLUSTER=$(ps -ef | grep -v grep | grep rpc.pmfd|wc -l)
+CHECK_SUN_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/rpc.pmfd\b" | wc -l)
 if [ $CHECK_SUN_CLUSTER = 1 ]; then
   SUN_CLUSTER=Y
 else
   SUN_CLUSTER=N
 fi
 
-CHECK_VERITAS_CLUSTER=$(ps -ef | grep -v grep | grep had|wc -l)
+CHECK_VERITAS_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/had\b" | wc -l)
 if [ $CHECK_VERITAS_CLUSTER = 1 ]; then
   VERITAS_CLUSTER=Y
 else
   VERITAS_CLUSTER=N
 fi
 
-CHECK_ORACLE_CLUSTER=$(ps -ef | grep -v grep | grep crsd|wc -l)
+CHECK_ORACLE_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/crsd\b" | wc -l)
 if [ $CHECK_ORACLE_CLUSTER -gt 0 ]; then
   ORACLE_CLUSTER=Y
 else
