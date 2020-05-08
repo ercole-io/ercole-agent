@@ -73,7 +73,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 
 	hostData.Extra.Filesystems = b.getFilesystems()
-	hostData.Extra.Databases = b.getDatabases(hostData.Info.Type)
+	hostData.Extra.Databases = b.getOracleDbs(hostData.Info.Type)
 
 	hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
 }
@@ -93,8 +93,7 @@ func (b *CommonBuilder) getFilesystems() []model.Filesystem {
 	return marshal.Filesystems(out)
 }
 
-//TODO Rename in OracleDatabases
-func (b *CommonBuilder) getDatabases(hostType string) []model.Database {
+func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
 	out := b.fetcher.Execute("oratab", b.configuration.Oratab)
 	oratabEntries := marshal.Oratab(out)
 
@@ -104,7 +103,7 @@ func (b *CommonBuilder) getDatabases(hostType string) []model.Database {
 		entry := oratabEntries[i]
 
 		utils.RunRoutine(b.configuration, func() {
-			databaseChannel <- b.getDatabase(entry, hostType)
+			databaseChannel <- b.getOracleDb(entry, hostType)
 		})
 	}
 
@@ -119,7 +118,7 @@ func (b *CommonBuilder) getDatabases(hostType string) []model.Database {
 	return databases
 }
 
-func (b *CommonBuilder) getDatabase(entry model.OratabEntry, hostType string) *model.Database {
+func (b *CommonBuilder) getOracleDb(entry model.OratabEntry, hostType string) *model.Database {
 	dbStatusOut := b.fetcher.Execute("dbstatus", entry.DBName, entry.OracleHome)
 	dbStatus := strings.TrimSpace(string(dbStatusOut))
 
