@@ -34,7 +34,6 @@ type CommonFetcherImpl struct {
 // SpecializedFetcher define specific behaviour of Linux and Windows fetchers
 type SpecializedFetcher interface {
 	Execute(fetcherName string, params ...string) []byte
-	GetSpecializedFetcherName() string
 }
 
 /// execute execute specific fetcher by name
