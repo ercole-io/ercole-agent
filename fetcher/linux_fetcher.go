@@ -31,7 +31,7 @@ type LinuxFetcherImpl struct {
 
 // Execute Execute specific fetcher by name
 func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte {
-	cmdName := config.GetBaseDir() + "/fetch/linux" + fetcherName + ".sh"
+	cmdName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
 	log.Println("Fetching", cmdName, strings.Join(params, " "))
 
 	cmd := exec.Command(cmdName, params...)
