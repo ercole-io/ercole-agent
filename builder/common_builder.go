@@ -17,7 +17,6 @@ package builder
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"runtime"
 	"strings"
@@ -40,9 +39,6 @@ func NewCommonBuilder(configuration config.Configuration) CommonBuilder {
 	var fetcherImpl fetcher.Fetcher
 
 	if runtime.GOOS == "windows" {
-		//fetcherImpl = &fetcher.WindowsFetcherImpl{
-		//	Configuration: configuration,
-		//}
 		fetcherImpl = &fetcher.CommonFetcherImpl{
 			Configuration: configuration,
 			SpecializedFetcher: &fetcher.WindowsFetcherImpl{
@@ -55,24 +51,18 @@ func NewCommonBuilder(configuration config.Configuration) CommonBuilder {
 			log.Printf("Unknow runtime.GOOS: [%v], I'll try with linux\n", runtime.GOOS)
 		}
 
-		//fetcherImpl = &fetcher.LinuxFetcherImpl{
-		//	Configuration: configuration,
-		//}
 		fetcherImpl = &fetcher.CommonFetcherImpl{
 			Configuration: configuration,
 			SpecializedFetcher: &fetcher.LinuxFetcherImpl{
 				Configuration: configuration,
 			},
 		}
-
 	}
 
 	builder := CommonBuilder{
 		fetcher:       fetcherImpl,
 		configuration: configuration,
 	}
-
-	fmt.Println(builder.fetcher.GetSpecializedFetcherName())
 
 	return builder
 }
@@ -87,7 +77,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 
 	hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
-	hostData.Extra.Databases = b.getOracleDbs(hostData.Info.Type)
+	hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type)
 
 	hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
 }
@@ -101,7 +91,7 @@ func (b *CommonBuilder) getHost() *model.Host {
 	return &host
 }
 
-func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
+func (b *CommonBuilder) getOracleDBs(hostType string) []model.Database {
 	oratabEntries := b.fetcher.GetOratabEntries()
 
 	databaseChannel := make(chan *model.Database, len(oratabEntries))
@@ -110,7 +100,7 @@ func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
 		entry := oratabEntries[i]
 
 		utils.RunRoutine(b.configuration, func() {
-			databaseChannel <- b.getOracleDb(entry, hostType)
+			databaseChannel <- b.getOracleDB(entry, hostType)
 		})
 	}
 
@@ -125,7 +115,7 @@ func (b *CommonBuilder) getOracleDbs(hostType string) []model.Database {
 	return databases
 }
 
-func (b *CommonBuilder) getOracleDb(entry model.OratabEntry, hostType string) *model.Database {
+func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *model.Database {
 	dbStatus := b.fetcher.GetDbStatus(entry)
 	var database *model.Database
 

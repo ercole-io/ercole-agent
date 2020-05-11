@@ -19,7 +19,6 @@ import "github.com/ercole-io/ercole-agent/model"
 
 // Fetcher interface for Linux and Windows
 type Fetcher interface {
-	GetSpecializedFetcherName() string
 	GetHost() model.Host
 	GetFilesystems() []model.Filesystem
 	GetOratabEntries() []model.OratabEntry
