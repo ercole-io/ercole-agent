@@ -124,7 +124,8 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *m
 		database = b.getOpenDatabase(entry, hostType)
 	case "MOUNTED":
 		{
-			*database = b.fetcher.GetMountedDb(entry)
+			db := b.fetcher.GetMountedDb(entry)
+			database = &db
 
 			database.Tablespaces = []model.Tablespace{}
 			database.Schemas = []model.Schema{}
