@@ -17,16 +17,25 @@ package fetcher
 
 import (
 	"bytes"
-	"log"
 	"os/exec"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/sirupsen/logrus"
 )
 
-// WindowsFetcherImpl implemenentation
+// WindowsFetcherImpl SpecializedFetcher implementation for windows
 type WindowsFetcherImpl struct {
 	Configuration config.Configuration
+	log           *logrus.Logger
+}
+
+// NewWindowsFetcherImpl constructor
+func NewWindowsFetcherImpl(conf config.Configuration, log *logrus.Logger) WindowsFetcherImpl {
+	return WindowsFetcherImpl{
+		conf,
+		log,
+	}
 }
 
 // Execute Execute specific fetcher by name
@@ -43,14 +52,16 @@ func (wf *WindowsFetcherImpl) Execute(fetcherName string, params ...string) []by
 
 	psexe, err = exec.LookPath("powershell.exe")
 	if err != nil {
-		log.Fatal(psexe)
+		wf.log.Fatal(psexe)
 	}
+
 	if wf.Configuration.ForcePwshVersion == "0" {
 		params = append([]string{"-ExecutionPolicy", "Bypass", "-File", baseDir + "\\fetch\\win.ps1", "-s", fetcherName}, params...)
 	} else {
 		params = append([]string{"-version", wf.Configuration.ForcePwshVersion, "-ExecutionPolicy", "Bypass", "-File", baseDir + "\\fetch\\win.ps1", "-s", fetcherName}, params...)
 	}
-	log.Println("Fetching " + psexe + " " + strings.Join(params, " "))
+
+	wf.log.Info("Fetching " + psexe + " " + strings.Join(params, " "))
 
 	cmd = exec.Command(psexe, params...)
 
@@ -58,15 +69,15 @@ func (wf *WindowsFetcherImpl) Execute(fetcherName string, params ...string) []by
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if len(stderr.Bytes()) > 0 {
-		log.Print(string(stderr.Bytes()))
+		wf.log.Error(string(stderr.Bytes()))
 	}
 
 	if err != nil {
 		if fetcherName != "dbstatus" {
-			log.Fatal(err)
-		} else {
-			return []byte("UNREACHABLE") // fallback
+			return []byte("UNREACHABLE")
 		}
+
+		wf.log.Fatal(err)
 	}
 
 	return stdout.Bytes()

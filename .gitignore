@@ -1,5 +1,5 @@
 debug
-/ercole-agent
+ercole-agent
 *.exe
 build
 with.lst

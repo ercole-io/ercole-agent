@@ -16,19 +16,20 @@
 package fetcher
 
 import (
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
+	"github.com/sirupsen/logrus"
 )
 
 // CommonFetcherImpl implement common behaviour between Linux and Windows fetchers
 type CommonFetcherImpl struct {
-	Configuration config.Configuration
 	SpecializedFetcher
+	Configuration config.Configuration
+	Log           *logrus.Logger
 }
 
 // SpecializedFetcher define specific behaviour of Linux and Windows fetchers
@@ -111,11 +112,11 @@ func (cf *CommonFetcherImpl) GetFeatures(entry model.OratabEntry, dbVersion stri
 	out := cf.execute("feature", entry.DBName, dbVersion, entry.OracleHome)
 
 	if strings.Contains(string(out), "deadlocked on readable physical standby") {
-		log.Println("Detected bug active dataguard 2311894.1!")
+		cf.Log.Warn("Detected bug active dataguard 2311894.1!")
 		features = []model.Feature{}
 
 	} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
-		log.Println("Detected error on active dataguard ORA-01555!")
+		cf.Log.Warn("Detected error on active dataguard ORA-01555!")
 		features = []model.Feature{}
 
 	} else {
