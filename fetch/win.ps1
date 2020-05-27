@@ -39,7 +39,7 @@ param (
 	[Parameter()][int]$v,
 	[Parameter()][string]$t,
 	[Parameter()][string]$oraclepath,
-	[Parameter()][string]$awr,
+	[Parameter()][string]$awr
 )
 
 
@@ -71,10 +71,10 @@ function getType {
 	return "PH"
 }
 
-function checkCommand($cmdname)
-{
+function checkCommand($cmdname) {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
 }
+
 function getSysinfo {
 	$stmem	 = [math]::round($nfo_sys.totalphysicalmemory/1GB,0)
 	$stvmem	 = [math]::round($nfo_opsys.totalvirtualmemorysize/1MB,0)
