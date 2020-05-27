@@ -17,22 +17,31 @@ package fetcher
 
 import (
 	"bytes"
-	"log"
 	"os/exec"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/sirupsen/logrus"
 )
 
-// LinuxFetcherImpl implementation
+// LinuxFetcherImpl SpecializedFetcher implementation for linux
 type LinuxFetcherImpl struct {
-	Configuration config.Configuration
+	configuration config.Configuration
+	log           *logrus.Logger
+}
+
+// NewLinuxFetcherImpl constructor
+func NewLinuxFetcherImpl(conf config.Configuration, log *logrus.Logger) LinuxFetcherImpl {
+	return LinuxFetcherImpl{
+		conf,
+		log,
+	}
 }
 
 // Execute Execute specific fetcher by name
 func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte {
 	cmdName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
-	log.Println("Fetching", cmdName, strings.Join(params, " "))
+	lf.log.Info("Fetching", cmdName, strings.Join(params, " "))
 
 	cmd := exec.Command(cmdName, params...)
 
@@ -43,15 +52,15 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 	err := cmd.Run()
 
 	if len(stderr.Bytes()) > 0 {
-		log.Print(string(stderr.Bytes()))
+		lf.log.Error(string(stderr.Bytes()))
 	}
 
 	if err != nil {
-		if fetcherName != "dbstatus" {
-			log.Fatal(err)
-		} else {
-			return []byte("UNREACHABLE") // fallback
+		if fetcherName == "dbstatus" {
+			return []byte("UNREACHABLE")
 		}
+
+		lf.log.Fatal(err)
 	}
 
 	return stdout.Bytes()

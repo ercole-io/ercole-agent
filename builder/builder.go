@@ -3,10 +3,11 @@ package builder
 import (
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/model"
+	"github.com/sirupsen/logrus"
 )
 
 // BuildData will build HostData
-func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int) *model.HostData {
+func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int, log *logrus.Logger) *model.HostData {
 	hostData := new(model.HostData)
 
 	hostData.Environment = configuration.Envtype
@@ -15,7 +16,7 @@ func BuildData(configuration config.Configuration, version string, hostDataSchem
 	hostData.Version = version
 	hostData.HostDataSchemaVersion = hostDataSchemaVersion
 
-	builder := NewCommonBuilder(configuration)
+	builder := NewCommonBuilder(configuration, log)
 
 	builder.Run(hostData)
 

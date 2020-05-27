@@ -17,7 +17,6 @@ package builder
 
 import (
 	"context"
-	"log"
 	"runtime"
 	"strings"
 	"sync"
@@ -26,42 +25,44 @@ import (
 	"github.com/ercole-io/ercole-agent/fetcher"
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/sirupsen/logrus"
 )
 
 // CommonBuilder for Linux and Windows hosts
 type CommonBuilder struct {
 	fetcher       fetcher.Fetcher
 	configuration config.Configuration
+	log           *logrus.Logger
 }
 
 // NewCommonBuilder initialize an appropriate builder for Linux or Windows
-func NewCommonBuilder(configuration config.Configuration) CommonBuilder {
-	var fetcherImpl fetcher.Fetcher
+func NewCommonBuilder(configuration config.Configuration, log *logrus.Logger) CommonBuilder {
+	var specializedFetcher fetcher.SpecializedFetcher
+
+	log.Debugf("runtime.GOOS: [%v]", runtime.GOOS)
 
 	if runtime.GOOS == "windows" {
-		fetcherImpl = &fetcher.CommonFetcherImpl{
-			Configuration: configuration,
-			SpecializedFetcher: &fetcher.WindowsFetcherImpl{
-				Configuration: configuration,
-			},
-		}
-
+		wf := fetcher.NewWindowsFetcherImpl(configuration, log)
+		specializedFetcher = &wf
 	} else {
 		if runtime.GOOS != "linux" {
-			log.Printf("Unknow runtime.GOOS: [%v], I'll try with linux\n", runtime.GOOS)
+			log.Errorf("Unknow runtime.GOOS: [%v], I'll try with linux\n", runtime.GOOS)
 		}
 
-		fetcherImpl = &fetcher.CommonFetcherImpl{
-			Configuration: configuration,
-			SpecializedFetcher: &fetcher.LinuxFetcherImpl{
-				Configuration: configuration,
-			},
-		}
+		wf := fetcher.NewLinuxFetcherImpl(configuration, log)
+		specializedFetcher = &wf
+	}
+
+	fetcherImpl := &fetcher.CommonFetcherImpl{
+		SpecializedFetcher: specializedFetcher,
+		Configuration:      configuration,
+		Log:                log,
 	}
 
 	builder := CommonBuilder{
 		fetcher:       fetcherImpl,
 		configuration: configuration,
+		log:           log,
 	}
 
 	return builder
@@ -100,6 +101,8 @@ func (b *CommonBuilder) getOracleDBs(hostType string) []model.Database {
 		entry := oratabEntries[i]
 
 		utils.RunRoutine(b.configuration, func() {
+			b.log.Debugf("oratab entry: [%v]", entry)
+
 			databaseChannel <- b.getOracleDB(entry, hostType)
 		})
 	}
@@ -138,7 +141,8 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *m
 			database.Backups = []model.Backup{}
 		}
 	default:
-		log.Println("Error! DBName: [" + entry.DBName + "] OracleHome: [" + entry.OracleHome + "]  Wrong dbStatus: [" + dbStatus + "]")
+		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+			dbStatus, entry.DBName, entry.OracleHome)
 		return nil
 	}
 

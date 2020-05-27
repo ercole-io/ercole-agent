@@ -20,7 +20,6 @@ import (
 	"crypto/tls"
 	b64 "encoding/base64"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -29,6 +28,8 @@ import (
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/scheduler"
 	"github.com/ercole-io/ercole-agent/scheduler/storage"
+	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/sirupsen/logrus"
 
 	"github.com/kardianos/service"
 )
@@ -37,7 +38,9 @@ var logger service.Logger
 var version = "latest"
 var hostDataSchemaVersion = 4
 
-type program struct{}
+type program struct {
+	log *logrus.Logger
+}
 
 func (p *program) Start(s service.Service) error {
 	go p.run()
@@ -47,27 +50,31 @@ func (p *program) Start(s service.Service) error {
 func (p *program) run() {
 	configuration := config.ReadConfig()
 
-	doBuildAndSend(configuration)
+	if configuration.Verbose == true {
+		p.log.Level = logrus.DebugLevel
+	}
+
+	doBuildAndSend(configuration, p.log)
 
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
-	_, err := scheduler.RunEvery(time.Duration(configuration.Frequency)*time.Hour, doBuildAndSend, configuration)
+	_, err := scheduler.RunEvery(time.Duration(configuration.Frequency)*time.Hour, doBuildAndSend, configuration, p.log)
 
 	if err != nil {
-		log.Fatal("Error sending data", err)
+		p.log.Fatal("Error sending data", err)
 	}
 
 	scheduler.Start()
 	scheduler.Wait()
 }
 
-func doBuildAndSend(configuration config.Configuration) {
-	hostData := builder.BuildData(configuration, version, hostDataSchemaVersion)
-	sendData(hostData, configuration)
+func doBuildAndSend(configuration config.Configuration, log *logrus.Logger) {
+	hostData := builder.BuildData(configuration, version, hostDataSchemaVersion, log)
+	sendData(hostData, configuration, log)
 }
 
-func sendData(data *model.HostData, configuration config.Configuration) {
+func sendData(data *model.HostData, configuration config.Configuration, log *logrus.Logger) {
 	log.Println("Sending data...")
 
 	b, _ := json.Marshal(data)
@@ -117,15 +124,19 @@ func main() {
 		Description: "Asset management agent from the Ercole project.",
 	}
 
-	prg := &program{}
+	log := utils.NewLogger("AGENT")
+	prg := &program{log}
+
 	s, err := service.New(prg, svcConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	logger, err = s.Logger(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	err = s.Run()
 	if err != nil {
 		logger.Error(err)

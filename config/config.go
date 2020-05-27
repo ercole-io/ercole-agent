@@ -40,6 +40,7 @@ type Configuration struct {
 	Oratab                 string
 	AWR                    int
 	ParallelizeRequests    bool
+	Verbose                bool
 }
 
 // ReadConfig reads the configuration file from the current dir
@@ -91,6 +92,7 @@ func exists(name string) bool {
 	return true
 }
 
+// GetBaseDir return executable base directory, os independant
 func GetBaseDir() string {
 	var s string
 	if runtime.GOOS == "windows" {
