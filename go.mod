@@ -1,5 +1,5 @@
 module github.com/ercole-io/ercole-agent
 
-go 1.12
+go 1.14
 
 require github.com/kardianos/service v1.0.0
