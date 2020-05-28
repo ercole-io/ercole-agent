@@ -18,21 +18,21 @@
 SID=$1
 
 if [ -z "$SID" ]; then
-  echo "Missing SID parameter"
+  >&2 echo "Missing SID parameter"
   exit 1
 fi
 
 DBV=$2
 
 if [ -z "$DBV" ]; then
-  echo "Missing DBV parameter"
+  >&2 echo "Missing DBV parameter"
   exit 1
 fi
 
 HOME=$3
 
 if [ -z "$HOME" ]; then
-  echo "Missing ORACLE_HOME parameter"
+  >&2 echo "Missing ORACLE_HOME parameter"
   exit 1
 fi
 
