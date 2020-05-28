@@ -41,7 +41,7 @@ func NewLinuxFetcherImpl(conf config.Configuration, log *logrus.Logger) LinuxFet
 // Execute Execute specific fetcher by name
 func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte {
 	cmdName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
-	lf.log.Info("Fetching", cmdName, strings.Join(params, " "))
+	lf.log.Infof("Fetching %s %s", cmdName, strings.Join(params, " "))
 
 	cmd := exec.Command(cmdName, params...)
 
@@ -60,7 +60,7 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 			return []byte("UNREACHABLE")
 		}
 
-		lf.log.Fatal(err)
+		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", cmdName, strings.Join(params, " "), err)
 	}
 
 	return stdout.Bytes()
