@@ -11,5 +11,6 @@
     "forcepwshversion": "0",
     "oratab": "/etc/oratab",
     "AWR": 30,    
-    "parallelizeRequests": true
+    "parallelizeRequests": true,
+    "verbose": false
 }

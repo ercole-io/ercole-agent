@@ -21,22 +21,22 @@ TYPE=$3
 HOME=$4
 
 if [ -z "$SID" ]; then
-  echo "Missing SID parameter"
+  >&2 echo "Missing SID parameter"
   exit 1
 fi
 
 if [ -z "$TYPE" ]; then
-  echo "Missing type parameter"
+  >&2 echo "Missing type parameter"
   exit 1
 fi
 
 if [ -z "$DBV" ]; then
-  echo "Missing DBV parameter"
+  >&2 echo "Missing DBV parameter"
   exit 1
 fi
 
 if [ -z "$HOME" ]; then
-  echo "Missing ORACLE_HOME parameter"
+  >&2 echo "Missing ORACLE_HOME parameter"
   exit 1
 fi
 

@@ -18,12 +18,12 @@
 ORATAB=$1
 
 if [ -z "$ORATAB" ]; then
-  echo "Missing ORATAB parameter"
+  >&2 echo "Missing ORATAB parameter"
   exit 1
 fi
 
 if [ ! -r "$ORATAB" ]; then
-  echo "The file $ORATAB isn't readable"
+  >&2 echo "The file $ORATAB isn't readable"
   exit 1
 fi
 

@@ -20,15 +20,15 @@ HOME=$2
 AWR=$3
 
 if [ -z "$SID" ]; then
-  echo "Missing SID parameter"
+  >&2 echo "Missing SID parameter"
   exit 1
 fi
 if [ -z "$HOME" ]; then
-  echo "Missing ORACLE_HOME parameter"
+  >&2 echo "Missing ORACLE_HOME parameter"
   exit 1
 fi
 if [ -z "$AWR" ]; then
-  echo "Missing AWR parameter"
+  >&2 echo "Missing AWR parameter"
   exit 1
 fi
 
