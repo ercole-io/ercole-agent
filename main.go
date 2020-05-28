@@ -20,7 +20,9 @@ import (
 	"crypto/tls"
 	b64 "encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ercole-io/ercole-agent/builder"
@@ -78,11 +80,10 @@ func sendData(data *model.HostData, configuration config.Configuration, log *log
 	log.Info("Sending data...")
 
 	dataBytes, _ := json.Marshal(data)
-	log.Infof("Data: %v", string(dataBytes))
+	log.Infof("Hostdata: %v", string(dataBytes))
 
 	if configuration.Verbose {
-		tmp, _ := json.MarshalIndent(data, "", "    ")
-		log.Debugf("Data pretty-printed:\n %v", string(tmp))
+		writeHostDataOnTmpFile(data, log)
 	}
 
 	client := &http.Client{}
@@ -114,6 +115,27 @@ func sendData(data *model.HostData, configuration config.Configuration, log *log
 	}
 
 	log.Println("Sending result:", sendResult)
+}
+
+func writeHostDataOnTmpFile(data *model.HostData, log *logrus.Logger) {
+	dataBytes, _ := json.MarshalIndent(data, "", "    ")
+
+	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("YY-MM-DD-hh:mm:ss"))
+
+	tmpFile, err := os.Create(filePath)
+	if err != nil {
+		log.Debugf("Can't create hostdata file: %v", os.TempDir()+filePath)
+		return
+	}
+
+	defer tmpFile.Close()
+
+	if _, err := tmpFile.Write(dataBytes); err != nil {
+		log.Debugf("Can't write hostdata in file: %v", os.TempDir()+filePath)
+		return
+	}
+
+	log.Debugf("Hostdata pretty-printed on file: %v", filePath)
 }
 
 func (p *program) Stop(s service.Service) error {
