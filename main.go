@@ -75,12 +75,15 @@ func doBuildAndSend(configuration config.Configuration, log *logrus.Logger) {
 }
 
 func sendData(data *model.HostData, configuration config.Configuration, log *logrus.Logger) {
-	log.Println("Sending data...")
+	log.Info("Sending data...")
 
-	b, _ := json.Marshal(data)
-	s := string(b)
+	dataBytes, _ := json.Marshal(data)
+	log.Infof("Data: %v", string(dataBytes))
 
-	log.Println("Data:", s)
+	if configuration.Verbose {
+		tmp, _ := json.MarshalIndent(data, "", "    ")
+		log.Debugf("Data pretty-printed:\n %v", string(tmp))
+	}
 
 	client := &http.Client{}
 
@@ -91,7 +94,7 @@ func sendData(data *model.HostData, configuration config.Configuration, log *log
 		}
 	}
 
-	req, err := http.NewRequest("POST", configuration.Serverurl, bytes.NewReader(b))
+	req, err := http.NewRequest("POST", configuration.Serverurl, bytes.NewReader(dataBytes))
 	req.Header.Add("Content-Type", "application/json")
 	auth := configuration.Serverusr + ":" + configuration.Serverpsw
 	authEnc := b64.StdEncoding.EncodeToString([]byte(auth))
