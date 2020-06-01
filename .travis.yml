@@ -22,12 +22,14 @@ env:
 matrix:
   include:
     - go: 1.12.x
-      env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos7
+      env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
     - go: 1.12.x
-      env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos6
+      env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
+    - go: 1.12.x
+      env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
     - go: 1.13.x
-      env: GOOS2=windows GOARCH=amd64 DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe GO111MODULE=on PACKAGE_BUILD_IMAGE=sorintdev/nsis
-    # - go: 1.3.x 
+      env: GOOS2=windows GOARCH=amd64 DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/nsis
+      # - go: 1.3.x 
     #   env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
 
 before_install:
