@@ -52,11 +52,11 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 	err := cmd.Run()
 
 	if len(stdout.Bytes()) > 0 {
-		lf.log.Debug(string(stdout.Bytes()))
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout.Bytes()))
 	}
 
 	if len(stderr.Bytes()) > 0 {
-		lf.log.Error(string(stderr.Bytes()))
+		lf.log.Errorf("Fetcher [%s] stderr: [%v]", fetcherName, string(stderr.Bytes()))
 	}
 
 	if err != nil {
