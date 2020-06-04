@@ -15,9 +15,11 @@
 
 package model
 
-// ExtraInfo holds information about database, licenses and filesystem.
-type ExtraInfo struct {
-	Databases   []Database
-	Filesystems []Filesystem
-	Clusters    []ClusterInfo
+// VMInfo holds info about the vm
+type VMInfo struct {
+	Name         string
+	ClusterName  string
+	Hostname     string //Hostname or IP address
+	CappedCPU    bool
+	PhysicalHost string
 }
