@@ -83,9 +83,9 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 	stdout, err := exec.Command(cmd).Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			lf.log.Fatal("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitErr.ExitCode, string(exitErr.Stderr))
+			lf.log.Fatalf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitErr.ExitCode(), string(exitErr.Stderr))
 		} else {
-			lf.log.Fatal("Fetcher [%s] error: [%v]", fetcherName, err.Error())
+			lf.log.Fatalf("Fetcher [%s] error: [%v]", fetcherName, err.Error())
 		}
 	}
 
