@@ -58,7 +58,6 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/dbmounted.sh
 /opt/ercole-agent/fetch/linux/dbstatus.sh
 /opt/ercole-agent/fetch/linux/dbversion.sh
-/opt/ercole-agent/fetch/linux/feature.sh
 /opt/ercole-agent/fetch/linux/filesystem.sh
 /opt/ercole-agent/fetch/linux/host.sh
 /opt/ercole-agent/fetch/linux/license.sh
@@ -82,8 +81,6 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/dbone.sql
 /opt/ercole-agent/sql/dbstatus.sql
 /opt/ercole-agent/sql/edition.sql
-/opt/ercole-agent/sql/feature-10.sql
-/opt/ercole-agent/sql/feature.sql
 /opt/ercole-agent/sql/license-10.sql
 /opt/ercole-agent/sql/license.sql
 /opt/ercole-agent/sql/listpdb.sql

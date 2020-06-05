@@ -23,7 +23,7 @@
 
 	.Parameter s
 	string, switch variable
-	values accepted: host, fs, tab, dbversion, status, stats, db, mnt, feature, tbs, schema, lic, patch, backup, addm and psu
+	values accepted: host, fs, tab, dbversion, status, stats, db, mnt, tbs, schema, lic, patch, backup, addm and psu
 		
 	.Parameter d
 	string, database name
@@ -210,29 +210,6 @@ function getDbMount {
 		if (!(Test-Path .\sql\dbmounted.sql)) { Write-Warning "file dbmounted.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\dbmounted.sql" '+$d+' '+$v
-			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
-				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
-			}
-		}
-	}
-}
-
-function getDbFeature {
-	param (
-		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$v
-	)
-	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
-	if (!$dbs) { Write "" } #wrong or no instance
-	else {
-		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
-		$env:ORACLE_SID= $dbs.PathName.Split()[1]
-		if (!((Test-Path .\sql\feature.sql) -and (Test-Path .\sql\feature-10.sql))) { Write-Warning "file feature*.sql unavailable!"; throw }
-		else {
-			switch ($v) {
-				10 { $ar = '-silent / as sysdba @".\sql\feature-10.sql" '+$d }
-				Default { $ar = '-silent / as sysdba @".\sql\feature.sql" '+$d }
-			}
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -513,7 +490,6 @@ switch($s.ToUpper()) {
 	"DBSTATUS"			{ getStatus $d }
 	"DB"				{ getDb $d $awr }
 	"DBMOUNTED"			{ getDbMount $d $v }
-	"FEATURE"			{ getDbFeature $d $v }
 	"TABLESPACE"		{ getDbTbs $d }
 	"SCHEMA"			{ getDbSchema $d }
 	"LICENSE"			{ getDbLic $d $v $t }

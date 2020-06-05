@@ -133,7 +133,6 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *m
 			database.Tablespaces = []model.Tablespace{}
 			database.Schemas = []model.Schema{}
 			database.Patches = []model.Patch{}
-			database.Features = []model.Feature{}
 			database.Licenses = []model.License{}
 			database.ADDMs = []model.Addm{}
 			database.SegmentAdvisors = []model.SegmentAdvisor{}
@@ -177,12 +176,6 @@ func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		database.Patches = b.fetcher.GetPatches(entry, dbVersion)
-	}, &wg)
-
-	utils.RunRoutineInGroup(b.configuration, func() {
-		<-statsCtx.Done()
-
-		database.Features = b.fetcher.GetFeatures(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {

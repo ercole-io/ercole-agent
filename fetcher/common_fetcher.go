@@ -107,25 +107,6 @@ func (cf *CommonFetcherImpl) GetPatches(entry model.OratabEntry, dbVersion strin
 	return marshal.Patches(out)
 }
 
-// GetFeatures get
-func (cf *CommonFetcherImpl) GetFeatures(entry model.OratabEntry, dbVersion string) (features []model.Feature) {
-	out := cf.execute("feature", entry.DBName, dbVersion, entry.OracleHome)
-
-	if strings.Contains(string(out), "deadlocked on readable physical standby") {
-		cf.Log.Warn("Detected bug active dataguard 2311894.1!")
-		features = []model.Feature{}
-
-	} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
-		cf.Log.Warn("Detected error on active dataguard ORA-01555!")
-		features = []model.Feature{}
-
-	} else {
-		features = marshal.Features(out)
-	}
-
-	return
-}
-
 // GetFeatures2 get
 func (cf *CommonFetcherImpl) GetFeatures2(entry model.OratabEntry, dbVersion string) []model.Feature2 {
 	out := cf.execute("opt", entry.DBName, dbVersion, entry.OracleHome)

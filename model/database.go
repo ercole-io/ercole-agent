@@ -44,7 +44,6 @@ type Database struct {
 	Patches         []Patch
 	Tablespaces     []Tablespace
 	Schemas         []Schema
-	Features        []Feature
 	Licenses        []License
 	ADDMs           []Addm
 	SegmentAdvisors []SegmentAdvisor
