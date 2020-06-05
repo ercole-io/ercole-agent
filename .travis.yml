@@ -1,29 +1,26 @@
 os: linux
 
-dist: bionic 
+dist: xenial
 
 language: go
+  - go: 1.14.x
 
 services:
   - docker
-
-sudo: required
 
 env:
   global:
     - CGO_ENABLED=0 
     - GOFLAGS='-a -x' 
     - WORKSPACE='/project'
-    - GOARCH=amd64
-    - GO111MODULE=on 
-  jobs:
-    - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
-    - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
-    - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
-    - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos5
-    - GOOS2=windows DIST_FAMILY=WIN  DIST=win   BIN=ercole-agent.exe PACKAGE_BUILD_IMAGE=amreo/nsis
 
-- go: 1.14.x
+matrix:
+  include:
+    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
+    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
+    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
+    - env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
+    - env: GOOS2=windows GOARCH=amd64 DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/nsis
 
 before_install:
   - sudo docker pull ${PACKAGE_BUILD_IMAGE}
@@ -33,8 +30,11 @@ before_install:
 
 install:
   - sudo docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
+  - if [ $DIST == "rhel5" ]; then cp -r vendor/* ${GOPATH}/src/; fi
+  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros"; fi
 
 script:
+  - if [ $DIST == "rhel5" ]; then mkdir -p ${GOPATH}/src/github.com/ercole-io; fi
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
   - cp /tmp/main.go main.go
   - GOOS=$GOOS2 go build -o ${BIN} main.go
