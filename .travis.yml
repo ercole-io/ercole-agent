@@ -3,6 +3,8 @@ os: linux
 dist: bionic 
 
 language: go
+go:
+  - 1.14.x
 
 services:
   - docker
@@ -22,8 +24,6 @@ env:
     - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
     - GOOS2=linux   DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent     PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos5
     - GOOS2=windows DIST_FAMILY=WIN  DIST=win   BIN=ercole-agent.exe PACKAGE_BUILD_IMAGE=amreo/nsis
-
-- go: 1.14.x
 
 before_install:
   - sudo docker pull ${PACKAGE_BUILD_IMAGE}
