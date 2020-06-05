@@ -77,14 +77,18 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Hostname = b.configuration.Hostname
 	}
 
-	hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
-	hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type)
+	if b.configuration.Features.Databases.Enabled {
+		b.log.Debug("Databases mode enabled")
+		hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
 
-	if b.configuration.Features.Virtualization.Enabled {
-		hostData.Extra.Clusters = b.getClustersInfos()
+		hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type)
+		hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
 	}
 
-	hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
+	if b.configuration.Features.Virtualization.Enabled {
+		b.log.Debug("Virtualization mode enabled")
+		hostData.Extra.Clusters = b.getClustersInfos()
+	}
 }
 
 func (b *CommonBuilder) getHost() *model.Host {

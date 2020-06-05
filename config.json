@@ -2,7 +2,7 @@
     "hostname": "default",
     "envtype": "TST",
     "location": "Germany",
-    "serverurl": "http://localhost:9080/host/update",
+    "serverurl": "http://localhost:9080/hosts",
     "serverusr": "user",
     "serverpsw": "password",
     "frequency": 24,
@@ -10,7 +10,31 @@
     "enableservervalidation": false,
     "forcepwshversion": "0",
     "oratab": "/etc/oratab",
-    "AWR": 30,    
+    "AWR": 30,
     "parallelizeRequests": true,
-    "verbose": false
+    "verbose": false,
+    "features": {
+        "databases": {
+            "enabled": true
+        },
+        "virtualization": {
+            "enabled": false,
+            "hypervisors": [
+                {
+                    "type": "vmware",
+                    "endpoint": "10.20.30.40",
+                    "username": "reader@vsphere.local",
+                    "password": "reader"
+                },
+                {
+                    "type": "ovm",
+                    "endpoint": "10.20.30.40",
+                    "username": "reader",
+                    "password": "R34d3r",
+                    "ovmuserkey": "92838932423",
+                    "ovmcontrol": "/path/to/ovmcontrol"
+                }
+            ]
+        }
+    }
 }

@@ -46,7 +46,13 @@ type Configuration struct {
 
 // Features holds features params
 type Features struct {
+	Databases      DatabasesFeature
 	Virtualization VirtualizationFeature
+}
+
+// DatabasesFeature holds virtualization feature params
+type DatabasesFeature struct {
+	Enabled bool
 }
 
 // VirtualizationFeature holds virtualization feature params
