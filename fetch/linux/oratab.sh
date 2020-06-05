@@ -23,7 +23,7 @@ if [ -z "$ORATAB" ]; then
 fi
 
 if [ ! -r "$ORATAB" ]; then
-  >&2 echo "The file $ORATAB isn't readable"
+  >&2 echo "The file $ORATAB doesn't exist or isn't readable"
   exit 1
 fi
 

@@ -41,6 +41,34 @@ type Configuration struct {
 	AWR                    int
 	ParallelizeRequests    bool
 	Verbose                bool
+	Features               Features
+}
+
+// Features holds features params
+type Features struct {
+	Databases      DatabasesFeature
+	Virtualization VirtualizationFeature
+}
+
+// DatabasesFeature holds virtualization feature params
+type DatabasesFeature struct {
+	Enabled bool
+}
+
+// VirtualizationFeature holds virtualization feature params
+type VirtualizationFeature struct {
+	Enabled     bool
+	Hypervisors []Hypervisor
+}
+
+// Hypervisor holds the parameters used to connect to an hypervisor
+type Hypervisor struct {
+	Type       string
+	Endpoint   string
+	Username   string
+	Password   string
+	OvmUserKey string
+	OvmControl string
 }
 
 // ReadConfig reads the configuration file from the current dir

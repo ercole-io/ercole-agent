@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -81,4 +82,18 @@ func (wf *WindowsFetcherImpl) Execute(fetcherName string, params ...string) []by
 	}
 
 	return stdout.Bytes()
+}
+
+// GetClusters return VMWare clusters from the given hyperVisor
+func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
+	wf.log.Error("No hypervisor has been yet implemented for Windows")
+
+	return make([]model.ClusterInfo, 0)
+}
+
+// GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
+func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMInfo {
+	wf.log.Error("No hypervisor has been yet implemented for Windows")
+
+	return make([]model.VMInfo, 0)
 }

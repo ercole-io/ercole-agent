@@ -15,7 +15,10 @@
 
 package fetcher
 
-import "github.com/ercole-io/ercole-agent/model"
+import (
+	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/model"
+)
 
 // Fetcher interface for Linux and Windows
 type Fetcher interface {
@@ -36,4 +39,6 @@ type Fetcher interface {
 	GetSegmentAdvisors(entry model.OratabEntry) []model.SegmentAdvisor
 	GetLastPSUs(entry model.OratabEntry, dbVersion string) []model.PSU
 	GetBackups(entry model.OratabEntry) []model.Backup
+	GetClusters(hv config.Hypervisor) []model.ClusterInfo
+	GetVirtualMachines(hv config.Hypervisor) []model.VMInfo
 }
