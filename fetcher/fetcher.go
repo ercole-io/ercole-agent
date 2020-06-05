@@ -30,7 +30,6 @@ type Fetcher interface {
 	GetTablespaces(entry model.OratabEntry) []model.Tablespace
 	GetSchemas(entry model.OratabEntry) []model.Schema
 	GetPatches(entry model.OratabEntry, dbVersion string) []model.Patch
-	GetFeatures(entry model.OratabEntry, dbVersion string) []model.Feature
 	GetFeatures2(entry model.OratabEntry, dbVersion string) []model.Feature2
 	GetLicenses(entry model.OratabEntry, dbVersion, hostType string) []model.License
 	GetADDMs(entry model.OratabEntry) []model.Addm
