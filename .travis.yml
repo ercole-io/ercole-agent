@@ -25,18 +25,15 @@ matrix:
     - env: GOOS2=windows DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe PACKAGE_BUILD_IMAGE=amreo/nsis
 
 before_install:
-  - sudo docker pull ${PACKAGE_BUILD_IMAGE}
+  - docker pull ${PACKAGE_BUILD_IMAGE}
   - if [ -z ${TRAVIS_TAG} ] || [[ ${TRAVIS_TAG} == *-* ]]; then export VERSION=latest; else export VERSION=${TRAVIS_TAG}; fi
   - echo ${TRAVIS_TAG}
   - echo ${VERSION}
 
 install:
-  - sudo docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
-  - if [ $DIST == "rhel5" ]; then cp -r vendor/* ${GOPATH}/src/; fi
-  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros"; fi
+  - docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
 
 script:
-  - if [ $DIST == "rhel5" ]; then mkdir -p ${GOPATH}/src/github.com/ercole-io; fi
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
   - cp /tmp/main.go main.go
   - GOOS=$GOOS2 go build -o ${BIN} main.go
@@ -70,12 +67,9 @@ deploy:
     script: cd dist/ && echo $MAGIC_SCRIPT | base64 -d | bash > /dev/stdout 2>/dev/stdout
     # script: ls && cd dist && for f in *; do echo $f; done
     skip_cleanup: true
-    file_glob: true
     file: dist/*
   - provider: releases
-    api_key: $GITHUB_RELEASE_TOKEN
-    file_glob: true
-    file: dist/*
+    token: $GITHUB_RELEASE_TOKEN
     skip_cleanup: true
     name: $VERSION
     overwrite: true
