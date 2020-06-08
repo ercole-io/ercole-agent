@@ -70,6 +70,7 @@ install -m 644 package/rhel5/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 /opt/ercole-agent/fetch/linux/listpdb.sh
 /opt/ercole-agent/fetch/linux/opt.sh
 /opt/ercole-agent/fetch/linux/oratab.sh
+/opt/ercole-agent/fetch/linux/ovm.sh
 /opt/ercole-agent/fetch/linux/patch.sh
 /opt/ercole-agent/fetch/linux/psu.sh
 /opt/ercole-agent/fetch/linux/schema.sh
@@ -78,6 +79,7 @@ install -m 644 package/rhel5/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 /opt/ercole-agent/fetch/linux/stats.sh
 /opt/ercole-agent/fetch/linux/tablespace.sh
 /opt/ercole-agent/fetch/linux/tablespace_pdb.sh
+/opt/ercole-agent/fetch/linux/vmware.ps1
 /opt/ercole-agent/fetch/mssqlserver/ercoleAgentMsSQLServer-Gather.ps1
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql
