@@ -77,6 +77,8 @@ deploy:
     skip_cleanup: true
     file_glob: true
     file: dist/*
+    on:
+      all_branches: true
   - provider: releases
     api_key: $GITHUB_RELEASE_TOKEN
     file_glob: true
