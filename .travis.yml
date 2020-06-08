@@ -44,7 +44,7 @@ script:
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/win/installer.nsi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild --quiet -bl package/${DIST}/ercole-agent.spec" || echo rpmbuild; fi
-  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && tar -C ~/rpmbuild/SOURCES -cvzf ~/rpmbuild/SOURCES/ercole-agent-${VERSION}.tar.gz ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild -bb package/${DIST}/ercole-agent.spec"; fi
@@ -66,10 +66,8 @@ after_success:
 deploy:
   - provider: script
     script: cd dist/ && echo $MAGIC_SCRIPT | base64 -d | bash > /dev/stdout 2>/dev/stdout
-    skip_cleanup: true
   - provider: releases
     token: $GITHUB_RELEASE_TOKEN
-    skip_cleanup: true
     name: $VERSION
     overwrite: true
     on:
