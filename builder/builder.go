@@ -147,24 +147,6 @@ func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry
 	utils.RunRoutineInGroup(configuration, func() {
 		<-statsCtx.Done()
 
-		out := fetcher(configuration, "feature", entry.DBName, dbVersion, entry.OracleHome)
-
-		if strings.Contains(string(out), "deadlocked on readable physical standby") {
-			log.Println("Detected bug active dataguard 2311894.1!")
-			database.Features = []model.Feature{}
-
-		} else if strings.Contains(string(out), "ORA-01555: snapshot too old: rollback segment number") {
-			log.Println("Detected error on active dataguard ORA-01555!")
-			database.Features = []model.Feature{}
-
-		} else {
-			database.Features = marshal.Features(out)
-		}
-	}, &wg)
-
-	utils.RunRoutineInGroup(configuration, func() {
-		<-statsCtx.Done()
-
 		out := fetcher(configuration, "opt", entry.DBName, dbVersion, entry.OracleHome)
 		database.Features2 = marshal.Features2(out)
 	}, &wg)
@@ -174,6 +156,20 @@ func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry
 
 		out := fetcher(configuration, "license", entry.DBName, dbVersion, hostType, entry.OracleHome)
 		database.Licenses = marshal.Licenses(out)
+
+		database.Features = make([]model.Feature, 0)
+		for _, fe := range database.Licenses {
+			if fe.Name == "Oracle EXE" || fe.Name == "Oracle ENT" || fe.Name == "Oracle STD" {
+				continue
+			}
+			if fe.Count <= 0 {
+				continue
+			}
+			database.Features = append(database.Features, model.Feature{
+				Name:   fe.Name,
+				Status: true,
+			})
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(configuration, func() {
