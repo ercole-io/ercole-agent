@@ -3,7 +3,8 @@ os: linux
 dist: bionic
 
 language: go
-  - go: 1.14.x
+
+go: 1.14.x
 
 services:
   - docker
@@ -16,7 +17,7 @@ env:
     - GO111MODULE=on
     - GOARCH=amd64
 
-matrix:
+jobs:
   include:
     - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
     - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
@@ -65,9 +66,7 @@ after_success:
 deploy:
   - provider: script
     script: cd dist/ && echo $MAGIC_SCRIPT | base64 -d | bash > /dev/stdout 2>/dev/stdout
-    # script: ls && cd dist && for f in *; do echo $f; done
     skip_cleanup: true
-    file: dist/*
   - provider: releases
     token: $GITHUB_RELEASE_TOKEN
     skip_cleanup: true
