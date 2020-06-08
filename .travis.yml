@@ -10,17 +10,19 @@ services:
 
 env:
   global:
-    - CGO_ENABLED=0 
-    - GOFLAGS='-a -x' 
+    - CGO_ENABLED=0
+    - GOFLAGS='-a -x'
     - WORKSPACE='/project'
+    - GO111MODULE=on
+    - GOARCH=amd64
 
 matrix:
   include:
-    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
-    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
-    - env: GOOS2=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
-    - env: GOOS=linux GOARCH=amd64 DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
-    - env: GOOS2=windows GOARCH=amd64 DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe GO111MODULE=on PACKAGE_BUILD_IMAGE=amreo/nsis
+    - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
+    - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
+    - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
+    - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos5
+    - env: GOOS2=windows DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe PACKAGE_BUILD_IMAGE=amreo/nsis
 
 before_install:
   - sudo docker pull ${PACKAGE_BUILD_IMAGE}
