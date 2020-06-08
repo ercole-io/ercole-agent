@@ -33,6 +33,7 @@ before_install:
 
 install:
   - docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
+  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros"; fi
 
 script:
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
