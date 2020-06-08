@@ -162,12 +162,9 @@ func getOpenDatabase(configuration config.Configuration, entry model.OratabEntry
 			if fe.Name == "Oracle EXE" || fe.Name == "Oracle ENT" || fe.Name == "Oracle STD" {
 				continue
 			}
-			if fe.Count <= 0 {
-				continue
-			}
 			database.Features = append(database.Features, model.Feature{
 				Name:   fe.Name,
-				Status: true,
+				Status: fe.Count > 0,
 			})
 		}
 	}, &wg)
