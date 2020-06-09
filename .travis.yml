@@ -44,6 +44,8 @@ script:
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/win/installer.nsi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "echo ~"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "echo $ROOT"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild --quiet -bl package/${DIST}/ercole-agent.spec" || echo rpmbuild; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/"; fi
