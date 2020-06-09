@@ -51,7 +51,7 @@ script:
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && tar -C ~/rpmbuild/SOURCES -cvzf ~/rpmbuild/SOURCES/ercole-agent-${VERSION}.tar.gz ercole-agent-${VERSION}"; fi
-  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo rpmbuild -bb package/${DIST}/ercole-agent.spec"; fi
+  - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo rpmbuild -v -bb package/${DIST}/ercole-agent.spec"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild -bb package/${DIST}/ercole-agent.spec"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "find ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "WIN" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && makensis package/win/installer.nsi"; fi
