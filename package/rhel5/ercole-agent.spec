@@ -11,7 +11,6 @@ Group:          Tools
 Requires: bc
 
 %define buildroot /tmp/rpm-ercole-agent-buildroot
-%define _rpmdir /root
 
 BuildRoot:  %{buildroot}
 
