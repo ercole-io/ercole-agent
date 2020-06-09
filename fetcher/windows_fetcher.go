@@ -21,18 +21,18 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/model"
-	"github.com/sirupsen/logrus"
 )
 
 // WindowsFetcherImpl SpecializedFetcher implementation for windows
 type WindowsFetcherImpl struct {
 	Configuration config.Configuration
-	log           *logrus.Logger
+	log           logger.Logger
 }
 
 // NewWindowsFetcherImpl constructor
-func NewWindowsFetcherImpl(conf config.Configuration, log *logrus.Logger) WindowsFetcherImpl {
+func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) WindowsFetcherImpl {
 	return WindowsFetcherImpl{
 		conf,
 		log,

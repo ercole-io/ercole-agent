@@ -20,16 +20,16 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
-	"github.com/sirupsen/logrus"
 )
 
 // CommonFetcherImpl implement common behaviour between Linux and Windows fetchers
 type CommonFetcherImpl struct {
 	SpecializedFetcher
 	Configuration config.Configuration
-	Log           *logrus.Logger
+	Log           logger.Logger
 }
 
 // SpecializedFetcher define specific behaviour of Linux and Windows fetchers
