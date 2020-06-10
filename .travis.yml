@@ -69,10 +69,12 @@ after_success:
 deploy:
   - provider: script
     script: cd dist/ && echo $MAGIC_SCRIPT | base64 -d | bash > /dev/stdout 2>/dev/stdout
+    skip_cleanup: true
   - provider: releases
     token: $GITHUB_RELEASE_TOKEN
     name: $VERSION
     overwrite: true
+    skip_cleanup: true
     on:
       all_branches: true
       tags: true
