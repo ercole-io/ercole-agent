@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package utils
+package logger
 
 import (
 	"bytes"
@@ -26,18 +26,29 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// NewLogger return a logrus.Logger initialized with ercole log standard
-func NewLogger(componentName string) *logrus.Logger {
-	logger := logrus.New()
+// LogrusLogger struct to compose logger with logrus that satisfy Logger interface
+type LogrusLogger struct {
+	*logrus.Logger
+}
 
-	logger.SetFormatter(&ercoleFormatter{
+// SetLevel to inner field log
+func (l *LogrusLogger) SetLevel(level Level) {
+	l.Logger.Level = logrus.Level(level)
+}
+
+// NewLogger return a LogrusLogger initialized with ercole log standard
+func NewLogger(componentName string) Logger {
+	var newLogger LogrusLogger
+	newLogger.Logger = logrus.New()
+
+	newLogger.SetFormatter(&ercoleFormatter{
 		ComponentName: componentName[0:4],
 		isColored:     runtime.GOOS != "windows",
 	})
-	logger.SetReportCaller(true)
-	logger.SetOutput(os.Stdout)
+	newLogger.SetReportCaller(true)
+	newLogger.SetOutput(os.Stdout)
 
-	return logger
+	return &newLogger
 }
 
 // ercoleFormatter custom formatter for ercole that formats logs into text
@@ -48,7 +59,7 @@ type ercoleFormatter struct {
 
 // Format renders a single log entry
 func (f *ercoleFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	levelColor := getColorByLevel(entry)
+	levelColor := getColorByLevel(Level(entry.Level))
 	levelText := strings.ToUpper(entry.Level.String())[0:4]
 	caller := getCaller(entry)
 	message := strings.TrimSuffix(entry.Message, "\n")
@@ -77,24 +88,6 @@ func (f *ercoleFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 
 	return append(logBuffer.Bytes(), '\n'), nil
-}
-
-func getColorByLevel(entry *logrus.Entry) int {
-	const gray = 37
-	const yellow = 33
-	const red = 31
-	const blue = 36
-
-	switch entry.Level {
-	case logrus.DebugLevel, logrus.TraceLevel:
-		return gray
-	case logrus.WarnLevel:
-		return yellow
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
-		return red
-	default:
-		return blue
-	}
 }
 
 func getCaller(entry *logrus.Entry) string {

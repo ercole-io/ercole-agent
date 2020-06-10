@@ -27,33 +27,24 @@ import (
 
 	"github.com/ercole-io/ercole-agent/builder"
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/scheduler"
 	"github.com/ercole-io/ercole-agent/scheduler/storage"
-	"github.com/ercole-io/ercole-agent/utils"
-	"github.com/sirupsen/logrus"
-
-	"github.com/kardianos/service"
 )
 
-var logger service.Logger
 var version = "latest"
 var hostDataSchemaVersion = 4
 
 type program struct {
-	log *logrus.Logger
-}
-
-func (p *program) Start(s service.Service) error {
-	go p.run()
-	return nil
+	log logger.Logger
 }
 
 func (p *program) run() {
 	configuration := config.ReadConfig()
 
 	if configuration.Verbose == true {
-		p.log.Level = logrus.DebugLevel
+		p.log.SetLevel(logger.DebugLevel)
 	}
 
 	doBuildAndSend(configuration, p.log)
@@ -71,12 +62,12 @@ func (p *program) run() {
 	scheduler.Wait()
 }
 
-func doBuildAndSend(configuration config.Configuration, log *logrus.Logger) {
+func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
 	hostData := builder.BuildData(configuration, version, hostDataSchemaVersion, log)
 	sendData(hostData, configuration, log)
 }
 
-func sendData(data *model.HostData, configuration config.Configuration, log *logrus.Logger) {
+func sendData(data *model.HostData, configuration config.Configuration, log logger.Logger) {
 	log.Info("Sending data...")
 
 	dataBytes, _ := json.Marshal(data)
@@ -105,19 +96,19 @@ func sendData(data *model.HostData, configuration config.Configuration, log *log
 	sendResult := "FAILED"
 
 	if err != nil {
-		log.Println("Error sending data", err)
+		log.Error("Error sending data", err)
 	} else {
-		log.Println("Response status:", resp.Status)
+		log.Info("Response status:", resp.Status)
 		if resp.StatusCode == 200 {
 			sendResult = "SUCCESS"
 		}
 		defer resp.Body.Close()
 	}
 
-	log.Println("Sending result:", sendResult)
+	log.Info("Sending result:", sendResult)
 }
 
-func writeHostDataOnTmpFile(data *model.HostData, log *logrus.Logger) {
+func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
 	dataBytes, _ := json.MarshalIndent(data, "", "    ")
 
 	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02-15:04:05"))
@@ -138,32 +129,9 @@ func writeHostDataOnTmpFile(data *model.HostData, log *logrus.Logger) {
 	log.Debugf("Hostdata pretty-printed on file: %v", filePath)
 }
 
-func (p *program) Stop(s service.Service) error {
-	return nil
-}
-
 func main() {
-	svcConfig := &service.Config{
-		Name:        "ErcoleAgent",
-		DisplayName: "The Ercole Agent",
-		Description: "Asset management agent from the Ercole project.",
-	}
-
-	log := utils.NewLogger("AGENT")
+	log := logger.NewLogger("AGENT")
 	prg := &program{log}
 
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	logger, err = s.Logger(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = s.Run()
-	if err != nil {
-		logger.Error(err)
-	}
+	serve(prg)
 }

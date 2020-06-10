@@ -21,19 +21,19 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole-agent/model"
-	"github.com/sirupsen/logrus"
 )
 
 // LinuxFetcherImpl SpecializedFetcher implementation for linux
 type LinuxFetcherImpl struct {
 	configuration config.Configuration
-	log           *logrus.Logger
+	log           logger.Logger
 }
 
 // NewLinuxFetcherImpl constructor
-func NewLinuxFetcherImpl(conf config.Configuration, log *logrus.Logger) LinuxFetcherImpl {
+func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) LinuxFetcherImpl {
 	return LinuxFetcherImpl{
 		conf,
 		log,

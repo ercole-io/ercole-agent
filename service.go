@@ -13,27 +13,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package builder
+package main
 
 import (
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/model"
+	"log"
+
+	"github.com/kardianos/service"
 )
 
-// BuildData will build HostData
-func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int, log logger.Logger) *model.HostData {
-	hostData := new(model.HostData)
+var serviceLogger service.Logger
 
-	hostData.Environment = configuration.Envtype
-	hostData.Location = configuration.Location
-	hostData.HostType = configuration.HostType
-	hostData.Version = version
-	hostData.HostDataSchemaVersion = hostDataSchemaVersion
+func serve(prg *program) {
+	svcConfig := &service.Config{
+		Name:        "ErcoleAgent",
+		DisplayName: "The Ercole Agent",
+		Description: "Asset management agent from the Ercole project.",
+	}
 
-	builder := NewCommonBuilder(configuration, log)
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	builder.Run(hostData)
+	serviceLogger, err = s.Logger(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return hostData
+	err = s.Run()
+	if err != nil {
+		serviceLogger.Error(err)
+	}
+
+}
+
+func (p *program) Start(s service.Service) error {
+	go p.run()
+	return nil
+}
+
+func (p *program) Stop(s service.Service) error {
+	return nil
 }

@@ -23,20 +23,20 @@ import (
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/fetcher"
+	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
-	"github.com/sirupsen/logrus"
 )
 
 // CommonBuilder for Linux and Windows hosts
 type CommonBuilder struct {
 	fetcher       fetcher.Fetcher
 	configuration config.Configuration
-	log           *logrus.Logger
+	log           logger.Logger
 }
 
 // NewCommonBuilder initialize an appropriate builder for Linux or Windows
-func NewCommonBuilder(configuration config.Configuration, log *logrus.Logger) CommonBuilder {
+func NewCommonBuilder(configuration config.Configuration, log logger.Logger) CommonBuilder {
 	var specializedFetcher fetcher.SpecializedFetcher
 
 	log.Debugf("runtime.GOOS: [%v]", runtime.GOOS)
