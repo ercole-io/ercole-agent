@@ -59,6 +59,27 @@ const (
 	TraceLevel
 )
 
+func (level Level) String() string {
+	switch level {
+	case TraceLevel:
+		return "trace"
+	case DebugLevel:
+		return "debug"
+	case InfoLevel:
+		return "info"
+	case WarnLevel:
+		return "warning"
+	case ErrorLevel:
+		return "error"
+	case FatalLevel:
+		return "fatal"
+	case PanicLevel:
+		return "panic"
+	}
+
+	return ""
+}
+
 func getColorByLevel(level Level) int {
 	const gray = 37
 	const yellow = 33

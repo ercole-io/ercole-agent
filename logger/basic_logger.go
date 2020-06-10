@@ -1,4 +1,17 @@
-// +build rhel5
+// Copyright (c) 2020 Sorint.lab S.p.A.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package logger
 
@@ -9,6 +22,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // BasicLogger struct to compose logger with logrus that satisfy Logger interface
@@ -23,13 +37,11 @@ func (l *BasicLogger) SetLevel(level Level) {
 	l.level = level
 }
 
-// NewLogger return a logrus.Logger initialized with ercole log standard
-func NewLogger(componentName string) Logger {
+// NewBasicLogger return a BasicLogger initialized with ercole log standard
+func NewBasicLogger(componentName string) Logger {
 	var newLogger BasicLogger
 	newLogger.componentName = componentName
 	newLogger.isColored = runtime.GOOS != "windows"
-	//newLogg.SetReportCaller(true)
-	//newLogg.SetOutput(os.Stdout)
 
 	return &newLogger
 }
@@ -94,40 +106,31 @@ func (l *BasicLogger) Panic(args ...interface{}) {
 }
 
 func (l *BasicLogger) doLog(level Level, args ...interface{}) {
-	if level < l.level {
+	if level > l.level {
 		return
 	}
 
-	levelColor := getColorByLevel(level))
-	levelText := strings.ToUpper(Level.String())[0:4]
-	//caller := getCaller(entry)
-	caller := ""
-	message := strings.TrimSuffix(fmt.Sprintf(args...), "\n")
+	levelColor := getColorByLevel(level)
+	levelText := strings.ToUpper(Level.String(level))[0:4]
+	message := strings.TrimSuffix(fmt.Sprint(args...), "\n")
 
-	var logBuffer bytes.Buffer
+	var buffer bytes.Buffer
 
 	if l.isColored {
-		logBuffer.WriteString(fmt.Sprintf("\x1b[%dm", levelColor))
+		buffer.WriteString(fmt.Sprintf("\x1b[%dm", levelColor))
 	}
 
-	logBuffer.WriteString(
+	buffer.WriteString(
 		fmt.Sprintf("[%s][%s][%s]",
 			time.Now().Format("06-01-02 15:04:05"),
-			l.componentName
+			l.componentName,
 			levelText))
 
 	if l.isColored {
-		logBuffer.WriteString("\x1b[0m")
+		buffer.WriteString("\x1b[0m")
 	}
 
-	logBuffer.WriteString(fmt.Sprintf("[%s] %-50s", caller, message))
+	buffer.WriteString(fmt.Sprintf("%-50s", message))
 
-	for _, k := range getKeysInOrder(entry.Data) {
-		logBuffer.WriteString(
-			fmt.Sprintf("\x1b[%dm%s\x1b[0m=%v ", levelColor, k, entry.Data[k]))
-	}
-
-	buff :=append(logBuffer.Bytes(), '\n'), nil
-
-	log.Println(string(buff))
+	log.Println(buffer.String())
 }
