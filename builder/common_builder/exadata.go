@@ -13,28 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package builder
+package common
 
 import (
-	common "github.com/ercole-io/ercole-agent/builder/common_builder"
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/model"
 )
 
-// BuildData will build HostData
-func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int, log logger.Logger) *model.HostData {
-	hostData := new(model.HostData)
+func (b *CommonBuilder) getExadataDevices() []model.ExadataDevice {
+	exadataDevices := b.fetcher.GetExadataDevices()
+	exadataCellDisks := b.fetcher.GetExadataCellDisks()
 
-	hostData.Environment = configuration.Envtype
-	hostData.Location = configuration.Location
-	hostData.HostType = configuration.HostType
-	hostData.Version = version
-	hostData.HostDataSchemaVersion = hostDataSchemaVersion
+	//Join exadataDevices with exadataCellDisks
+	for _, cd := range exadataCellDisks {
+		for i := range exadataDevices {
+			if cd.StorageServerName == exadataDevices[i].Hostname {
+				if exadataDevices[i].CellDisks == nil {
+					exadataDevices[i].CellDisks = []model.ExadataCellDisk{}
+				}
+				exadataDevices[i].CellDisks = append(exadataDevices[i].CellDisks, cd)
+			}
+		}
+	}
 
-	builder := common.NewCommonBuilder(configuration, log)
-
-	builder.Run(hostData)
-
-	return hostData
+	return exadataDevices
 }

@@ -48,6 +48,7 @@ type Configuration struct {
 type Features struct {
 	Databases      DatabasesFeature
 	Virtualization VirtualizationFeature
+	Exadata        ExadataFeature
 }
 
 // DatabasesFeature holds virtualization feature params
@@ -69,6 +70,12 @@ type Hypervisor struct {
 	Password   string
 	OvmUserKey string
 	OvmControl string
+}
+
+// ExadataFeature holds exadata feature params
+type ExadataFeature struct {
+	Enabled     bool
+	NotRootUser string
 }
 
 // ReadConfig reads the configuration file from the current dir

@@ -16,9 +16,11 @@
 package fetcher
 
 import (
-	"bytes"
 	"os/exec"
+	"os/user"
+	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
@@ -30,6 +32,12 @@ import (
 type LinuxFetcherImpl struct {
 	configuration config.Configuration
 	log           logger.Logger
+	fetcherUser   *fetcherUser
+}
+
+type fetcherUser struct {
+	name     string
+	uid, gid uint32
 }
 
 // NewLinuxFetcherImpl constructor
@@ -37,28 +45,23 @@ func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) LinuxFetc
 	return LinuxFetcherImpl{
 		conf,
 		log,
+		nil,
 	}
 }
 
 // Execute execute bash script by name
 func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte {
-	cmdName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
-	lf.log.Infof("Fetching %s %s", cmdName, strings.Join(params, " "))
+	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
+	lf.log.Infof("Fetching %s %s", commandName, strings.Join(params, " "))
 
-	cmd := exec.Command(cmdName, params...)
+	stdout, stderr, exitCode, err := lf.runCommand(commandName, params...)
 
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-
-	if len(stdout.Bytes()) > 0 {
-		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout.Bytes()))
+	if len(stdout) > 0 {
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
 	}
 
-	if len(stderr.Bytes()) > 0 {
-		lf.log.Errorf("Fetcher [%s] stderr: [%v]", fetcherName, string(stderr.Bytes()))
+	if len(stderr) > 0 {
+		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
 	}
 
 	if err != nil {
@@ -66,10 +69,77 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 			return []byte("UNREACHABLE")
 		}
 
-		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", cmdName, strings.Join(params, " "), err)
+		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", commandName, strings.Join(params, " "), err)
 	}
 
-	return stdout.Bytes()
+	return stdout
+}
+
+func (lf *LinuxFetcherImpl) runCommand(commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
+	cmd := exec.Command(commandName, args...)
+
+	if lf.fetcherUser != nil {
+		lf.log.Debugf("runCommand [%v] with user [%v]", commandName, lf.fetcherUser)
+
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		if err != nil {
+			lf.log.Errorf("Can't set process attributes at command [%v]", commandName)
+			return nil, nil, -1, err
+		}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: lf.fetcherUser.uid, Gid: lf.fetcherUser.gid}
+	}
+
+	stdout, err = cmd.Output()
+
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+			stderr = exitErr.Stderr
+		} else {
+			exitCode = -1
+		}
+	}
+
+	return
+}
+
+// SetUser set user used by fetcher to run commands
+func (lf *LinuxFetcherImpl) SetUser(username string) error {
+	u, err := lf.getUserInfo(username)
+	if err != nil {
+		return err
+	}
+
+	lf.fetcherUser = u
+	return nil
+}
+
+// SetUserAsCurrent set user used by fetcher to run commands as current process user
+func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
+	lf.fetcherUser = nil
+	return nil
+}
+
+func (lf *LinuxFetcherImpl) getUserInfo(username string) (*fetcherUser, error) {
+	u, err := user.Lookup(username)
+	if err != nil {
+		lf.log.Errorf("Can't lookup username [%s], error: [%v]", username, err)
+		return nil, err
+	}
+
+	intUID, err := strconv.Atoi(u.Uid)
+	if err != nil {
+		lf.log.Errorf("Can't convert uid [%s], error: [%v]", u.Uid, err)
+		return nil, err
+	}
+
+	intGID, err := strconv.Atoi(u.Gid)
+	if err != nil {
+		lf.log.Errorf("Can't convert gid [%s], error: [%v]", u.Gid, err)
+		return nil, err
+	}
+
+	return &fetcherUser{u.Name, uint32(intUID), uint32(intGID)}, nil
 }
 
 // executePwsh execute pwsh script by name
@@ -139,4 +209,16 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMI
 	lf.log.Debugf("Got %d vms from hypervisor: %s", len(vms), hv.Endpoint)
 
 	return vms
+}
+
+// GetExadataDevices get
+func (lf *LinuxFetcherImpl) GetExadataDevices() []model.ExadataDevice {
+	out := lf.Execute("exadata/info")
+	return marshal.ExadataDevices(out)
+}
+
+// GetExadataCellDisks get
+func (lf *LinuxFetcherImpl) GetExadataCellDisks() []model.ExadataCellDisk {
+	out := lf.Execute("exadata/storage-status")
+	return marshal.ExadataCellDisks(out)
 }

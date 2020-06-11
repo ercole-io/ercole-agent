@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,12 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package model
+package utils
 
-// ExtraInfo holds information about database, licenses and filesystem.
-type ExtraInfo struct {
-	Databases      []Database
-	Filesystems    []Filesystem
-	Clusters       []ClusterInfo
-	ExadataDevices []ExadataDevice
+import "os"
+
+// IsRunnigAsRootInLinux return true if running on Linux and if process is running as root
+func IsRunnigAsRootInLinux() bool {
+	return os.Geteuid() == 0
 }
