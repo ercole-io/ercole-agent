@@ -38,7 +38,7 @@
         },
         "exadata": {
             "enabled": false,
-            "notrootuser": "ercole"
+            "fetchersuser": ""
         }
     }
 }
