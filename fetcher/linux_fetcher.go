@@ -16,7 +16,6 @@
 package fetcher
 
 import (
-	"os/exec"
 	"os/user"
 	"strconv"
 	"strings"
@@ -42,60 +41,6 @@ func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) LinuxFetc
 		nil,
 	}
 }
-
-// Execute execute bash script by name
-func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte {
-	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
-	lf.log.Infof("Fetching %s %s", commandName, strings.Join(params, " "))
-
-	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, params...)
-
-	if len(stdout) > 0 {
-		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
-	}
-
-	if len(stderr) > 0 {
-		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
-	}
-
-	if err != nil {
-		if fetcherName == "dbstatus" {
-			return []byte("UNREACHABLE")
-		}
-
-		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", commandName, strings.Join(params, " "), err)
-	}
-
-	return stdout
-}
-
-//func (lf *LinuxFetcherImpl) runCommand(commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
-//	cmd := exec.Command(commandName, args...)
-//
-//	if lf.fetcherUser != nil {
-//		lf.log.Debugf("runCommand [%v] with user [%v]", commandName, lf.fetcherUser)
-//
-//		cmd.SysProcAttr = &syscall.SysProcAttr{}
-//		if err != nil {
-//			lf.log.Errorf("Can't set process attributes at command [%v]", commandName)
-//			return nil, nil, -1, err
-//		}
-//		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: lf.fetcherUser.uid, Gid: lf.fetcherUser.gid}
-//	}
-//
-//	stdout, err = cmd.Output()
-//
-//	if err != nil {
-//		if exitErr, ok := err.(*exec.ExitError); ok {
-//			exitCode = exitErr.ExitCode()
-//			stderr = exitErr.Stderr
-//		} else {
-//			exitCode = -1
-//		}
-//	}
-//
-//	return
-//}
 
 // SetUser set user used by fetcher to run commands
 func (lf *LinuxFetcherImpl) SetUser(username string) error {
@@ -136,25 +81,52 @@ func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
 	return nil
 }
 
-//TODO Use fetcher user
+// Execute execute bash script by name
+func (lf *LinuxFetcherImpl) Execute(fetcherName string, args ...string) []byte {
+	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
+	lf.log.Infof("Fetching %s %s", commandName, strings.Join(args, " "))
+
+	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, args...)
+
+	if len(stdout) > 0 {
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
+	}
+
+	if len(stderr) > 0 {
+		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
+	}
+
+	if err != nil {
+		if fetcherName == "dbstatus" {
+			return []byte("UNREACHABLE")
+		}
+
+		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", commandName, strings.Join(args, " "), err)
+	}
+
+	return stdout
+}
+
 // executePwsh execute pwsh script by name
 func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
 	scriptPath := config.GetBaseDir() + "/fetch/linux/" + fetcherName
-	cmdSlice := append([]string{"/usr/bin/pwsh", scriptPath}, args...)
-	cmd := strings.Join(cmdSlice, " ")
+	args = append([]string{scriptPath}, args...)
 
-	lf.log.Infof("Fetching [%v]", cmd)
+	lf.log.Infof("Fetching %v", scriptPath, strings.Join(args, " "))
 
-	stdout, err := exec.Command(cmd).Output()
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			lf.log.Fatalf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitErr.ExitCode(), string(exitErr.Stderr))
-		} else {
-			lf.log.Fatalf("Fetcher [%s] error: [%v]", fetcherName, err.Error())
-		}
+	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, "/usr/bin/pwsh", args...)
+
+	if len(stdout) > 0 {
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
 	}
 
-	lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, stdout)
+	if len(stderr) > 0 {
+		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
+	}
+
+	if err != nil {
+		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", scriptPath, strings.Join(args, " "), err)
+	}
 
 	return stdout
 }
