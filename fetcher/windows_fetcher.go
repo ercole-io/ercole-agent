@@ -17,6 +17,7 @@ package fetcher
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"strings"
 
@@ -30,6 +31,8 @@ type WindowsFetcherImpl struct {
 	Configuration config.Configuration
 	log           logger.Logger
 }
+
+const not_implemented = "Not yet implemented for Windows"
 
 // NewWindowsFetcherImpl constructor
 func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) WindowsFetcherImpl {
@@ -84,16 +87,42 @@ func (wf *WindowsFetcherImpl) Execute(fetcherName string, params ...string) []by
 	return stdout.Bytes()
 }
 
-// GetClusters return VMWare clusters from the given hyperVisor
+// SetUser not implemented
+func (wf *WindowsFetcherImpl) SetUser(username string) error {
+	wf.log.Error(not_implemented)
+	return fmt.Errorf(not_implemented)
+}
+
+// SetUserAsCurrent set user used by fetcher to run commands as current process user
+func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
+	wf.log.Error(not_implemented)
+	return fmt.Errorf(not_implemented)
+}
+
+// GetClusters not implemented
 func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
-	wf.log.Error("No hypervisor has been yet implemented for Windows")
+	wf.log.Error(not_implemented)
 
 	return make([]model.ClusterInfo, 0)
 }
 
 // GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
 func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMInfo {
-	wf.log.Error("No hypervisor has been yet implemented for Windows")
+	wf.log.Error(not_implemented)
 
 	return make([]model.VMInfo, 0)
+}
+
+// GetExadataDevices get
+func (wf *WindowsFetcherImpl) GetExadataDevices() []model.ExadataDevice {
+	wf.log.Error(not_implemented)
+
+	return make([]model.ExadataDevice, 0)
+}
+
+// GetExadataCellDisks get
+func (wf *WindowsFetcherImpl) GetExadataCellDisks() []model.ExadataCellDisk {
+	wf.log.Error(not_implemented)
+
+	return make([]model.ExadataCellDisk, 0)
 }

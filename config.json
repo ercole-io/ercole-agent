@@ -35,6 +35,10 @@
                     "ovmcontrol": "/path/to/ovmcontrol"
                 }
             ]
+        },
+        "exadata": {
+            "enabled": false,
+            "fetchersuser": ""
         }
     }
 }

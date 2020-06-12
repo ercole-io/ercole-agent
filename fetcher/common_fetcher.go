@@ -34,9 +34,14 @@ type CommonFetcherImpl struct {
 
 // SpecializedFetcher define specific behaviour of Linux and Windows fetchers
 type SpecializedFetcher interface {
+	SetUser(username string) error
+	SetUserAsCurrent() error
+
 	Execute(fetcherName string, params ...string) []byte
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
 	GetVirtualMachines(hv config.Hypervisor) []model.VMInfo
+	GetExadataDevices() []model.ExadataDevice
+	GetExadataCellDisks() []model.ExadataCellDisk
 }
 
 // GetHost get

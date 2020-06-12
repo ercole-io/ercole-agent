@@ -1,3 +1,5 @@
+// +build windows
+
 // Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -13,28 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package builder
+package fetcher
 
 import (
-	common "github.com/ercole-io/ercole-agent/builder/common_builder"
-	"github.com/ercole-io/ercole-agent/config"
+	"fmt"
+
 	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/model"
 )
 
-// BuildData will build HostData
-func BuildData(configuration config.Configuration, version string, hostDataSchemaVersion int, log logger.Logger) *model.HostData {
-	hostData := new(model.HostData)
+// RunCommandAs utility
+func runCommandAs(log logger.Logger, u *User, commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
+	msg := "Not yet implemented for Windows"
+	log.Error(msg)
 
-	hostData.Environment = configuration.Envtype
-	hostData.Location = configuration.Location
-	hostData.HostType = configuration.HostType
-	hostData.Version = version
-	hostData.HostDataSchemaVersion = hostDataSchemaVersion
-
-	builder := common.NewCommonBuilder(configuration, log)
-
-	builder.Run(hostData)
-
-	return hostData
+	return nil, nil, -1, fmt.Errorf(msg)
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,10 +15,6 @@
 
 package model
 
-// ExtraInfo holds information about database, licenses and filesystem.
-type ExtraInfo struct {
-	Databases   []Database
-	Filesystems []Filesystem
-	Clusters    []ClusterInfo
-	Exadata     *Exadata
+type Exadata struct {
+	Devices []ExadataDevice
 }

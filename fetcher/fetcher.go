@@ -22,6 +22,9 @@ import (
 
 // Fetcher interface for Linux and Windows
 type Fetcher interface {
+	SetUser(username string) error
+	SetUserAsCurrent() error
+
 	GetHost() model.Host
 	GetFilesystems() []model.Filesystem
 	GetOratabEntries() []model.OratabEntry
@@ -41,4 +44,12 @@ type Fetcher interface {
 	GetBackups(entry model.OratabEntry) []model.Backup
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
 	GetVirtualMachines(hv config.Hypervisor) []model.VMInfo
+	GetExadataDevices() []model.ExadataDevice
+	GetExadataCellDisks() []model.ExadataCellDisk
+}
+
+// User struct
+type User struct {
+	Name     string
+	UID, GID uint32
 }

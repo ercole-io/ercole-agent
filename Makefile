@@ -10,10 +10,10 @@ clean:
 	rm -rf ercole-agent build ercole-agent.exe *.exe
 
 ercole-agent:
-	GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent -a -x
+	GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent -a
 
 windows:
-	GOOS=windows GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent.exe -a -x
+	GOOS=windows GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent.exe -a
 
 nsis: windows
 	makensis package/win/installer.nsi
