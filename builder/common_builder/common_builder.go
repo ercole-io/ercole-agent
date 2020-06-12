@@ -74,9 +74,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 		b.checksToRunExadata()
 
-		if err := b.fetcher.SetUser(b.configuration.Features.Exadata.NotRootUser); err != nil {
-			b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", b.configuration.Features.Exadata.NotRootUser, err)
-		}
+		b.setExadataFetchersUser()
 	}
 
 	hostData.Info = *b.getHost()
@@ -118,9 +116,16 @@ func (b *CommonBuilder) checksToRunExadata() {
 	if !utils.IsRunnigAsRootInLinux() {
 		b.log.Panicf("You must be root to run in exadata mode")
 	}
+}
 
-	if strings.TrimSpace(b.configuration.Features.Exadata.NotRootUser) == "" {
-		b.log.Panicf("You must set NotRootUser to run in exadata mode")
+func (b *CommonBuilder) setExadataFetchersUser() {
+	if strings.TrimSpace(b.configuration.Features.Exadata.FetchersUser) == "" {
+		b.log.Warn("You didn't set FetchersUser, but you have exadata mode enabled, using current user")
+		return
+	}
+
+	if err := b.fetcher.SetUser(b.configuration.Features.Exadata.FetchersUser); err != nil {
+		b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", b.configuration.Features.Exadata.FetchersUser, err)
 	}
 }
 

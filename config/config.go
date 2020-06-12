@@ -74,8 +74,8 @@ type Hypervisor struct {
 
 // ExadataFeature holds exadata feature params
 type ExadataFeature struct {
-	Enabled     bool
-	NotRootUser string
+	Enabled      bool
+	FetchersUser string
 }
 
 // ReadConfig reads the configuration file from the current dir
