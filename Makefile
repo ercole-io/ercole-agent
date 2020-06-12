@@ -2,16 +2,18 @@
 
 DESTDIR=build
 
-all: linux windows
+all: ercole-agent
+
+default: ercole-agent
 
 clean:
-	rm -rf ercole-agent build ercole-agent.exe *.exe main
+	rm -rf ercole-agent build ercole-agent.exe *.exe
 
-linux:
-	GOOS=linux GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent -a
+ercole-agent:
+	GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent -a
 
 windows:
-	GOOS=windows GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent.exe
+	GOOS=windows GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent.exe -a
 
 nsis: windows
 	makensis package/win/installer.nsi
