@@ -20,5 +20,5 @@ type ExtraInfo struct {
 	Databases   []Database
 	Filesystems []Filesystem
 	Clusters    []ClusterInfo
-	Exadata     Exadata
+	Exadata     *Exadata
 }
