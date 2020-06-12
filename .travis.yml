@@ -38,8 +38,7 @@ install:
 script:
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
   - cp /tmp/main.go main.go
-  #- GOOS=$GOOS2 go build -o ${BIN}
-  - make ${GOOS2}
+  - GOOS=$GOOS2 go build -o ${BIN}
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
