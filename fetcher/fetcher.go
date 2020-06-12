@@ -47,3 +47,9 @@ type Fetcher interface {
 	GetExadataDevices() []model.ExadataDevice
 	GetExadataCellDisks() []model.ExadataCellDisk
 }
+
+// User struct
+type User struct {
+	Name     string
+	UID, GID uint32
+}

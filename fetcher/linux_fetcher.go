@@ -20,7 +20,6 @@ import (
 	"os/user"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
@@ -32,12 +31,7 @@ import (
 type LinuxFetcherImpl struct {
 	configuration config.Configuration
 	log           logger.Logger
-	fetcherUser   *fetcherUser
-}
-
-type fetcherUser struct {
-	name     string
-	uid, gid uint32
+	fetcherUser   *User
 }
 
 // NewLinuxFetcherImpl constructor
@@ -54,7 +48,7 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
 	lf.log.Infof("Fetching %s %s", commandName, strings.Join(params, " "))
 
-	stdout, stderr, exitCode, err := lf.runCommand(commandName, params...)
+	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, params...)
 
 	if len(stdout) > 0 {
 		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
@@ -75,33 +69,33 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, params ...string) []byte
 	return stdout
 }
 
-func (lf *LinuxFetcherImpl) runCommand(commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
-	cmd := exec.Command(commandName, args...)
-
-	if lf.fetcherUser != nil {
-		lf.log.Debugf("runCommand [%v] with user [%v]", commandName, lf.fetcherUser)
-
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		if err != nil {
-			lf.log.Errorf("Can't set process attributes at command [%v]", commandName)
-			return nil, nil, -1, err
-		}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: lf.fetcherUser.uid, Gid: lf.fetcherUser.gid}
-	}
-
-	stdout, err = cmd.Output()
-
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			exitCode = exitErr.ExitCode()
-			stderr = exitErr.Stderr
-		} else {
-			exitCode = -1
-		}
-	}
-
-	return
-}
+//func (lf *LinuxFetcherImpl) runCommand(commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
+//	cmd := exec.Command(commandName, args...)
+//
+//	if lf.fetcherUser != nil {
+//		lf.log.Debugf("runCommand [%v] with user [%v]", commandName, lf.fetcherUser)
+//
+//		cmd.SysProcAttr = &syscall.SysProcAttr{}
+//		if err != nil {
+//			lf.log.Errorf("Can't set process attributes at command [%v]", commandName)
+//			return nil, nil, -1, err
+//		}
+//		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: lf.fetcherUser.uid, Gid: lf.fetcherUser.gid}
+//	}
+//
+//	stdout, err = cmd.Output()
+//
+//	if err != nil {
+//		if exitErr, ok := err.(*exec.ExitError); ok {
+//			exitCode = exitErr.ExitCode()
+//			stderr = exitErr.Stderr
+//		} else {
+//			exitCode = -1
+//		}
+//	}
+//
+//	return
+//}
 
 // SetUser set user used by fetcher to run commands
 func (lf *LinuxFetcherImpl) SetUser(username string) error {
@@ -114,13 +108,7 @@ func (lf *LinuxFetcherImpl) SetUser(username string) error {
 	return nil
 }
 
-// SetUserAsCurrent set user used by fetcher to run commands as current process user
-func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
-	lf.fetcherUser = nil
-	return nil
-}
-
-func (lf *LinuxFetcherImpl) getUserInfo(username string) (*fetcherUser, error) {
+func (lf *LinuxFetcherImpl) getUserInfo(username string) (*User, error) {
 	u, err := user.Lookup(username)
 	if err != nil {
 		lf.log.Errorf("Can't lookup username [%s], error: [%v]", username, err)
@@ -139,9 +127,16 @@ func (lf *LinuxFetcherImpl) getUserInfo(username string) (*fetcherUser, error) {
 		return nil, err
 	}
 
-	return &fetcherUser{u.Name, uint32(intUID), uint32(intGID)}, nil
+	return &User{u.Name, uint32(intUID), uint32(intGID)}, nil
 }
 
+// SetUserAsCurrent set user used by fetcher to run commands as current process user
+func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
+	lf.fetcherUser = nil
+	return nil
+}
+
+//TODO Use fetcher user
 // executePwsh execute pwsh script by name
 func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
 	scriptPath := config.GetBaseDir() + "/fetch/linux/" + fetcherName

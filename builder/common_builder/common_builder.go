@@ -115,12 +115,12 @@ func (b *CommonBuilder) checksToRunExadata() {
 		b.log.Panicf("Can't run exadata mode if os is different from linux, current os: [%v]", runtime.GOOS)
 	}
 
-	if strings.TrimSpace(b.configuration.Features.Exadata.NotRootUser) == "" {
-		b.log.Panicf("You must set NotRootUser to run in exadata mode")
-	}
-
 	if !utils.IsRunnigAsRootInLinux() {
 		b.log.Panicf("You must be root to run in exadata mode")
+	}
+
+	if strings.TrimSpace(b.configuration.Features.Exadata.NotRootUser) == "" {
+		b.log.Panicf("You must set NotRootUser to run in exadata mode")
 	}
 }
 
