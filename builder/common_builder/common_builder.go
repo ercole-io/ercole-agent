@@ -104,7 +104,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 			b.log.Panicf("Can't set current user for fetcher, err: [%v]", err)
 		}
 
-		hostData.Extra.ExadataDevices = b.getExadataDevices()
+		hostData.Extra.Exadata.Devices = b.getExadataDevices()
 	}
 }
 
