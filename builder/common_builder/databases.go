@@ -24,7 +24,7 @@ import (
 	"github.com/ercole-io/ercole-agent/utils"
 )
 
-func (b *CommonBuilder) getOracleDBs(hostType string) []model.Database {
+func (b *CommonBuilder) getOracleDBs(hostType string, cpuCores int, socket int) []model.Database {
 	oratabEntries := b.fetcher.GetOratabEntries()
 
 	databaseChannel := make(chan *model.Database, len(oratabEntries))
@@ -35,7 +35,7 @@ func (b *CommonBuilder) getOracleDBs(hostType string) []model.Database {
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
 
-			databaseChannel <- b.getOracleDB(entry, hostType)
+			databaseChannel <- b.getOracleDB(entry, hostType, cpuCores, socket)
 		})
 	}
 
@@ -50,7 +50,7 @@ func (b *CommonBuilder) getOracleDBs(hostType string) []model.Database {
 	return databases
 }
 
-func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *model.Database {
+func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string, cpuCores int, socket int) *model.Database {
 	dbStatus := b.fetcher.GetDbStatus(entry)
 	var database *model.Database
 
@@ -70,6 +70,68 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string) *m
 			database.SegmentAdvisors = []model.SegmentAdvisor{}
 			database.LastPSUs = []model.PSU{}
 			database.Backups = []model.Backup{}
+
+			// compute db edition
+			var dbEdition string
+			if strings.Contains(strings.ToUpper(database.Version), "ENTERPRISE") {
+				dbEdition = "ENT"
+			} else if strings.Contains(strings.ToUpper(database.Version), "EXTREME") {
+				dbEdition = "EXE"
+			} else {
+				dbEdition = "STD"
+			}
+
+			// compute coreFactor/factor
+			coreFactor := float32(-1)
+			if hostType == "OVM" || hostType == "VMWARE" || hostType == "VMOTHER" {
+				if dbEdition == "EXE" || dbEdition == "ENT" {
+					coreFactor = float32(cpuCores) * 0.25
+				} else if dbEdition == "STD" {
+					coreFactor = 0
+				}
+			} else if hostType == "PH" {
+				if dbEdition == "EXE" || dbEdition == "ENT" {
+					coreFactor = float32(cpuCores) * 0.25
+				} else if dbEdition == "STD" {
+					coreFactor = float32(socket)
+				}
+			}
+
+			if dbEdition == "EXE" {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle EXE",
+					Count: coreFactor,
+				})
+			} else {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle EXE",
+					Count: 0,
+				})
+			}
+
+			if dbEdition == "ENT" {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle ENT",
+					Count: coreFactor,
+				})
+			} else {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle ENT",
+					Count: 0,
+				})
+			}
+
+			if dbEdition == "STD" {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle STD",
+					Count: coreFactor,
+				})
+			} else {
+				database.Licenses = append(database.Licenses, model.License{
+					Name:  "Oracle STD",
+					Count: 0,
+				})
+			}
 		}
 	default:
 		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",

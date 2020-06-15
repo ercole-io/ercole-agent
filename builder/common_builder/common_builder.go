@@ -42,7 +42,6 @@ func NewCommonBuilder(configuration config.Configuration, log logger.Logger) Com
 	if runtime.GOOS == "windows" {
 		wf := fetcher.NewWindowsFetcherImpl(configuration, log)
 		specializedFetcher = &wf
-
 	} else {
 		if runtime.GOOS != "linux" {
 			log.Errorf("Unknow runtime.GOOS: [%v], I'll try with linux\n", runtime.GOOS)
@@ -88,7 +87,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		b.log.Debug("Databases mode enabled")
 		hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
 
-		hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type)
+		hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type, hostData.Info.CPUCores, hostData.Info.Socket)
 		hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
 	}
 
