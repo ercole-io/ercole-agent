@@ -1,5 +1,5 @@
 // +build linux
-// +build !rhel5
+// +build rhel5
 
 // Copyright (c) 2020 Sorint.lab S.p.A.
 //
@@ -43,18 +43,12 @@ func runCommandAs(log logger.Logger, u *User, commandName string, args ...string
 	}
 
 	var stdoutBuffer, stderrBuffer bytes.Buffer
-
 	cmd.Stdout = &stdoutBuffer
 	cmd.Stderr = &stderrBuffer
 
 	err = cmd.Run()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			exitCode = exitErr.ExitCode()
-			stderr = exitErr.Stderr
-		} else {
-			exitCode = -1
-		}
+		exitCode = -1
 	}
 
 	stdout = stdoutBuffer.Bytes()
