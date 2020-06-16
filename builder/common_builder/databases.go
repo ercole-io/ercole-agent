@@ -16,12 +16,12 @@
 package common
 
 import (
-	"context"
 	"strings"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/ercole-io/ercole-agent/utils/context"
 )
 
 func (b *CommonBuilder) getOracleDBs(hostType string, cpuCores int, socket int) []model.Database {
@@ -145,7 +145,7 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string, cp
 func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string) *model.Database {
 	dbVersion := b.fetcher.GetDbVersion(entry)
 
-	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
+	statsCtx, cancelStatsCtx := context.WithCancel()
 	if b.configuration.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
 			b.fetcher.RunStats(entry)

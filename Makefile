@@ -18,6 +18,13 @@ windows:
 nsis: windows
 	makensis package/win/installer.nsi
 
+rhel5:
+	docker run --rm -it -v "$$PWD":/go/src/github.com/ercole-io/ercole-agent -w /go/src/github.com/ercole-io/ercole-agent golang:1.3 go build -tags rhel5
+
+test:
+	go test ./...
+	go test -tags rhel5 ./...
+
 install: all install-fetchers install-bin install-bin install-config install-scripts
 
 install-fetchers:
