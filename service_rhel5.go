@@ -1,3 +1,5 @@
+//+build rhel5
+
 // Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,43 +17,6 @@
 
 package main
 
-import (
-	"log"
-
-	"github.com/kardianos/service"
-)
-
-var serviceLogger service.Logger
-
 func serve(prg *program) {
-	svcConfig := &service.Config{
-		Name:        "ErcoleAgent",
-		DisplayName: "The Ercole Agent",
-		Description: "Asset management agent from the Ercole project.",
-	}
-
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	serviceLogger, err = s.Logger(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = s.Run()
-	if err != nil {
-		serviceLogger.Error(err)
-	}
-
-}
-
-func (p *program) Start(s service.Service) error {
-	go p.run()
-	return nil
-}
-
-func (p *program) Stop(s service.Service) error {
-	return nil
+	prg.run()
 }
