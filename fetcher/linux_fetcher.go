@@ -89,11 +89,18 @@ func (lf *LinuxFetcherImpl) Execute(fetcherName string, args ...string) []byte {
 	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, args...)
 
 	if len(stdout) > 0 {
-		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
 	}
 
 	if len(stderr) > 0 {
-		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
+		format := "Fetcher [%s] exitCode: [%v] stderr: [%v]"
+		args := []interface{}{fetcherName, exitCode, strings.TrimSpace(string(stderr))}
+
+		if exitCode == 0 {
+			lf.log.Debugf(format, args...)
+		} else {
+			lf.log.Errorf(format, args...)
+		}
 	}
 
 	if err != nil {
@@ -117,11 +124,11 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, "/usr/bin/pwsh", args...)
 
 	if len(stdout) > 0 {
-		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, string(stdout))
+		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
 	}
 
 	if len(stderr) > 0 {
-		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, string(stderr))
+		lf.log.Errorf("Fetcher [%s] exitCode: [%v] stderr: [%v]", fetcherName, exitCode, strings.TrimSpace(string(stderr)))
 	}
 
 	if err != nil {
