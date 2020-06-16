@@ -37,7 +37,6 @@ exit 0
 
 %build
 rm -rf $RPM_BUILD_ROOT
-make
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT/opt/ercole-agent install
