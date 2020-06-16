@@ -20,7 +20,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"runtime"
 )
 
@@ -125,18 +124,4 @@ func exists(name string) bool {
 		return false
 	}
 	return true
-}
-
-// GetBaseDir return executable base directory, os independant
-func GetBaseDir() string {
-	var s string
-	if runtime.GOOS == "windows" {
-		s, _ = os.Executable()
-		s = filepath.Dir(s)
-	} else {
-		s, _ = os.Readlink("/proc/self/exe")
-		s = filepath.Dir(s)
-	}
-
-	return s
 }
