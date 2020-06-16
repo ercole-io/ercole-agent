@@ -42,7 +42,7 @@ script:
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
   - cp /tmp/main.go main.go
 
-  - if [ $DIST != "rhel5" ]; then GOOS=$GOOS2 go build -o ${BIN}
+  - if [ $DIST != "rhel5" ]; then GOOS=$GOOS2 go build -o ${BIN}; fi
   - if [ $DIST == "rhel5" ]; then GOOS=$GOOS2 go build -o ${BIN} -tags rhel5; fi
 
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
