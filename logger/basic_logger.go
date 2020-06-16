@@ -20,7 +20,6 @@ package logger
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -124,7 +123,7 @@ func (l *BasicLogger) doLog(level Level, args ...interface{}) {
 	}
 
 	buffer.WriteString(
-		fmt.Sprintf("[%s][%s][%s]",
+		fmt.Sprintf("[%s][%s][%s] ",
 			time.Now().Format("06-01-02 15:04:05"),
 			l.componentName,
 			levelText))
@@ -135,5 +134,5 @@ func (l *BasicLogger) doLog(level Level, args ...interface{}) {
 
 	buffer.WriteString(fmt.Sprintf("%-50s", message))
 
-	log.Println(buffer.String())
+	fmt.Println(buffer.String())
 }

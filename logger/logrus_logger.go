@@ -1,3 +1,5 @@
+//+build !rhel5
+
 // Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
