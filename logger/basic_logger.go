@@ -42,6 +42,7 @@ func NewBasicLogger(componentName string) Logger {
 	var newLogger BasicLogger
 	newLogger.componentName = componentName
 	newLogger.isColored = runtime.GOOS != "windows"
+	newLogger.level = InfoLevel
 
 	return &newLogger
 }
