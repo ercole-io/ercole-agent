@@ -1,5 +1,3 @@
-//+build rhel5
-
 // Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -40,7 +38,7 @@ func (l *BasicLogger) SetLevel(level Level) {
 }
 
 // NewBasicLogger return a BasicLogger initialized with ercole log standard
-func NewLogger(componentName string) Logger {
+func NewBasicLogger(componentName string) Logger {
 	var newLogger BasicLogger
 	newLogger.componentName = componentName
 	newLogger.isColored = runtime.GOOS != "windows"

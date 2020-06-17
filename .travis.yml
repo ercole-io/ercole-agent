@@ -22,7 +22,7 @@ jobs:
     - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel8 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos8
     - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel7 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos7
     - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel6 BIN=ercole-agent PACKAGE_BUILD_IMAGE=amreo/rpmbuild-centos6
-    #- env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
+    - env: GOOS2=linux DIST_FAMILY=RHEL DIST=rhel5 BIN=ercole-agent PACKAGE_BUILD_IMAGE=sorintdev/rpmbuild-centos5
     - env: GOOS2=windows DIST_FAMILY=WIN DIST=win BIN=ercole-agent.exe PACKAGE_BUILD_IMAGE=amreo/nsis
 
 before_install:
@@ -33,25 +33,28 @@ before_install:
 
 install:
   - docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
-  #- if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo \$HOME)/rpmbuild' > ~/.rpmmacros"; fi
+  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo \$HOME)/rpmbuild' > ~/.rpmmacros"; fi
 
 script:
   - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
   - cp /tmp/main.go main.go
   - GOOS=$GOOS2 go build -o ${BIN}
+
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
-  #- sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
+  - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/win/installer.nsi
+
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild --quiet -bl package/${DIST}/ercole-agent.spec" || echo rpmbuild; fi
-  #- if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}" || echo rpmbuild; fi
+  - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}" || echo rpmbuild; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "mkdir -p ~/rpmbuild/SOURCES/ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && tar -C ~/rpmbuild/SOURCES -cvzf ~/rpmbuild/SOURCES/ercole-agent-${VERSION}.tar.gz ercole-agent-${VERSION}"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && rpmbuild -bb package/${DIST}/ercole-agent.spec"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "find ~/rpmbuild/"; fi
   - if [ $DIST_FAMILY == "WIN" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && makensis package/win/installer.nsi"; fi
+
   - mkdir dist
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "ls ~/rpmbuild/RPMS/x86_64/"; fi
   - if [ $DIST_FAMILY == "RHEL" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && cp ~/rpmbuild/RPMS/x86_64/ercole-agent-${VERSION}-1*.x86_64.rpm dist/"; fi
