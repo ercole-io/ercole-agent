@@ -19,7 +19,7 @@ HOSTNAME=$(hostname)
 
 CPU_MODEL=$(grep "model name" /proc/cpuinfo | sort -u | awk -F ': ' '{print $2}')
 
-if [[ $(echo $CPU_MODEL | grep -c "@") ]]; then
+if [[ $(echo $CPU_MODEL | grep -c "@") -gt 0 ]]; then
   CPU_FREQUENCY=$(echo $CPU_MODEL | awk -F '@' '{print $2}')
 else
   CPU_FREQUENCY=$(grep "cpu MHz" /proc/cpuinfo | head -n 1 | awk -F ":" '{ print $NF }')Mhz
