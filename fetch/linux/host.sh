@@ -43,17 +43,20 @@ else
 fi
 
 CORES_PER_SOCKET=$(expr $CPU_CORES / $CPU_SOCKETS)
+if [[ $CORES_PER_SOCKET -le 0 ]]; then
+  CORES_PER_SOCKET=1
+fi
 
 KERNEL=$(uname --kernel-name)
 KERNEL_VERSION=$(uname --kernel-release)
 
-OS=$(cat /etc/redhat-release)
-if [[ $? != 0 ]]; then
-  OS=$(cat /etc/SuSE-release | head -1)
+if [[ -f /etc/redhat-release ]]; then
+  OS="Red Hat Enterprise Linux"
+else
+  OS=$(grep "^NAME=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
 fi
 
-OS=$(cat /etc/os-release | grep "^NAME=" | awk -F\= '{gsub(/"/,"",$2);print $2}')
-OS_VERSION=$(cat /etc/os-release | grep "^VERSION_ID=" | awk -F\= '{gsub(/"/,"",$2);print $2}')
+OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
 
 MEM_TOTAL=$(echo "$(($(free -k | grep Mem | awk -F ' ' '{print $2}') / 1024 / 1024))")
 SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}') / 1024 / 1024))")
