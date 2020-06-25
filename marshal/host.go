@@ -16,38 +16,33 @@
 package marshal
 
 import (
-	"bufio"
-	"encoding/json"
-	"log"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Host returns a Host struct from the output of the host
 // fetcher command. Host fields output is in key: value format separated by a newline
 func Host(cmdOutput []byte) model.Host {
+	data := parseKeyValueColonSeparated(cmdOutput)
 
-	lines := "{"
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
-	for scanner.Scan() {
-		line := scanner.Text()
-		splitted := strings.Split(line, ":")
-		key := strings.TrimSpace(splitted[0])
-		value := strings.TrimSpace(splitted[1])
-		lines += marshalKey(key) + marshalValue(value) + ", "
-	}
-
-	lines += "}"
-	lines = strings.Replace(lines, ", }", "}", -1)
-
-	b := []byte(lines)
 	var m model.Host
-	err := json.Unmarshal(b, &m)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	m.Hostname = strings.TrimSpace(data["Hostname"])
+	m.CPUModel = strings.TrimSpace(data["CPUModel"])
+	m.CPUFrequency = strings.TrimSpace(data["CPUFrequency"])
+	m.CPUSockets = trimParseInt(data["CPUSockets"])
+	m.CPUCores = trimParseInt(data["CPUCores"])
+	m.CPUThreads = trimParseInt(data["CPUThreads"])
+	m.ThreadsPerCore = trimParseInt(data["ThreadsPerCore"])
+	m.CoresPerSocket = trimParseInt(data["CoresPerSocket"])
+	m.HardwareAbstraction = strings.TrimSpace(data["HardwareAbstraction"])
+	m.HardwareAbstractionTechnology = strings.TrimSpace(data["HardwareAbstractionTechnology"])
+	m.Kernel = strings.TrimSpace(data["Kernel"])
+	m.KernelVersion = strings.TrimSpace(data["KernelVersion"])
+	m.OS = strings.TrimSpace(data["OS"])
+	m.OSVersion = strings.TrimSpace(data["OSVersion"])
+	m.MemoryTotal = trimParseFloat64(data["MemoryTotal"])
+	m.SwapTotal = trimParseFloat64(data["SwapTotal"])
 
 	return m
 }
