@@ -16,6 +16,7 @@
 package marshal
 
 import (
+	"bufio"
 	"regexp"
 	"strconv"
 	"strings"
@@ -78,19 +79,47 @@ func parseInt(s string) int {
 
 }
 
-// s is supposed to be non null and already trimmed
-func parseCount(s string) float32 {
+func trimParseInt(s string) int {
+	s = strings.TrimSpace(s)
 
-	if s == "" {
-		return 0
-	}
-
-	count, err := strconv.ParseFloat(s, 32)
-
+	val, err := strconv.Atoi(s)
 	if err != nil {
-		return 0
+		panic(err)
 	}
 
-	return float32(count)
+	return val
+}
 
+func trimParseFloat64(s string) float64 {
+	s = strings.TrimSpace(s)
+
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return val
+}
+
+func trimParseBool(s string) bool {
+	s = strings.TrimSpace(s)
+
+	return parseBool(s)
+}
+
+func parseKeyValueColonSeparated(b []byte) map[string]string {
+	scanner := bufio.NewScanner(strings.NewReader(string(b)))
+
+	data := make(map[string]string, 20)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		splitted := strings.Split(line, ":")
+		key := strings.TrimSpace(splitted[0])
+		value := strings.TrimSpace(splitted[1])
+
+		data[key] = value
+	}
+
+	return data
 }
