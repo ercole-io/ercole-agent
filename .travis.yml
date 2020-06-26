@@ -36,9 +36,7 @@ install:
   - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo \$HOME)/rpmbuild' > ~/.rpmmacros"; fi
 
 script:
-  - sed "s/\"latest\"/\"${VERSION}\"/" main.go > /tmp/main.go
-  - cp /tmp/main.go main.go
-  - GOOS=$GOOS2 go build -o ${BIN}
+  - GOOS=$GOOS2 go build -ldflags="-X main.version=${VERSION}" -o ${BIN}
 
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
