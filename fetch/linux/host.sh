@@ -61,27 +61,6 @@ OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);pr
 MEM_TOTAL=$(echo "$(($(free -k | grep Mem | awk -F ' ' '{print $2}') / 1024 / 1024))")
 SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}') / 1024 / 1024))")
 
-CHECK_SUN_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/rpc.pmfd\b" | wc -l)
-if [ $CHECK_SUN_CLUSTER = 1 ]; then
-  SUN_CLUSTER=Y
-else
-  SUN_CLUSTER=N
-fi
-
-CHECK_VERITAS_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/had\b" | wc -l)
-if [ $CHECK_VERITAS_CLUSTER = 1 ]; then
-  VERITAS_CLUSTER=Y
-else
-  VERITAS_CLUSTER=N
-fi
-
-CHECK_ORACLE_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/crsd\b" | wc -l)
-if [ $CHECK_ORACLE_CLUSTER -gt 0 ]; then
-  ORACLE_CLUSTER=Y
-else
-  ORACLE_CLUSTER=N
-fi
-
 CHECK_TYPE_SERVER_OVM_DMESG=$(dmesg | grep OVM | wc -l)
 CHECK_TYPE_SERVER_OVM_LOG=$(grep OVM /var/log/dmesg | wc -l)
 CHECK_TYPE_SERVER_VMWARE=$(dmesg | grep VMware | wc -l)
@@ -130,7 +109,4 @@ OS: $OS
 OSVersion: $OS_VERSION
 MemoryTotal: $MEM_TOTAL
 SwapTotal: $SWP_TOTAL
-OracleCluster: $ORACLE_CLUSTER
-VeritasCluster: $VERITAS_CLUSTER
-SunCluster: $SUN_CLUSTER
-AixCluster: N"
+"
