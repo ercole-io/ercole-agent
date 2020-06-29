@@ -15,6 +15,10 @@
 
 package agentmodel
 
+// StorageServerName string
+type StorageServerName string
+
+// OratabEntry struct
 type OratabEntry struct {
 	DBName     string
 	OracleHome string
