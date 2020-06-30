@@ -19,26 +19,25 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Tablespaces returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Tablespaces(cmdOutput []byte) []model.Tablespace {
-	tablespaces := []model.Tablespace{}
+func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
+	tablespaces := []model.OracleDatabaseTablespace{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		tablespace := new(model.Tablespace)
+		tablespace := new(model.OracleDatabaseTablespace)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
-			tablespace.Database = strings.TrimSpace(splitted[2])
 			tablespace.Name = strings.TrimSpace(splitted[3])
-			tablespace.MaxSize = strings.TrimSpace(splitted[4])
-			tablespace.Total = strings.TrimSpace(splitted[5])
-			tablespace.Used = strings.TrimSpace(splitted[6])
-			tablespace.UsedPerc = strings.TrimSpace(splitted[7])
+			tablespace.MaxSize = trimParseFloat64(splitted[4])
+			tablespace.Total = trimParseFloat64(splitted[5])
+			tablespace.Used = trimParseFloat64(splitted[6])
+			tablespace.UsedPerc = trimParseFloat64(splitted[7])
 			tablespace.Status = strings.TrimSpace(splitted[8])
 
 			tablespaces = append(tablespaces, *tablespace)

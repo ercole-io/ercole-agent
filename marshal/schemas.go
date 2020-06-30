@@ -19,21 +19,20 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Schemas returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Schemas(cmdOutput []byte) []model.Schema {
-	schemas := []model.Schema{}
+func Schemas(cmdOutput []byte) []model.OracleDatabaseSchema {
+	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		schema := new(model.Schema)
+		schema := new(model.OracleDatabaseSchema)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 8 {
-			schema.Database = strings.TrimSpace(splitted[2])
 			schema.User = strings.TrimSpace(splitted[3])
 			schema.Total = parseInt(strings.TrimSpace(splitted[4]))
 			schema.Tables = parseInt(strings.TrimSpace(splitted[5]))

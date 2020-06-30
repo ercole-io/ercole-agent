@@ -21,7 +21,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Filesystems returns a list of Filesystem entries extracted

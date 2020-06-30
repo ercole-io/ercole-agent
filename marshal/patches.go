@@ -19,23 +19,22 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Patches returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Patches(cmdOutput []byte) []model.Patch {
-	patches := []model.Patch{}
+func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
+	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		patch := new(model.Patch)
+		patch := new(model.OracleDatabasePatch)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
-			patch.Database = strings.TrimSpace(splitted[3])
 			patch.Version = strings.TrimSpace(splitted[4])
-			patch.PatchID = strings.TrimSpace(splitted[5])
+			patch.PatchID = trimParseInt(splitted[5])
 			patch.Action = strings.TrimSpace(splitted[6])
 			patch.Description = strings.TrimSpace(splitted[7])
 			patch.Date = strings.TrimSpace(splitted[8])

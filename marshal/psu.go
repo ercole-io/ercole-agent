@@ -19,15 +19,16 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
-func PSU(cmdOutput []byte) []model.PSU {
-	psuS := []model.PSU{}
+// PSU returns informations about PSU parsed from fetcher command output.
+func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
+	psuS := []model.OracleDatabasePSU{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		psu := new(model.PSU)
+		psu := new(model.OracleDatabasePSU)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 2 {

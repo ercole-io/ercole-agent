@@ -19,22 +19,24 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
-func Addms(cmdOutput []byte) []model.Addm {
-	addms := []model.Addm{}
+// Addms marshaller
+func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
+	addms := []model.OracleDatabaseAddm{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		addm := new(model.Addm)
+		addm := new(model.OracleDatabaseAddm)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 6 {
 			addm.Finding = strings.TrimSpace(splitted[2])
 			addm.Recommendation = strings.TrimSpace(splitted[3])
 			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = strings.TrimSpace(splitted[5])
+			addm.Benefit = trimParseFloat64(splitted[5])
+
 			addms = append(addms, *addm)
 		}
 	}

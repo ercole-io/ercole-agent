@@ -19,26 +19,28 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Licenses returns a list of licenses from the output of the licenses
 // fetcher command.
-func Licenses(cmdOutput []byte) []model.License {
-
-	var licenses []model.License
+func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
+	var licenses []model.OracleDatabaseLicense
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 	for scanner.Scan() {
-		license := new(model.License)
+		license := new(model.OracleDatabaseLicense)
 		line := scanner.Text()
 		splitted := strings.Split(line, ";")
+
 		if len(splitted) == 3 {
 			key := strings.TrimSpace(splitted[0])
 			value := strings.TrimSpace(splitted[1])
 			value = strings.Replace(value, "\t", "", -1)
+
 			license.Name = key
-			license.Count = parseCount(value)
+			license.Count = trimParseFloat64(value)
+
 			licenses = append(licenses, *license)
 		}
 	}

@@ -17,26 +17,30 @@ package marshal
 
 import (
 	"bufio"
+	"strconv"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Backups marshals a backup output list into a struct.
-func Backups(cmdOutput []byte) []model.Backup {
-	backups := []model.Backup{}
+func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
+	backups := []model.OracleDatabaseBackup{}
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		backup := new(model.Backup)
+		backup := new(model.OracleDatabaseBackup)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 5 {
 			backup.BackupType = strings.TrimSpace(splitted[0])
 			backup.Hour = strings.TrimSpace(splitted[1])
-			backup.WeekDays = strings.TrimSpace(splitted[2])
-			backup.AvgBckSize = strings.TrimSpace(splitted[3])
+
+			weekDays := strings.TrimSpace(splitted[2])
+			backup.WeekDays = strings.Split(weekDays, ",")
+
+			backup.AvgBckSize, _ = strconv.ParseFloat(splitted[3], 64)
 			backup.Retention = strings.TrimSpace(splitted[4])
 			backups = append(backups, *backup)
 		}

@@ -19,13 +19,13 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Database returns information about database extracted
 // from the db fetcher command output.
-func Database(cmdOutput []byte) model.Database {
-	var db model.Database
+func Database(cmdOutput []byte) model.OracleDatabase {
+	var db model.OracleDatabase
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
@@ -34,31 +34,33 @@ func Database(cmdOutput []byte) model.Database {
 		if len(splitted) == 24 {
 			db.Name = strings.TrimSpace(splitted[0])
 			db.UniqueName = strings.TrimSpace(splitted[1])
-			db.InstanceNumber = strings.TrimSpace(splitted[2])
+			db.InstanceNumber = trimParseInt(splitted[2])
 			db.Status = strings.TrimSpace(splitted[3])
 			db.Version = strings.TrimSpace(splitted[4])
 			db.Platform = strings.TrimSpace(splitted[5])
-			db.Archivelog = strings.TrimSpace(splitted[6])
+			db.Archivelog = trimParseBool(splitted[6])
 			db.Charset = strings.TrimSpace(splitted[7])
 			db.NCharset = strings.TrimSpace(splitted[8])
-			db.BlockSize = strings.TrimSpace(splitted[9])
-			db.CPUCount = strings.TrimSpace(splitted[10])
-			db.SGATarget = strings.TrimSpace(splitted[11])
-			db.PGATarget = strings.TrimSpace(splitted[12])
-			db.MemoryTarget = strings.TrimSpace(splitted[13])
-			db.SGAMaxSize = strings.TrimSpace(splitted[14])
-			db.SegmentsSize = strings.TrimSpace(splitted[15])
-			db.Used = strings.TrimSpace(splitted[16])
-			db.Allocated = strings.TrimSpace(splitted[17])
-			db.Elapsed = strings.TrimSpace(splitted[18])
-			db.DBTime = strings.TrimSpace(splitted[19])
-			db.DailyCPUUsage = strings.TrimSpace(splitted[20])
-			db.Work = strings.TrimSpace(splitted[21])
+			db.BlockSize = trimParseInt(splitted[9])
+			db.CPUCount = trimParseInt(splitted[10])
+			db.SGATarget = trimParseFloat64(splitted[11])
+			db.PGATarget = trimParseFloat64(splitted[12])
+			db.MemoryTarget = trimParseFloat64(splitted[13])
+			db.SGAMaxSize = trimParseFloat64(splitted[14])
+			db.SegmentsSize = trimParseFloat64(splitted[15])
+			db.DatafileSize = trimParseFloat64(splitted[16])
+			db.Allocated = trimParseFloat64(splitted[17])
+
+			db.Elapsed = trimParseFloat64Pointer(splitted[18], "N/A")
+			db.DBTime = trimParseFloat64Pointer(splitted[19], "N/A")
+			db.DailyCPUUsage = trimParseFloat64Pointer(splitted[20], "N/A")
+			db.Work = trimParseFloat64Pointer(splitted[21], "N/A")
+
 			db.ASM = parseBool(strings.TrimSpace(splitted[22]))
 			db.Dataguard = parseBool(strings.TrimSpace(splitted[23]))
 
-			if db.DailyCPUUsage == "" {
-				db.DailyCPUUsage = db.Work
+			if *db.DailyCPUUsage == 0 {
+				*db.DailyCPUUsage = *db.Work
 			}
 		}
 	}

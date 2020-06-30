@@ -19,27 +19,38 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole/model"
 )
 
-// ExadataCellDisks returns information about the cell disks extracted from exadata-storage-status command.
-func ExadataCellDisks(cmdOutput []byte) []model.ExadataCellDisk {
-	cellDisks := []model.ExadataCellDisk{}
+// OracleExadataCellDisks returns information about the cell disks extracted from exadata-storage-status command.
+func OracleExadataCellDisks(cmdOutput []byte) map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
+	cellDisks := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		cellDisk := new(model.ExadataCellDisk)
+		cellDisk := new(model.OracleExadataCellDisk)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 5 {
-			cellDisk.StorageServerName = strings.TrimSpace(splitted[0])
+			storageServerName := strings.TrimSpace(splitted[0])
+
 			cellDisk.Name = strings.TrimSpace(splitted[1])
 			cellDisk.Status = strings.TrimSpace(splitted[2])
-			cellDisk.ErrCount = strings.TrimSpace(splitted[3])
-			cellDisk.UsedPerc = strings.TrimSpace(splitted[4])
+			cellDisk.ErrCount = trimParseInt(splitted[3])
+			cellDisk.UsedPerc = trimParseInt(splitted[4])
 
-			cellDisks = append(cellDisks, *cellDisk)
+			addCellDisk(cellDisks, storageServerName, cellDisk)
 		}
 	}
 	return cellDisks
+}
+
+func addCellDisk(cellDisks map[agentmodel.StorageServerName][]model.OracleExadataCellDisk,
+	storageServerName string, cellDisk *model.OracleExadataCellDisk) {
+	ssn := agentmodel.StorageServerName(storageServerName)
+
+	storageServerCellDisks := cellDisks[ssn]
+	storageServerCellDisks = append(storageServerCellDisks, *cellDisk)
+	cellDisks[ssn] = storageServerCellDisks
 }
