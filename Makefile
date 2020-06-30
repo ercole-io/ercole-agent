@@ -35,3 +35,6 @@ install-scripts:
 
 install-config:
 	install -m 644 config.json $(DESTDIR)/config.json
+
+test:
+	go test ./...

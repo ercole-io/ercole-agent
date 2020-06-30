@@ -28,9 +28,9 @@ import (
 	"github.com/ercole-io/ercole-agent/builder"
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/scheduler"
 	"github.com/ercole-io/ercole-agent/scheduler/storage"
+	"github.com/ercole-io/ercole/model"
 )
 
 var version = "latest"
@@ -63,7 +63,11 @@ func (p *program) run() {
 }
 
 func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
-	hostData := builder.BuildData(configuration, version, hostDataSchemaVersion, log)
+	hostData := builder.BuildData(configuration, log)
+
+	hostData.AgentVersion = version
+	hostData.SchemaVersion = hostDataSchemaVersion
+
 	sendData(hostData, configuration, log)
 }
 
