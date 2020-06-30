@@ -22,8 +22,8 @@ import (
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/fetcher"
 	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/ercole-io/ercole/model"
 )
 
 // CommonBuilder for Linux and Windows hosts
@@ -76,24 +76,28 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		b.setExadataFetchersUser()
 	}
 
-	hostData.Info = *b.getHost()
+	hostData.Info = b.fetcher.GetHost()
 
 	hostData.Hostname = hostData.Info.Hostname
 	if b.configuration.Hostname != "default" {
 		hostData.Hostname = b.configuration.Hostname
 	}
 
+	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
+
 	if b.configuration.Features.Databases.Enabled {
 		b.log.Debug("Databases mode enabled")
-		hostData.Extra.Filesystems = b.fetcher.GetFilesystems()
+		hostData.Filesystems = b.fetcher.GetFilesystems()
 
-		hostData.Extra.Databases = b.getOracleDBs(hostData.Info.Type, hostData.Info.CPUCores, hostData.Info.Socket)
-		hostData.Databases, hostData.Schemas = b.getDatabasesAndSchemaNames(hostData.Extra.Databases)
+		hostData.Features.Oracle = new(model.OracleFeature)
+		hostData.Features.Oracle.Database = new(model.OracleDatabaseFeature)
+		hostData.Features.Oracle.Database.Databases = b.getOracleDBs(hostData.Info.HardwareAbstractionTechnology,
+			hostData.Info.CPUCores, hostData.Info.CPUSockets)
 	}
 
 	if b.configuration.Features.Virtualization.Enabled {
 		b.log.Debug("Virtualization mode enabled")
-		hostData.Extra.Clusters = b.getClustersInfos()
+		hostData.Clusters = b.getClustersInfos()
 	}
 
 	if b.configuration.Features.Exadata.Enabled {
@@ -103,8 +107,12 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 			b.log.Panicf("Can't set current user for fetcher, err: [%v]", err)
 		}
 
-		hostData.Extra.Exadata = new(model.Exadata)
-		hostData.Extra.Exadata.Devices = b.getExadataDevices()
+		if hostData.Features.Oracle == nil {
+			hostData.Features.Oracle = new(model.OracleFeature)
+		}
+
+		hostData.Features.Oracle.Exadata = new(model.OracleExadataFeature)
+		hostData.Features.Oracle.Exadata.Components = b.getExadataComponents()
 	}
 }
 
@@ -127,13 +135,4 @@ func (b *CommonBuilder) setExadataFetchersUser() {
 	if err := b.fetcher.SetUser(b.configuration.Features.Exadata.FetchersUser); err != nil {
 		b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", b.configuration.Features.Exadata.FetchersUser, err)
 	}
-}
-
-func (b *CommonBuilder) getHost() *model.Host {
-	host := b.fetcher.GetHost()
-
-	host.Environment = b.configuration.Envtype
-	host.Location = b.configuration.Location
-
-	return &host
 }

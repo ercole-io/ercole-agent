@@ -16,23 +16,17 @@
 package common
 
 import (
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole/model"
 )
 
-func (b *CommonBuilder) getExadataDevices() []model.ExadataDevice {
-	exadataDevices := b.fetcher.GetExadataDevices()
-	exadataCellDisks := b.fetcher.GetExadataCellDisks()
+func (b *CommonBuilder) getExadataComponents() []model.OracleExadataComponent {
+	exadataDevices := b.fetcher.GetExadataComponents()
+	exadataCellDisks := b.fetcher.GetOracleExadataCellDisks()
 
-	//Join exadataDevices with exadataCellDisks
-	for _, cd := range exadataCellDisks {
-		for i := range exadataDevices {
-			if cd.StorageServerName == exadataDevices[i].Hostname {
-				if exadataDevices[i].CellDisks == nil {
-					exadataDevices[i].CellDisks = []model.ExadataCellDisk{}
-				}
-				exadataDevices[i].CellDisks = append(exadataDevices[i].CellDisks, cd)
-			}
-		}
+	for i := range exadataDevices {
+		cellDisks := exadataCellDisks[agentmodel.StorageServerName(exadataDevices[i].Hostname)]
+		exadataDevices[i].CellDisks = &cellDisks
 	}
 
 	return exadataDevices
