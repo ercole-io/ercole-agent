@@ -13,32 +13,37 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
+	"strconv"
 	"strings"
 
 	"github.com/ercole-io/ercole/model"
 )
 
-// Addms marshaller
-func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
-	addms := []model.OracleDatabaseAddm{}
+// Backups marshals a backup output list into a struct.
+func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
+	backups := []model.OracleDatabaseBackup{}
+
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		addm := new(model.OracleDatabaseAddm)
+		backup := new(model.OracleDatabaseBackup)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 6 {
-			addm.Finding = strings.TrimSpace(splitted[2])
-			addm.Recommendation = strings.TrimSpace(splitted[3])
-			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = trimParseFloat64(splitted[5])
+		if len(splitted) == 5 {
+			backup.BackupType = strings.TrimSpace(splitted[0])
+			backup.Hour = strings.TrimSpace(splitted[1])
 
-			addms = append(addms, *addm)
+			weekDays := strings.TrimSpace(splitted[2])
+			backup.WeekDays = strings.Split(weekDays, ",")
+
+			backup.AvgBckSize, _ = strconv.ParseFloat(splitted[3], 64)
+			backup.Retention = strings.TrimSpace(splitted[4])
+			backups = append(backups, *backup)
 		}
 	}
-	return addms
+	return backups
 }

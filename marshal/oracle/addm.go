@@ -13,29 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
-// PSU returns informations about PSU parsed from fetcher command output.
-func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
-	psuS := []model.OracleDatabasePSU{}
+// Addms marshaller
+func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
+	addms := []model.OracleDatabaseAddm{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		psu := new(model.OracleDatabasePSU)
+		addm := new(model.OracleDatabaseAddm)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 2 {
-			psu.Description = strings.TrimSpace(splitted[0])
-			psu.Date = strings.TrimSpace(splitted[1])
-			psuS = append(psuS, *psu)
+		if len(splitted) == 6 {
+			addm.Finding = strings.TrimSpace(splitted[2])
+			addm.Recommendation = strings.TrimSpace(splitted[3])
+			addm.Action = strings.TrimSpace(splitted[4])
+			addm.Benefit = marshal.TrimParseFloat64(splitted[5])
+
+			addms = append(addms, *addm)
 		}
 	}
-	return psuS
+	return addms
 }

@@ -13,12 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
@@ -41,35 +42,35 @@ func ExadataComponent(cmdOutput []byte) []model.OracleExadataComponent {
 
 			cpuEnabled := strings.Split(splitted[4], "/")
 			if len(cpuEnabled) == 2 {
-				device.RunningCPUCount = trimParseIntPointer(cpuEnabled[0], "-")
-				device.TotalCPUCount = trimParseIntPointer(cpuEnabled[1], "-")
+				device.RunningCPUCount = marshal.TrimParseIntPointer(cpuEnabled[0], "-")
+				device.TotalCPUCount = marshal.TrimParseIntPointer(cpuEnabled[1], "-")
 			}
 
-			device.Memory = trimParseIntPointer(splitted[5], "-")
-			device.Status = trimParseStringPointer(splitted[6], "-")
+			device.Memory = marshal.TrimParseIntPointer(splitted[5], "-")
+			device.Status = marshal.TrimParseStringPointer(splitted[6], "-")
 
 			powerCount := strings.Split(splitted[7], "/")
 			if len(powerCount) == 2 {
-				device.RunningPowerSupply = trimParseIntPointer(powerCount[0], "-")
-				device.TotalPowerSupply = trimParseIntPointer(powerCount[1], "-")
+				device.RunningPowerSupply = marshal.TrimParseIntPointer(powerCount[0], "-")
+				device.TotalPowerSupply = marshal.TrimParseIntPointer(powerCount[1], "-")
 			}
 
-			device.PowerStatus = trimParseStringPointer(splitted[8], "-")
+			device.PowerStatus = marshal.TrimParseStringPointer(splitted[8], "-")
 
 			fanCount := strings.Split(splitted[9], "/")
 			if len(fanCount) == 2 {
-				device.RunningFanCount = trimParseIntPointer(fanCount[0], "-")
-				device.TotalFanCount = trimParseIntPointer(fanCount[1], "-")
+				device.RunningFanCount = marshal.TrimParseIntPointer(fanCount[0], "-")
+				device.TotalFanCount = marshal.TrimParseIntPointer(fanCount[1], "-")
 			}
 
-			device.FanStatus = trimParseStringPointer(splitted[10], "-")
+			device.FanStatus = marshal.TrimParseStringPointer(splitted[10], "-")
 
-			device.TempActual = trimParseFloat64Pointer(splitted[11], "-")
-			device.TempStatus = trimParseStringPointer(splitted[12], "-")
-			device.CellsrvServiceStatus = trimParseStringPointer(splitted[13], "-")
-			device.MsServiceStatus = trimParseStringPointer(splitted[14], "-")
-			device.RsServiceStatus = trimParseStringPointer(splitted[15], "-")
-			device.FlashcacheMode = trimParseStringPointer(splitted[16], "-")
+			device.TempActual = marshal.TrimParseFloat64Pointer(splitted[11], "-")
+			device.TempStatus = marshal.TrimParseStringPointer(splitted[12], "-")
+			device.CellsrvServiceStatus = marshal.TrimParseStringPointer(splitted[13], "-")
+			device.MsServiceStatus = marshal.TrimParseStringPointer(splitted[14], "-")
+			device.RsServiceStatus = marshal.TrimParseStringPointer(splitted[15], "-")
+			device.FlashcacheMode = marshal.TrimParseStringPointer(splitted[16], "-")
 
 			devices = append(devices, *device)
 		}

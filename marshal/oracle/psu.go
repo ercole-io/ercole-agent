@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
@@ -22,29 +22,20 @@ import (
 	"github.com/ercole-io/ercole/model"
 )
 
-// SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.
-func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
-	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
+// PSU returns informations about PSU parsed from fetcher command output.
+func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
+	psuS := []model.OracleDatabasePSU{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		segmentadvisor := new(model.OracleDatabaseSegmentAdvisor)
+		psu := new(model.OracleDatabasePSU)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 8 {
-			segmentadvisor.SegmentOwner = strings.TrimSpace(splitted[2])
-			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
-			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
-			segmentadvisor.PartitionName = strings.TrimSpace(splitted[5])
-			segmentadvisor.Reclaimable = trimParseFloat64(splitted[6])
-			segmentadvisor.Recommendation = strings.TrimSpace(splitted[7])
-			segmentadvisors = append(segmentadvisors, *segmentadvisor)
+		if len(splitted) == 2 {
+			psu.Description = strings.TrimSpace(splitted[0])
+			psu.Date = strings.TrimSpace(splitted[1])
+			psuS = append(psuS, *psu)
 		}
 	}
-
-	if len(segmentadvisors) == 0 {
-		return segmentadvisors
-	}
-
-	return segmentadvisors[2:]
+	return psuS
 }

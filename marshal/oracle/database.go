@@ -13,12 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
@@ -34,30 +35,30 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 		if len(splitted) == 24 {
 			db.Name = strings.TrimSpace(splitted[0])
 			db.UniqueName = strings.TrimSpace(splitted[1])
-			db.InstanceNumber = trimParseInt(splitted[2])
+			db.InstanceNumber = marshal.TrimParseInt(splitted[2])
 			db.Status = strings.TrimSpace(splitted[3])
 			db.Version = strings.TrimSpace(splitted[4])
 			db.Platform = strings.TrimSpace(splitted[5])
-			db.Archivelog = trimParseBool(splitted[6])
+			db.Archivelog = marshal.TrimParseBool(splitted[6])
 			db.Charset = strings.TrimSpace(splitted[7])
 			db.NCharset = strings.TrimSpace(splitted[8])
-			db.BlockSize = trimParseInt(splitted[9])
-			db.CPUCount = trimParseInt(splitted[10])
-			db.SGATarget = trimParseFloat64(splitted[11])
-			db.PGATarget = trimParseFloat64(splitted[12])
-			db.MemoryTarget = trimParseFloat64(splitted[13])
-			db.SGAMaxSize = trimParseFloat64(splitted[14])
-			db.SegmentsSize = trimParseFloat64(splitted[15])
-			db.DatafileSize = trimParseFloat64(splitted[16])
-			db.Allocated = trimParseFloat64(splitted[17])
+			db.BlockSize = marshal.TrimParseInt(splitted[9])
+			db.CPUCount = marshal.TrimParseInt(splitted[10])
+			db.SGATarget = marshal.TrimParseFloat64(splitted[11])
+			db.PGATarget = marshal.TrimParseFloat64(splitted[12])
+			db.MemoryTarget = marshal.TrimParseFloat64(splitted[13])
+			db.SGAMaxSize = marshal.TrimParseFloat64(splitted[14])
+			db.SegmentsSize = marshal.TrimParseFloat64(splitted[15])
+			db.DatafileSize = marshal.TrimParseFloat64(splitted[16])
+			db.Allocated = marshal.TrimParseFloat64(splitted[17])
 
-			db.Elapsed = trimParseFloat64Pointer(splitted[18], "N/A")
-			db.DBTime = trimParseFloat64Pointer(splitted[19], "N/A")
-			db.DailyCPUUsage = trimParseFloat64Pointer(splitted[20], "N/A")
-			db.Work = trimParseFloat64Pointer(splitted[21], "N/A")
+			db.Elapsed = marshal.TrimParseFloat64Pointer(splitted[18], "N/A")
+			db.DBTime = marshal.TrimParseFloat64Pointer(splitted[19], "N/A")
+			db.DailyCPUUsage = marshal.TrimParseFloat64Pointer(splitted[20], "N/A")
+			db.Work = marshal.TrimParseFloat64Pointer(splitted[21], "N/A")
 
-			db.ASM = parseBool(strings.TrimSpace(splitted[22]))
-			db.Dataguard = parseBool(strings.TrimSpace(splitted[23]))
+			db.ASM = marshal.TrimParseBool(splitted[22])
+			db.Dataguard = marshal.TrimParseBool(splitted[23])
 
 			if *db.DailyCPUUsage == 0 {
 				*db.DailyCPUUsage = *db.Work

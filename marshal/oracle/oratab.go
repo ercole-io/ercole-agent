@@ -13,37 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/agentmodel"
 )
 
-// Licenses returns a list of licenses from the output of the licenses
-// fetcher command.
-func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
-	var licenses []model.OracleDatabaseLicense
+// Oratab marshals a list of dbs (one per line) from the oratab command
+func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
+
+	var oratab []agentmodel.OratabEntry
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 	for scanner.Scan() {
-		license := new(model.OracleDatabaseLicense)
+		oratabEntry := agentmodel.OratabEntry{}
 		line := scanner.Text()
-		splitted := strings.Split(line, ";")
+		splitted := strings.Split(line, ":")
 
-		if len(splitted) == 3 {
-			key := strings.TrimSpace(splitted[0])
-			value := strings.TrimSpace(splitted[1])
-			value = strings.Replace(value, "\t", "", -1)
+		oratabEntry.DBName = strings.TrimSpace(splitted[0])
+		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
 
-			license.Name = key
-			license.Count = trimParseFloat64(value)
-
-			licenses = append(licenses, *license)
-		}
+		oratab = append(oratab, oratabEntry)
 	}
 
-	return licenses
+	return oratab
 }

@@ -13,35 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
-// Tablespaces returns information about database tablespaces extracted
-// from the tablespaces fetcher command output.
-func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
-	tablespaces := []model.OracleDatabaseTablespace{}
+// SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.
+func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
+	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		tablespace := new(model.OracleDatabaseTablespace)
+		segmentadvisor := new(model.OracleDatabaseSegmentAdvisor)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 9 {
-			tablespace.Name = strings.TrimSpace(splitted[3])
-			tablespace.MaxSize = trimParseFloat64(splitted[4])
-			tablespace.Total = trimParseFloat64(splitted[5])
-			tablespace.Used = trimParseFloat64(splitted[6])
-			tablespace.UsedPerc = trimParseFloat64(splitted[7])
-			tablespace.Status = strings.TrimSpace(splitted[8])
-
-			tablespaces = append(tablespaces, *tablespace)
+		if len(splitted) == 8 {
+			segmentadvisor.SegmentOwner = strings.TrimSpace(splitted[2])
+			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
+			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
+			segmentadvisor.PartitionName = strings.TrimSpace(splitted[5])
+			segmentadvisor.Reclaimable = marshal.TrimParseFloat64(splitted[6])
+			segmentadvisor.Recommendation = strings.TrimSpace(splitted[7])
+			segmentadvisors = append(segmentadvisors, *segmentadvisor)
 		}
 	}
-	return tablespaces
+
+	if len(segmentadvisors) == 0 {
+		return segmentadvisors
+	}
+
+	return segmentadvisors[2:]
 }

@@ -13,13 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 	"time"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
@@ -37,8 +38,8 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) []model.OracleDatabaseFeatureUsa
 		if len(splitted) == 7 {
 			stats.Product = strings.TrimSpace(splitted[0])
 			stats.Feature = strings.TrimSpace(splitted[1])
-			stats.DetectedUsages = trimParseInt64(splitted[2])
-			stats.CurrentlyUsed = parseBool(strings.TrimSpace(splitted[3]))
+			stats.DetectedUsages = marshal.TrimParseInt64(splitted[2])
+			stats.CurrentlyUsed = marshal.TrimParseBool(splitted[3])
 
 			var err error
 			stats.FirstUsageDate, err = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[4]))

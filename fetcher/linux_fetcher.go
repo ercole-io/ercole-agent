@@ -24,6 +24,7 @@ import (
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/marshal"
+	marshal_oracle "github.com/ercole-io/ercole-agent/marshal/oracle"
 	"github.com/ercole-io/ercole/model"
 )
 
@@ -189,13 +190,13 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 // GetExadataComponents get
 func (lf *LinuxFetcherImpl) GetExadataComponents() []model.OracleExadataComponent {
 	out := lf.Execute("exadata/info")
-	return marshal.ExadataComponent(out)
+	return marshal_oracle.ExadataComponent(out)
 }
 
 // GetOracleExadataCellDisks get
 func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
 	out := lf.Execute("exadata/storage-status")
-	return marshal.OracleExadataCellDisks(out)
+	return marshal_oracle.ExadataCellDisks(out)
 }
 
 // GetClustersMembershipStatus get

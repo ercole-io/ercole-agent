@@ -13,18 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
-// OracleExadataCellDisks returns information about the cell disks extracted from exadata-storage-status command.
-func OracleExadataCellDisks(cmdOutput []byte) map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
+// ExadataCellDisks returns information about the cell disks extracted from exadata-storage-status command.
+func ExadataCellDisks(cmdOutput []byte) map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
 	cellDisks := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
@@ -37,8 +38,8 @@ func OracleExadataCellDisks(cmdOutput []byte) map[agentmodel.StorageServerName][
 
 			cellDisk.Name = strings.TrimSpace(splitted[1])
 			cellDisk.Status = strings.TrimSpace(splitted[2])
-			cellDisk.ErrCount = trimParseInt(splitted[3])
-			cellDisk.UsedPerc = trimParseInt(splitted[4])
+			cellDisk.ErrCount = marshal.TrimParseInt(splitted[3])
+			cellDisk.UsedPerc = marshal.TrimParseInt(splitted[4])
 
 			addCellDisk(cellDisks, storageServerName, cellDisk)
 		}

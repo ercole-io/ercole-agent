@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"testing"
@@ -30,7 +30,7 @@ fcax1sf2|||CD_02_fcax1sf3|||normal|||103|||54`
 func TestOracleExadataCellDisks(t *testing.T) {
 	cmdOutput := []byte(testOracleExadataCellDisksData)
 
-	actual := OracleExadataCellDisks(cmdOutput)
+	actual := ExadataCellDisks(cmdOutput)
 
 	expected := map[agentmodel.StorageServerName][]model.OracleExadataCellDisk{
 		agentmodel.StorageServerName("fcax1sf1"): {
@@ -63,7 +63,7 @@ func TestOracleExadataCellDisks(t *testing.T) {
 func TestEmptyOracleExadataCellDisks(t *testing.T) {
 	cmdOutput := []byte("")
 
-	actual := OracleExadataCellDisks(cmdOutput)
+	actual := ExadataCellDisks(cmdOutput)
 
 	expected := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 

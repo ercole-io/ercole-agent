@@ -22,9 +22,9 @@ func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var clusterMembershipStatus model.ClusterMembershipStatus
-	clusterMembershipStatus.OracleClusterware = trimParseBool(data["OracleClusterware"])
-	clusterMembershipStatus.VeritasClusterServer = trimParseBool(data["VeritasClusterServer"])
-	clusterMembershipStatus.SunCluster = trimParseBool(data["SunCluster"])
+	clusterMembershipStatus.OracleClusterware = TrimParseBool(data["OracleClusterware"])
+	clusterMembershipStatus.VeritasClusterServer = TrimParseBool(data["VeritasClusterServer"])
+	clusterMembershipStatus.SunCluster = TrimParseBool(data["SunCluster"])
 	clusterMembershipStatus.HACMP = false
 
 	return clusterMembershipStatus

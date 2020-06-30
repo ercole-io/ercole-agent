@@ -13,31 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-// Oratab marshals a list of dbs (one per line) from the oratab command
-func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
-
-	var oratab []agentmodel.OratabEntry
-
+// Schemas returns information about database tablespaces extracted
+// from the tablespaces fetcher command output.
+func Schemas(cmdOutput []byte) []model.OracleDatabaseSchema {
+	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+
 	for scanner.Scan() {
-		oratabEntry := agentmodel.OratabEntry{}
+		schema := new(model.OracleDatabaseSchema)
 		line := scanner.Text()
-		splitted := strings.Split(line, ":")
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 8 {
+			schema.User = strings.TrimSpace(splitted[3])
+			schema.Total = marshal.TrimParseInt(splitted[4])
+			schema.Tables = marshal.TrimParseInt(splitted[5])
+			schema.Indexes = marshal.TrimParseInt(splitted[6])
+			schema.LOB = marshal.TrimParseInt(splitted[7])
 
-		oratabEntry.DBName = strings.TrimSpace(splitted[0])
-		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
-
-		oratab = append(oratab, oratabEntry)
+			schemas = append(schemas, *schema)
+		}
 	}
-
-	return oratab
+	return schemas
 }

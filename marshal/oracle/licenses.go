@@ -13,34 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/marshal"
 	"github.com/ercole-io/ercole/model"
 )
 
-// Patches returns information about database tablespaces extracted
-// from the tablespaces fetcher command output.
-func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
-	patches := []model.OracleDatabasePatch{}
+// Licenses returns a list of licenses from the output of the licenses
+// fetcher command.
+func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
+	var licenses []model.OracleDatabaseLicense
+
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
-
 	for scanner.Scan() {
-		patch := new(model.OracleDatabasePatch)
+		license := new(model.OracleDatabaseLicense)
 		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 9 {
-			patch.Version = strings.TrimSpace(splitted[4])
-			patch.PatchID = trimParseInt(splitted[5])
-			patch.Action = strings.TrimSpace(splitted[6])
-			patch.Description = strings.TrimSpace(splitted[7])
-			patch.Date = strings.TrimSpace(splitted[8])
+		splitted := strings.Split(line, ";")
 
-			patches = append(patches, *patch)
+		if len(splitted) == 3 {
+			key := strings.TrimSpace(splitted[0])
+			value := strings.TrimSpace(splitted[1])
+			value = strings.Replace(value, "\t", "", -1)
+
+			license.Name = key
+			license.Count = marshal.TrimParseFloat64(value)
+
+			licenses = append(licenses, *license)
 		}
 	}
-	return patches
+
+	return licenses
 }

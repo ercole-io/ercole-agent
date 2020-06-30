@@ -73,7 +73,7 @@ func parseInt(s string) int {
 	return i
 }
 
-func trimParseInt(s string) int {
+func TrimParseInt(s string) int {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.Atoi(s)
@@ -84,18 +84,18 @@ func trimParseInt(s string) int {
 	return val
 }
 
-func trimParseIntPointer(s string, nils ...string) *int {
+func TrimParseIntPointer(s string, nils ...string) *int {
 	for _, aNil := range nils {
 		if s == aNil {
 			return nil
 		}
 	}
 
-	i := trimParseInt(s)
+	i := TrimParseInt(s)
 	return &i
 }
 
-func trimParseInt64(s string) int64 {
+func TrimParseInt64(s string) int64 {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.ParseInt(s, 10, 64)
@@ -106,7 +106,7 @@ func trimParseInt64(s string) int64 {
 	return val
 }
 
-func trimParseFloat64(s string) float64 {
+func TrimParseFloat64(s string) float64 {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.ParseFloat(s, 64)
@@ -117,7 +117,7 @@ func trimParseFloat64(s string) float64 {
 	return val
 }
 
-func trimParseFloat64Pointer(s string, nils ...string) *float64 {
+func TrimParseFloat64Pointer(s string, nils ...string) *float64 {
 	s = strings.TrimSpace(s)
 
 	for _, aNil := range nils {
@@ -126,17 +126,17 @@ func trimParseFloat64Pointer(s string, nils ...string) *float64 {
 		}
 	}
 
-	f := trimParseFloat64(s)
+	f := TrimParseFloat64(s)
 	return &f
 }
 
-func trimParseBool(s string) bool {
+func TrimParseBool(s string) bool {
 	s = strings.TrimSpace(s)
 
 	return parseBool(s)
 }
 
-func trimParseStringPointer(s string, nils ...string) *string {
+func TrimParseStringPointer(s string, nils ...string) *string {
 	for _, aNil := range nils {
 		if s == aNil {
 			return nil
