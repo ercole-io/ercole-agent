@@ -20,10 +20,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/agentmodel"
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/marshal"
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // LinuxFetcherImpl SpecializedFetcher implementation for linux
@@ -163,8 +164,8 @@ func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInf
 }
 
 // GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
-func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMInfo {
-	var vms []model.VMInfo
+func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo {
+	var vms map[string][]model.VMInfo
 
 	switch hv.Type {
 	case "vmware":
@@ -177,7 +178,7 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMI
 
 	default:
 		lf.log.Errorf("Hypervisor not supported: %v (%v)", hv.Type, hv)
-		return make([]model.VMInfo, 0)
+		return make(map[string][]model.VMInfo, 0)
 	}
 
 	lf.log.Debugf("Got %d vms from hypervisor: %s", len(vms), hv.Endpoint)
@@ -185,14 +186,20 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMI
 	return vms
 }
 
-// GetExadataDevices get
-func (lf *LinuxFetcherImpl) GetExadataDevices() []model.ExadataDevice {
+// GetExadataComponents get
+func (lf *LinuxFetcherImpl) GetExadataComponents() []model.OracleExadataComponent {
 	out := lf.Execute("exadata/info")
-	return marshal.ExadataDevices(out)
+	return marshal.ExadataComponent(out)
 }
 
-// GetExadataCellDisks get
-func (lf *LinuxFetcherImpl) GetExadataCellDisks() []model.ExadataCellDisk {
+// GetOracleExadataCellDisks get
+func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
 	out := lf.Execute("exadata/storage-status")
-	return marshal.ExadataCellDisks(out)
+	return marshal.OracleExadataCellDisks(out)
+}
+
+// GetClustersMembershipStatus get
+func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() model.ClusterMembershipStatus {
+	out := lf.Execute("cluster_membership_status")
+	return marshal.ClusterMembershipStatus(out)
 }

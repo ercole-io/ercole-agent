@@ -16,8 +16,9 @@
 package fetcher
 
 import (
+	"github.com/ercole-io/ercole-agent/agentmodel"
 	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Fetcher interface for Linux and Windows
@@ -27,25 +28,28 @@ type Fetcher interface {
 
 	GetHost() model.Host
 	GetFilesystems() []model.Filesystem
-	GetOratabEntries() []model.OratabEntry
-	GetDbStatus(entry model.OratabEntry) string
-	GetMountedDb(entry model.OratabEntry) model.Database
-	GetDbVersion(entry model.OratabEntry) string
-	RunStats(entry model.OratabEntry)
-	GetOpenDb(entry model.OratabEntry) model.Database
-	GetTablespaces(entry model.OratabEntry) []model.Tablespace
-	GetSchemas(entry model.OratabEntry) []model.Schema
-	GetPatches(entry model.OratabEntry, dbVersion string) []model.Patch
-	GetFeatures2(entry model.OratabEntry, dbVersion string) []model.Feature2
-	GetLicenses(entry model.OratabEntry, dbVersion, hostType string) []model.License
-	GetADDMs(entry model.OratabEntry) []model.Addm
-	GetSegmentAdvisors(entry model.OratabEntry) []model.SegmentAdvisor
-	GetLastPSUs(entry model.OratabEntry, dbVersion string) []model.PSU
-	GetBackups(entry model.OratabEntry) []model.Backup
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
-	GetVirtualMachines(hv config.Hypervisor) []model.VMInfo
-	GetExadataDevices() []model.ExadataDevice
-	GetExadataCellDisks() []model.ExadataCellDisk
+	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
+	GetClustersMembershipStatus() model.ClusterMembershipStatus
+
+	// Oracle related getters
+	GetOratabEntries() []agentmodel.OratabEntry
+	GetDbStatus(entry agentmodel.OratabEntry) string
+	GetMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetDbVersion(entry agentmodel.OratabEntry) string
+	RunStats(entry agentmodel.OratabEntry)
+	GetOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
+	GetSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema
+	GetPatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch
+	GetDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat
+	GetLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
+	GetADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
+	GetSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor
+	GetPSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU
+	GetBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup
+	GetExadataComponents() []model.OracleExadataComponent
+	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
 }
 
 // User struct
