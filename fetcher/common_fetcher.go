@@ -42,7 +42,7 @@ type SpecializedFetcher interface {
 	Execute(fetcherName string, params ...string) []byte
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
 	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
-	GetExadataComponents() []model.OracleExadataComponent
+	GetOracleExadataComponents() []model.OracleExadataComponent
 	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
 	GetClustersMembershipStatus() model.ClusterMembershipStatus
 }
@@ -59,91 +59,91 @@ func (cf *CommonFetcherImpl) GetFilesystems() []model.Filesystem {
 	return marshal.Filesystems(out)
 }
 
-// GetOratabEntries get
-func (cf *CommonFetcherImpl) GetOratabEntries() []agentmodel.OratabEntry {
+// GetOracleOratabEntries get
+func (cf *CommonFetcherImpl) GetOracleOratabEntries() []agentmodel.OratabEntry {
 	out := cf.Execute("oratab", cf.Configuration.Oratab)
 	return marshal_oracle.Oratab(out)
 }
 
-// GetDbStatus get
-func (cf *CommonFetcherImpl) GetDbStatus(entry agentmodel.OratabEntry) string {
+// GetOracleDbStatus get
+func (cf *CommonFetcherImpl) GetOracleDbStatus(entry agentmodel.OratabEntry) string {
 	out := cf.Execute("dbstatus", entry.DBName, entry.OracleHome)
 	return strings.TrimSpace(string(out))
 }
 
-// GetMountedDb get
-func (cf *CommonFetcherImpl) GetMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+// GetOracleMountedDb get
+func (cf *CommonFetcherImpl) GetOracleMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase {
 	out := cf.Execute("dbmounted", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Database(out)
 }
 
-// GetDbVersion get
-func (cf *CommonFetcherImpl) GetDbVersion(entry agentmodel.OratabEntry) string {
+// GetOracleDbVersion get
+func (cf *CommonFetcherImpl) GetOracleDbVersion(entry agentmodel.OratabEntry) string {
 	out := cf.Execute("dbversion", entry.DBName, entry.OracleHome)
 	return strings.Split(string(out), ".")[0]
 }
 
-// RunStats Execute stats script
-func (cf *CommonFetcherImpl) RunStats(entry agentmodel.OratabEntry) {
+// RunOracleStats Execute stats script
+func (cf *CommonFetcherImpl) RunOracleStats(entry agentmodel.OratabEntry) {
 	cf.Execute("stats", entry.DBName, entry.OracleHome)
 }
 
-// GetOpenDb get
-func (cf *CommonFetcherImpl) GetOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+// GetOracleOpenDb get
+func (cf *CommonFetcherImpl) GetOracleOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
 	out := cf.Execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(cf.Configuration.AWR))
 	return marshal_oracle.Database(out)
 }
 
-// GetTablespaces get
-func (cf *CommonFetcherImpl) GetTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace {
+// GetOracleTablespaces get
+func (cf *CommonFetcherImpl) GetOracleTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace {
 	out := cf.Execute("tablespace", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Tablespaces(out)
 }
 
-// GetSchemas get
-func (cf *CommonFetcherImpl) GetSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema {
+// GetOracleSchemas get
+func (cf *CommonFetcherImpl) GetOracleSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema {
 	out := cf.Execute("schema", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Schemas(out)
 }
 
-// GetPatches get
-func (cf *CommonFetcherImpl) GetPatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch {
+// GetOraclePatches get
+func (cf *CommonFetcherImpl) GetOraclePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch {
 	out := cf.Execute("patch", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.Patches(out)
 }
 
-// GetDatabaseFeatureUsageStat get
-func (cf *CommonFetcherImpl) GetDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat {
+// GetOracleDatabaseFeatureUsageStat get
+func (cf *CommonFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat {
 	out := cf.Execute("opt", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.DatabaseFeatureUsageStat(out)
 }
 
-// GetLicenses get
-func (cf *CommonFetcherImpl) GetLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense {
+// GetOracleLicenses get
+func (cf *CommonFetcherImpl) GetOracleLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense {
 	out := cf.Execute("license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
 	return marshal_oracle.Licenses(out)
 }
 
-// GetADDMs get
-func (cf *CommonFetcherImpl) GetADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm {
+// GetOracleADDMs get
+func (cf *CommonFetcherImpl) GetOracleADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm {
 	out := cf.Execute("addm", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Addms(out)
 }
 
-// GetSegmentAdvisors get
-func (cf *CommonFetcherImpl) GetSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor {
+// GetOracleSegmentAdvisors get
+func (cf *CommonFetcherImpl) GetOracleSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor {
 	out := cf.Execute("segmentadvisor", entry.DBName, entry.OracleHome)
 	return marshal_oracle.SegmentAdvisor(out)
 }
 
-// GetPSUs get
-func (cf *CommonFetcherImpl) GetPSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU {
+// GetOraclePSUs get
+func (cf *CommonFetcherImpl) GetOraclePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU {
 	out := cf.Execute("psu", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.PSU(out)
 }
 
-// GetBackups get
-func (cf *CommonFetcherImpl) GetBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup {
+// GetOracleBackups get
+func (cf *CommonFetcherImpl) GetOracleBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup {
 	out := cf.Execute("backup", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Backups(out)
 }

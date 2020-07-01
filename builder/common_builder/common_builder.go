@@ -112,7 +112,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		}
 
 		hostData.Features.Oracle.Exadata = new(model.OracleExadataFeature)
-		hostData.Features.Oracle.Exadata.Components = b.getExadataComponents()
+		hostData.Features.Oracle.Exadata.Components = b.getOracleExadataComponents()
 	}
 }
 

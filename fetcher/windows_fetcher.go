@@ -114,8 +114,8 @@ func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[strin
 	return make(map[string][]model.VMInfo, 0)
 }
 
-// GetExadataComponents get
-func (wf *WindowsFetcherImpl) GetExadataComponents() []model.OracleExadataComponent {
+// GetOracleExadataComponents get
+func (wf *WindowsFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
 	wf.log.Error(notImplemented)
 
 	return make([]model.OracleExadataComponent, 0)

@@ -26,7 +26,7 @@ import (
 )
 
 func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {
-	oratabEntries := b.fetcher.GetOratabEntries()
+	oratabEntries := b.fetcher.GetOracleOratabEntries()
 
 	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
 
@@ -52,7 +52,7 @@ func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCo
 }
 
 func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string, cpuCores, cpuSockets int) *model.OracleDatabase {
-	dbStatus := b.fetcher.GetDbStatus(entry)
+	dbStatus := b.fetcher.GetOracleDbStatus(entry)
 	var database *model.OracleDatabase
 
 	switch dbStatus {
@@ -60,7 +60,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 		database = b.getOpenDatabase(entry, hardwareAbstractionTechnology)
 	case "MOUNTED":
 		{
-			db := b.fetcher.GetMountedDb(entry)
+			db := b.fetcher.GetOracleMountedDb(entry)
 			database = &db
 
 			database.Tablespaces = []model.OracleDatabaseTablespace{}
@@ -144,12 +144,12 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 }
 
 func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
-	dbVersion := b.fetcher.GetDbVersion(entry)
+	dbVersion := b.fetcher.GetOracleDbVersion(entry)
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
-			b.fetcher.RunStats(entry)
+			b.fetcher.RunOracleStats(entry)
 
 			cancelStatsCtx()
 		})
@@ -157,48 +157,48 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		cancelStatsCtx()
 	}
 
-	database := b.fetcher.GetOpenDb(entry)
+	database := b.fetcher.GetOracleOpenDb(entry)
 
 	var wg sync.WaitGroup
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Tablespaces = b.fetcher.GetTablespaces(entry)
+		database.Tablespaces = b.fetcher.GetOracleTablespaces(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas = b.fetcher.GetSchemas(entry)
+		database.Schemas = b.fetcher.GetOracleSchemas(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches = b.fetcher.GetPatches(entry, dbVersion)
-	}, &wg)
-
-	utils.RunRoutineInGroup(b.configuration, func() {
-		<-statsCtx.Done()
-
-		database.FeatureUsageStats = b.fetcher.GetDatabaseFeatureUsageStat(entry, dbVersion)
+		database.Patches = b.fetcher.GetOraclePatches(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.Licenses = b.fetcher.GetLicenses(entry, dbVersion, hardwareAbstractionTechnology)
+		database.FeatureUsageStats = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.ADDMs = b.fetcher.GetADDMs(entry)
+		<-statsCtx.Done()
+
+		database.Licenses = b.fetcher.GetOracleLicenses(entry, dbVersion, hardwareAbstractionTechnology)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.SegmentAdvisors = b.fetcher.GetSegmentAdvisors(entry)
+		database.ADDMs = b.fetcher.GetOracleADDMs(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.PSUs = b.fetcher.GetPSUs(entry, dbVersion)
+		database.SegmentAdvisors = b.fetcher.GetOracleSegmentAdvisors(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Backups = b.fetcher.GetBackups(entry)
+		database.PSUs = b.fetcher.GetOraclePSUs(entry, dbVersion)
+	}, &wg)
+
+	utils.RunRoutineInGroup(b.configuration, func() {
+		database.Backups = b.fetcher.GetOracleBackups(entry)
 	}, &wg)
 
 	wg.Wait()

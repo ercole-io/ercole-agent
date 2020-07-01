@@ -187,8 +187,8 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 	return vms
 }
 
-// GetExadataComponents get
-func (lf *LinuxFetcherImpl) GetExadataComponents() []model.OracleExadataComponent {
+// GetOracleExadataComponents get
+func (lf *LinuxFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
 	out := lf.Execute("exadata/info")
 	return marshal_oracle.ExadataComponent(out)
 }
