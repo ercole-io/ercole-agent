@@ -101,10 +101,6 @@ function getSysinfo {
 	Write-Host "OS:"$($nfo_opsys.caption)															#os
 	Write-Host "MemoryTotal:"$stmem																	#total memory
 	Write-Host "SwapTotal:"$stvmem																	#virtual memory
-	Write-Host "OracleCluster: N"
-	Write-Host "VeritasCluster: N"
-	Write-Host "SunCluster: N"
-	Write-Host "AixCluster: N"
 }
 
 function getPartitions {
