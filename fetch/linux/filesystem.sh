@@ -15,4 +15,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-df -PhT | sed 1d | sort -k7
+df -PT | sed 1d | sort -k7

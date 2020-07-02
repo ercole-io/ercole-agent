@@ -17,8 +17,6 @@ package marshal
 
 import (
 	"bufio"
-	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/ercole-io/ercole/model"
@@ -29,35 +27,25 @@ import (
 // Filesystem output is a list of filesystem entries with positional attribute columns
 // separated by one or more spaces
 func Filesystems(cmdOutput []byte) []model.Filesystem {
+	filesystems := []model.Filesystem{}
 
-	lines := "["
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+
 	for scanner.Scan() {
-		lines += "{"
 		line := scanner.Text()
-		line = strings.Join(strings.Fields(line), " ")
-		splitted := strings.Split(line, " ")
-		lines += marshalKey("filesystem") + marshalString(strings.TrimSpace(splitted[0])) + ", "
-		lines += marshalKey("fstype") + marshalString(strings.TrimSpace(splitted[1])) + ", "
-		lines += marshalKey("size") + marshalString(strings.TrimSpace(splitted[2])) + ", "
-		lines += marshalKey("used") + marshalString(strings.TrimSpace(splitted[3])) + ", "
-		lines += marshalKey("available") + marshalString(strings.TrimSpace(splitted[4])) + ", "
-		lines += marshalKey("usedperc") + marshalString(strings.TrimSpace(splitted[5])) + ", "
-		lines += marshalKey("mountedon") + marshalString(strings.TrimSpace(splitted[6])) + ", "
-		lines += "},"
+		iter := newIter(strings.Fields(line))
+
+		fs := model.Filesystem{}
+
+		fs.Filesystem = strings.TrimSpace(iter())
+		fs.Type = strings.TrimSpace(iter())
+		fs.Size = TrimParseInt64(iter())
+		fs.UsedSpace = TrimParseInt64(iter())
+		fs.AvailableSpace = TrimParseInt64(iter())
+		iter() // throw away used space percentage
+		fs.MountedOn = strings.TrimSpace(iter())
+		filesystems = append(filesystems, fs)
 	}
 
-	lines += "]"
-	lines = strings.Replace(lines, ", }", "}", -1)
-	lines = strings.Replace(lines, "},]", "}]", -1)
-
-	b := []byte(lines)
-	var m []model.Filesystem
-	err := json.Unmarshal(b, &m)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return m
+	return filesystems
 }

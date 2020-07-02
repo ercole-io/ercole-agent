@@ -162,3 +162,12 @@ func parseKeyValueColonSeparated(b []byte) map[string]string {
 
 	return data
 }
+
+func newIter(splitted []string) func() string {
+	i := -1
+	return func() string {
+		i++
+
+		return splitted[i]
+	}
+}
