@@ -13,12 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package model
+package oracle
 
-type Backup struct {
-	BackupType string
-	Hour       string
-	WeekDays   string
-	AvgBckSize string
-	Retention  string
+import (
+	"bufio"
+	"strings"
+
+	"github.com/ercole-io/ercole/model"
+)
+
+// PSU returns informations about PSU parsed from fetcher command output.
+func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
+	psuS := []model.OracleDatabasePSU{}
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+
+	for scanner.Scan() {
+		psu := new(model.OracleDatabasePSU)
+		line := scanner.Text()
+		splitted := strings.Split(line, "|||")
+		if len(splitted) == 2 {
+			psu.Description = strings.TrimSpace(splitted[0])
+			psu.Date = strings.TrimSpace(splitted[1])
+			psuS = append(psuS, *psu)
+		}
+	}
+	return psuS
 }

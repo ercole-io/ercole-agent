@@ -13,30 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-func Addms(cmdOutput []byte) []model.Addm {
-	addms := []model.Addm{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+// Licenses returns a list of licenses from the output of the licenses
+// fetcher command.
+func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
+	var licenses []model.OracleDatabaseLicense
 
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 	for scanner.Scan() {
-		addm := new(model.Addm)
+		license := new(model.OracleDatabaseLicense)
 		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 6 {
-			addm.Finding = strings.TrimSpace(splitted[2])
-			addm.Recommendation = strings.TrimSpace(splitted[3])
-			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = strings.TrimSpace(splitted[5])
-			addms = append(addms, *addm)
+		splitted := strings.Split(line, ";")
+
+		if len(splitted) == 3 {
+			key := strings.TrimSpace(splitted[0])
+			value := strings.TrimSpace(splitted[1])
+			value = strings.Replace(value, "\t", "", -1)
+
+			license.Name = key
+			license.Count = marshal.TrimParseFloat64(value)
+
+			licenses = append(licenses, *license)
 		}
 	}
-	return addms
+
+	return licenses
 }

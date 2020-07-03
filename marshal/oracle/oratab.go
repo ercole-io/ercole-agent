@@ -13,9 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package model
+package oracle
 
-type PSU struct {
-	Date        string
-	Description string
+import (
+	"bufio"
+	"strings"
+
+	"github.com/ercole-io/ercole-agent/agentmodel"
+)
+
+// Oratab marshals a list of dbs (one per line) from the oratab command
+func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
+
+	var oratab []agentmodel.OratabEntry
+
+	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	for scanner.Scan() {
+		oratabEntry := agentmodel.OratabEntry{}
+		line := scanner.Text()
+		splitted := strings.Split(line, ":")
+
+		oratabEntry.DBName = strings.TrimSpace(splitted[0])
+		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
+
+		oratab = append(oratab, oratabEntry)
+	}
+
+	return oratab
 }

@@ -16,15 +16,15 @@
 package common
 
 import (
-	"github.com/ercole-io/ercole-agent/model"
 	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/ercole-io/ercole/model"
 )
 
 func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 	countHypervisors := len(b.configuration.Features.Virtualization.Hypervisors)
 
 	clustersChan := make(chan []model.ClusterInfo, countHypervisors)
-	vmsChan := make(chan []model.VMInfo, countHypervisors)
+	vmsChan := make(chan map[string][]model.VMInfo, countHypervisors)
 
 	for _, hv := range b.configuration.Features.Virtualization.Hypervisors {
 		utils.RunRoutine(b.configuration, func() {
@@ -41,17 +41,24 @@ func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 		clusters = append(clusters, (<-clustersChan)...)
 	}
 
-	vms := make([]model.VMInfo, 0)
+	allVMs := make(map[string][]model.VMInfo, 0)
 	for i := 0; i < countHypervisors; i++ {
-		vms = append(vms, (<-vmsChan)...)
+		vmsMap := <-vmsChan
+
+		for clusterName, vms := range vmsMap {
+			thisClusterVMs := allVMs[clusterName]
+			thisClusterVMs = append(thisClusterVMs, vms...)
+
+			allVMs[clusterName] = thisClusterVMs
+		}
 	}
 
-	clusters = setVMsInClusterInfo(clusters, vms)
+	clusters = setVMsInClusterInfo(clusters, allVMs)
 
 	return clusters
 }
 
-func setVMsInClusterInfo(clusters []model.ClusterInfo, vms []model.VMInfo) []model.ClusterInfo {
+func setVMsInClusterInfo(clusters []model.ClusterInfo, clusterMap map[string][]model.VMInfo) []model.ClusterInfo {
 	clusters = append(clusters, model.ClusterInfo{
 		Name:    "not_in_cluster",
 		Type:    "unknown",
@@ -59,15 +66,6 @@ func setVMsInClusterInfo(clusters []model.ClusterInfo, vms []model.VMInfo) []mod
 		Sockets: 0,
 		VMs:     []model.VMInfo{},
 	})
-
-	clusterMap := make(map[string][]model.VMInfo)
-
-	for _, vm := range vms {
-		if vm.ClusterName == "" {
-			vm.ClusterName = "not_in_cluster"
-		}
-		clusterMap[vm.ClusterName] = append(clusterMap[vm.ClusterName], vm)
-	}
 
 	for i := range clusters {
 		if clusterMap[clusters[i].Name] != nil {

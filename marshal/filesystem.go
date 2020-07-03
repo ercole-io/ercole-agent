@@ -19,25 +19,33 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
-// Oratab marshals a list of dbs (one per line) from the oratab command
-func Oratab(cmdOutput []byte) []model.OratabEntry {
-
-	var oratab []model.OratabEntry
+// Filesystems returns a list of Filesystem entries extracted
+// from the filesystem fetcher command output.
+// Filesystem output is a list of filesystem entries with positional attribute columns
+// separated by one or more spaces
+func Filesystems(cmdOutput []byte) []model.Filesystem {
+	filesystems := []model.Filesystem{}
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+
 	for scanner.Scan() {
-		oratabEntry := model.OratabEntry{}
 		line := scanner.Text()
-		splitted := strings.Split(line, ":")
+		iter := newIter(strings.Fields(line))
 
-		oratabEntry.DBName = strings.TrimSpace(splitted[0])
-		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
+		fs := model.Filesystem{}
 
-		oratab = append(oratab, oratabEntry)
+		fs.Filesystem = strings.TrimSpace(iter())
+		fs.Type = strings.TrimSpace(iter())
+		fs.Size = TrimParseInt64(iter())
+		fs.UsedSpace = TrimParseInt64(iter())
+		fs.AvailableSpace = TrimParseInt64(iter())
+		iter() // throw away used space percentage
+		fs.MountedOn = strings.TrimSpace(iter())
+		filesystems = append(filesystems, fs)
 	}
 
-	return oratab
+	return filesystems
 }

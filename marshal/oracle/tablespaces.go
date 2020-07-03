@@ -13,28 +13,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-func PSU(cmdOutput []byte) []model.PSU {
-	psuS := []model.PSU{}
+// Tablespaces returns information about database tablespaces extracted
+// from the tablespaces fetcher command output.
+func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
+	tablespaces := []model.OracleDatabaseTablespace{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		psu := new(model.PSU)
+		tablespace := new(model.OracleDatabaseTablespace)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 2 {
-			psu.Description = strings.TrimSpace(splitted[0])
-			psu.Date = strings.TrimSpace(splitted[1])
-			psuS = append(psuS, *psu)
+		if len(splitted) == 9 {
+			tablespace.Name = strings.TrimSpace(splitted[3])
+			tablespace.MaxSize = marshal.TrimParseFloat64(splitted[4])
+			tablespace.Total = marshal.TrimParseFloat64(splitted[5])
+			tablespace.Used = marshal.TrimParseFloat64(splitted[6])
+			tablespace.UsedPerc = marshal.TrimParseFloat64(splitted[7])
+			tablespace.Status = strings.TrimSpace(splitted[8])
+
+			tablespaces = append(tablespaces, *tablespace)
 		}
 	}
-	return psuS
+	return tablespaces
 }

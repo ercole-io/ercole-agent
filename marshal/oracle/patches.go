@@ -13,33 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-// Backups marshals a backup output list into a struct.
-func Backups(cmdOutput []byte) []model.Backup {
-	backups := []model.Backup{}
-
+// Patches returns information about database tablespaces extracted
+// from the tablespaces fetcher command output.
+func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
+	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		backup := new(model.Backup)
+		patch := new(model.OracleDatabasePatch)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 5 {
-			backup.BackupType = strings.TrimSpace(splitted[0])
-			backup.Hour = strings.TrimSpace(splitted[1])
-			backup.WeekDays = strings.TrimSpace(splitted[2])
-			backup.AvgBckSize = strings.TrimSpace(splitted[3])
-			backup.Retention = strings.TrimSpace(splitted[4])
-			backups = append(backups, *backup)
+		if len(splitted) == 9 {
+			patch.Version = strings.TrimSpace(splitted[4])
+			patch.PatchID = marshal.TrimParseInt(splitted[5])
+			patch.Action = strings.TrimSpace(splitted[6])
+			patch.Description = strings.TrimSpace(splitted[7])
+			patch.Date = strings.TrimSpace(splitted[8])
+
+			patches = append(patches, *patch)
 		}
 	}
-	return backups
+	return patches
 }

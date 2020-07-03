@@ -21,9 +21,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/agentmodel"
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
 // WindowsFetcherImpl SpecializedFetcher implementation for windows
@@ -32,7 +33,7 @@ type WindowsFetcherImpl struct {
 	log           logger.Logger
 }
 
-const not_implemented = "Not yet implemented for Windows"
+const notImplemented = "Not yet implemented for Windows"
 
 // NewWindowsFetcherImpl constructor
 func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) WindowsFetcherImpl {
@@ -89,40 +90,51 @@ func (wf *WindowsFetcherImpl) Execute(fetcherName string, params ...string) []by
 
 // SetUser not implemented
 func (wf *WindowsFetcherImpl) SetUser(username string) error {
-	wf.log.Error(not_implemented)
-	return fmt.Errorf(not_implemented)
+	wf.log.Error(notImplemented)
+	return fmt.Errorf(notImplemented)
 }
 
 // SetUserAsCurrent set user used by fetcher to run commands as current process user
 func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
-	wf.log.Error(not_implemented)
-	return fmt.Errorf(not_implemented)
+	wf.log.Error(notImplemented)
+	return fmt.Errorf(notImplemented)
 }
 
 // GetClusters not implemented
 func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
-	wf.log.Error(not_implemented)
+	wf.log.Error(notImplemented)
 
 	return make([]model.ClusterInfo, 0)
 }
 
 // GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
-func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) []model.VMInfo {
-	wf.log.Error(not_implemented)
+func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo {
+	wf.log.Error(notImplemented)
 
-	return make([]model.VMInfo, 0)
+	return make(map[string][]model.VMInfo, 0)
 }
 
-// GetExadataDevices get
-func (wf *WindowsFetcherImpl) GetExadataDevices() []model.ExadataDevice {
-	wf.log.Error(not_implemented)
+// GetOracleExadataComponents get
+func (wf *WindowsFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
+	wf.log.Error(notImplemented)
 
-	return make([]model.ExadataDevice, 0)
+	return make([]model.OracleExadataComponent, 0)
 }
 
-// GetExadataCellDisks get
-func (wf *WindowsFetcherImpl) GetExadataCellDisks() []model.ExadataCellDisk {
-	wf.log.Error(not_implemented)
+// GetOracleExadataCellDisks get
+func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
+	wf.log.Error(notImplemented)
 
-	return make([]model.ExadataCellDisk, 0)
+	return make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, 0)
+}
+
+// GetClustersMembershipStatus get
+func (wf *WindowsFetcherImpl) GetClustersMembershipStatus() model.ClusterMembershipStatus {
+	return model.ClusterMembershipStatus{
+		OracleClusterware:    false,
+		SunCluster:           false,
+		VeritasClusterServer: false,
+		HACMP:                false,
+		OtherInfo:            nil,
+	}
 }

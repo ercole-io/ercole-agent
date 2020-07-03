@@ -20,14 +20,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/agentmodel"
 	"github.com/ercole-io/ercole-agent/utils"
+	"github.com/ercole-io/ercole/model"
 )
 
-func (b *CommonBuilder) getOracleDBs(hostType string, cpuCores int, socket int) []model.Database {
-	oratabEntries := b.fetcher.GetOratabEntries()
+func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {
+	oratabEntries := b.fetcher.GetOracleOratabEntries()
 
-	databaseChannel := make(chan *model.Database, len(oratabEntries))
+	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
@@ -35,11 +36,11 @@ func (b *CommonBuilder) getOracleDBs(hostType string, cpuCores int, socket int) 
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
 
-			databaseChannel <- b.getOracleDB(entry, hostType, cpuCores, socket)
+			databaseChannel <- b.getOracleDB(entry, hardwareAbstractionTechnology, cpuCores, cpuSockets)
 		})
 	}
 
-	var databases = []model.Database{}
+	var databases = []model.OracleDatabase{}
 	for i := 0; i < len(oratabEntries); i++ {
 		db := (<-databaseChannel)
 		if db != nil {
@@ -50,26 +51,26 @@ func (b *CommonBuilder) getOracleDBs(hostType string, cpuCores int, socket int) 
 	return databases
 }
 
-func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string, cpuCores int, socket int) *model.Database {
-	dbStatus := b.fetcher.GetDbStatus(entry)
-	var database *model.Database
+func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string, cpuCores, cpuSockets int) *model.OracleDatabase {
+	dbStatus := b.fetcher.GetOracleDbStatus(entry)
+	var database *model.OracleDatabase
 
 	switch dbStatus {
 	case "OPEN":
-		database = b.getOpenDatabase(entry, hostType)
+		database = b.getOpenDatabase(entry, hardwareAbstractionTechnology)
 	case "MOUNTED":
 		{
-			db := b.fetcher.GetMountedDb(entry)
+			db := b.fetcher.GetOracleMountedDb(entry)
 			database = &db
 
-			database.Tablespaces = []model.Tablespace{}
-			database.Schemas = []model.Schema{}
-			database.Patches = []model.Patch{}
-			database.Licenses = []model.License{}
-			database.ADDMs = []model.Addm{}
-			database.SegmentAdvisors = []model.SegmentAdvisor{}
-			database.LastPSUs = []model.PSU{}
-			database.Backups = []model.Backup{}
+			database.Tablespaces = []model.OracleDatabaseTablespace{}
+			database.Schemas = []model.OracleDatabaseSchema{}
+			database.Patches = []model.OracleDatabasePatch{}
+			database.Licenses = []model.OracleDatabaseLicense{}
+			database.ADDMs = []model.OracleDatabaseAddm{}
+			database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
+			database.PSUs = []model.OracleDatabasePSU{}
+			database.Backups = []model.OracleDatabaseBackup{}
 
 			// compute db edition
 			var dbEdition string
@@ -82,52 +83,52 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string, cp
 			}
 
 			// compute coreFactor/factor
-			coreFactor := float32(-1)
-			if hostType == "OVM" || hostType == "VMWARE" || hostType == "VMOTHER" {
+			coreFactor := float64(-1)
+			if hardwareAbstractionTechnology == "OVM" || hardwareAbstractionTechnology == "VMWARE" || hardwareAbstractionTechnology == "VMOTHER" {
 				if dbEdition == "EXE" || dbEdition == "ENT" {
-					coreFactor = float32(cpuCores) * 0.25
+					coreFactor = float64(cpuCores) * 0.25
 				} else if dbEdition == "STD" {
 					coreFactor = 0
 				}
-			} else if hostType == "PH" {
+			} else if hardwareAbstractionTechnology == "PH" {
 				if dbEdition == "EXE" || dbEdition == "ENT" {
-					coreFactor = float32(cpuCores) * 0.25
+					coreFactor = float64(cpuCores) * 0.25
 				} else if dbEdition == "STD" {
-					coreFactor = float32(socket)
+					coreFactor = float64(cpuSockets)
 				}
 			}
 
 			if dbEdition == "EXE" {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle EXE",
 					Count: coreFactor,
 				})
 			} else {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle EXE",
 					Count: 0,
 				})
 			}
 
 			if dbEdition == "ENT" {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle ENT",
 					Count: coreFactor,
 				})
 			} else {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle ENT",
 					Count: 0,
 				})
 			}
 
 			if dbEdition == "STD" {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle STD",
 					Count: coreFactor,
 				})
 			} else {
-				database.Licenses = append(database.Licenses, model.License{
+				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
 					Name:  "Oracle STD",
 					Count: 0,
 				})
@@ -142,13 +143,13 @@ func (b *CommonBuilder) getOracleDB(entry model.OratabEntry, hostType string, cp
 	return database
 }
 
-func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string) *model.Database {
-	dbVersion := b.fetcher.GetDbVersion(entry)
+func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
+	dbVersion := b.fetcher.GetOracleDbVersion(entry)
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
-			b.fetcher.RunStats(entry)
+			b.fetcher.RunOracleStats(entry)
 
 			cancelStatsCtx()
 		})
@@ -156,48 +157,48 @@ func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string
 		cancelStatsCtx()
 	}
 
-	database := b.fetcher.GetOpenDb(entry)
+	database := b.fetcher.GetOracleOpenDb(entry)
 
 	var wg sync.WaitGroup
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Tablespaces = b.fetcher.GetTablespaces(entry)
+		database.Tablespaces = b.fetcher.GetOracleTablespaces(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas = b.fetcher.GetSchemas(entry)
+		database.Schemas = b.fetcher.GetOracleSchemas(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches = b.fetcher.GetPatches(entry, dbVersion)
-	}, &wg)
-
-	utils.RunRoutineInGroup(b.configuration, func() {
-		<-statsCtx.Done()
-
-		database.Features2 = b.fetcher.GetFeatures2(entry, dbVersion)
+		database.Patches = b.fetcher.GetOraclePatches(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.Licenses = b.fetcher.GetLicenses(entry, dbVersion, hostType)
+		database.FeatureUsageStats = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.ADDMs = b.fetcher.GetADDMs(entry)
+		<-statsCtx.Done()
+
+		database.Licenses = b.fetcher.GetOracleLicenses(entry, dbVersion, hardwareAbstractionTechnology)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.SegmentAdvisors = b.fetcher.GetSegmentAdvisors(entry)
+		database.ADDMs = b.fetcher.GetOracleADDMs(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.LastPSUs = b.fetcher.GetLastPSUs(entry, dbVersion)
+		database.SegmentAdvisors = b.fetcher.GetOracleSegmentAdvisors(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Backups = b.fetcher.GetBackups(entry)
+		database.PSUs = b.fetcher.GetOraclePSUs(entry, dbVersion)
+	}, &wg)
+
+	utils.RunRoutineInGroup(b.configuration, func() {
+		database.Backups = b.fetcher.GetOracleBackups(entry)
 	}, &wg)
 
 	wg.Wait()
@@ -205,7 +206,7 @@ func (b *CommonBuilder) getOpenDatabase(entry model.OratabEntry, hostType string
 	return &database
 }
 
-func (b *CommonBuilder) getDatabasesAndSchemaNames(databases []model.Database) (databasesNames, schemasNames string) {
+func (b *CommonBuilder) getDatabasesAndSchemaNames(databases []model.OracleDatabase) (databasesNames, schemasNames string) {
 	for _, db := range databases {
 		databasesNames += db.Name + " "
 

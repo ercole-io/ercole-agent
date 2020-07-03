@@ -60,6 +60,7 @@ install -m 644 package/rhel5/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 /opt/ercole-agent/fetch/linux/addm.sh
 /opt/ercole-agent/fetch/linux/backup.sh
 /opt/ercole-agent/fetch/linux/checkpdb.sh
+/opt/ercole-agent/fetch/linux/cluster_membership_status.sh
 /opt/ercole-agent/fetch/linux/db.sh
 /opt/ercole-agent/fetch/linux/dbmounted.sh
 /opt/ercole-agent/fetch/linux/dbstatus.sh

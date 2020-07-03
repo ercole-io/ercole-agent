@@ -13,35 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-// Patches returns information about database tablespaces extracted
+// Schemas returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Patches(cmdOutput []byte) []model.Patch {
-	patches := []model.Patch{}
+func Schemas(cmdOutput []byte) []model.OracleDatabaseSchema {
+	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		patch := new(model.Patch)
+		schema := new(model.OracleDatabaseSchema)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 9 {
-			patch.Database = strings.TrimSpace(splitted[3])
-			patch.Version = strings.TrimSpace(splitted[4])
-			patch.PatchID = strings.TrimSpace(splitted[5])
-			patch.Action = strings.TrimSpace(splitted[6])
-			patch.Description = strings.TrimSpace(splitted[7])
-			patch.Date = strings.TrimSpace(splitted[8])
+		if len(splitted) == 8 {
+			schema.User = strings.TrimSpace(splitted[3])
+			schema.Total = marshal.TrimParseInt(splitted[4])
+			schema.Tables = marshal.TrimParseInt(splitted[5])
+			schema.Indexes = marshal.TrimParseInt(splitted[6])
+			schema.LOB = marshal.TrimParseInt(splitted[7])
 
-			patches = append(patches, *patch)
+			schemas = append(schemas, *schema)
 		}
 	}
-	return patches
+	return schemas
 }

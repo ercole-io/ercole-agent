@@ -15,24 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SID=$1
-HOME=$2
-
-if [ -z "$SID" ]; then
-  >&2 echo "Missing SID parameter"
-  exit 1
-fi
-if [ -z "$HOME" ]; then
-  >&2 echo "Missing ORACLE_HOME parameter"
-  exit 1
+CHECK_ORACLE_CLUSTERWARE=$(ps -eo cmd | grep -v grep | grep "/crsd\b" | wc -l)
+if [ $CHECK_ORACLE_CLUSTERWARE -gt 0 ]; then
+    ORACLE_CLUSTERWARE=Y
+else
+    ORACLE_CLUSTERWARE=N
 fi
 
-ERCOLE_HOME=$(dirname "$0")
-ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
+CHECK_VERITAS_CLUSTER_SERVER=$(ps -eo cmd | grep -v grep | grep "/had\b" | wc -l)
+if [ $CHECK_VERITAS_CLUSTER_SERVER = 1 ]; then
+    VERITAS_CLUSTER_SERVER=Y
+else
+    VERITAS_CLUSTER_SERVER=N
+fi
 
-export ORAENV_ASK=NO 
-export ORACLE_SID=$SID
-export ORACLE_HOME=$HOME
-export PATH=$HOME/bin:$PATH
+CHECK_SUN_CLUSTER=$(ps -eo cmd | grep -v grep | grep "/rpc.pmfd\b" | wc -l)
+if [ $CHECK_SUN_CLUSTER = 1 ]; then
+    SUN_CLUSTER=Y
+else
+    SUN_CLUSTER=N
+fi
 
-sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/checkpdb.sql 
+echo -n "OracleClusterware: $ORACLE_CLUSTERWARE
+VeritasClusterServer: $VERITAS_CLUSTER_SERVER
+SunCluster: $SUN_CLUSTER
+"

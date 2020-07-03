@@ -13,25 +13,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package builder
+package marshal
 
 import (
-	common "github.com/ercole-io/ercole-agent/builder/common_builder"
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/logger"
+	"testing"
+
 	"github.com/ercole-io/ercole/model"
+	"github.com/stretchr/testify/assert"
 )
 
-// BuildData will build HostData
-func BuildData(configuration config.Configuration, log logger.Logger) *model.HostData {
-	hostData := new(model.HostData)
+var testClusterMembershipStatusOutput string = `OracleClusterware: Y
+VeritasClusterServer: N
+SunCluster: Y`
 
-	hostData.Location = configuration.Location
-	hostData.Environment = configuration.Envtype
+func TestClusterMembershipStatusOutput(t *testing.T) {
+	cmdOutput := []byte(testClusterMembershipStatusOutput)
 
-	builder := common.NewCommonBuilder(configuration, log)
+	actual := ClusterMembershipStatus(cmdOutput)
 
-	builder.Run(hostData)
+	expected := model.ClusterMembershipStatus{
+		OracleClusterware:    true,
+		VeritasClusterServer: false,
+		SunCluster:           true,
+		HACMP:                false,
+	}
 
-	return hostData
+	assert.Equal(t, expected, actual)
+}
+
+func TestClusterMembershipStatusOutputShouldCrash(t *testing.T) {
+	cmdOutput := []byte("pippo")
+
+	assert.Panics(t, func() { ClusterMembershipStatus(cmdOutput) })
 }

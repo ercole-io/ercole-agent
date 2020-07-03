@@ -13,19 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
 // Database returns information about database extracted
 // from the db fetcher command output.
-func Database(cmdOutput []byte) model.Database {
-	var db model.Database
+func Database(cmdOutput []byte) model.OracleDatabase {
+	var db model.OracleDatabase
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
@@ -34,31 +35,33 @@ func Database(cmdOutput []byte) model.Database {
 		if len(splitted) == 24 {
 			db.Name = strings.TrimSpace(splitted[0])
 			db.UniqueName = strings.TrimSpace(splitted[1])
-			db.InstanceNumber = strings.TrimSpace(splitted[2])
+			db.InstanceNumber = marshal.TrimParseInt(splitted[2])
 			db.Status = strings.TrimSpace(splitted[3])
 			db.Version = strings.TrimSpace(splitted[4])
 			db.Platform = strings.TrimSpace(splitted[5])
-			db.Archivelog = strings.TrimSpace(splitted[6])
+			db.Archivelog = marshal.TrimParseBool(splitted[6])
 			db.Charset = strings.TrimSpace(splitted[7])
 			db.NCharset = strings.TrimSpace(splitted[8])
-			db.BlockSize = strings.TrimSpace(splitted[9])
-			db.CPUCount = strings.TrimSpace(splitted[10])
-			db.SGATarget = strings.TrimSpace(splitted[11])
-			db.PGATarget = strings.TrimSpace(splitted[12])
-			db.MemoryTarget = strings.TrimSpace(splitted[13])
-			db.SGAMaxSize = strings.TrimSpace(splitted[14])
-			db.SegmentsSize = strings.TrimSpace(splitted[15])
-			db.Used = strings.TrimSpace(splitted[16])
-			db.Allocated = strings.TrimSpace(splitted[17])
-			db.Elapsed = strings.TrimSpace(splitted[18])
-			db.DBTime = strings.TrimSpace(splitted[19])
-			db.DailyCPUUsage = strings.TrimSpace(splitted[20])
-			db.Work = strings.TrimSpace(splitted[21])
-			db.ASM = parseBool(strings.TrimSpace(splitted[22]))
-			db.Dataguard = parseBool(strings.TrimSpace(splitted[23]))
+			db.BlockSize = marshal.TrimParseInt(splitted[9])
+			db.CPUCount = marshal.TrimParseInt(splitted[10])
+			db.SGATarget = marshal.TrimParseFloat64(splitted[11])
+			db.PGATarget = marshal.TrimParseFloat64(splitted[12])
+			db.MemoryTarget = marshal.TrimParseFloat64(splitted[13])
+			db.SGAMaxSize = marshal.TrimParseFloat64(splitted[14])
+			db.SegmentsSize = marshal.TrimParseFloat64(splitted[15])
+			db.DatafileSize = marshal.TrimParseFloat64(splitted[16])
+			db.Allocated = marshal.TrimParseFloat64(splitted[17])
 
-			if db.DailyCPUUsage == "" {
-				db.DailyCPUUsage = db.Work
+			db.Elapsed = marshal.TrimParseFloat64Pointer(splitted[18], "N/A")
+			db.DBTime = marshal.TrimParseFloat64Pointer(splitted[19], "N/A")
+			db.DailyCPUUsage = marshal.TrimParseFloat64Pointer(splitted[20], "N/A")
+			db.Work = marshal.TrimParseFloat64Pointer(splitted[21], "N/A")
+
+			db.ASM = marshal.TrimParseBool(splitted[22])
+			db.Dataguard = marshal.TrimParseBool(splitted[23])
+
+			if *db.DailyCPUUsage == 0 {
+				*db.DailyCPUUsage = *db.Work
 			}
 		}
 	}

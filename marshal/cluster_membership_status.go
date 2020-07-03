@@ -13,8 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package model
+package marshal
 
-type Exadata struct {
-	Devices []ExadataDevice
+import "github.com/ercole-io/ercole/model"
+
+// ClusterMembershipStatus returns this struct filled from the output of the script
+func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
+	data := parseKeyValueColonSeparated(cmdOutput)
+
+	var clusterMembershipStatus model.ClusterMembershipStatus
+	clusterMembershipStatus.OracleClusterware = TrimParseBool(data["OracleClusterware"])
+	clusterMembershipStatus.VeritasClusterServer = TrimParseBool(data["VeritasClusterServer"])
+	clusterMembershipStatus.SunCluster = TrimParseBool(data["SunCluster"])
+	clusterMembershipStatus.HACMP = false
+
+	return clusterMembershipStatus
 }

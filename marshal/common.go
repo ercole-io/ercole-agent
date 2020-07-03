@@ -16,13 +16,13 @@
 package marshal
 
 import (
+	"bufio"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 func marshalValue(s string) string {
-
 	if s == "Y" {
 		return "true"
 	}
@@ -39,7 +39,6 @@ func marshalValue(s string) string {
 	}
 
 	return "\"" + s + "\""
-
 }
 
 func marshalString(s string) string {
@@ -48,9 +47,7 @@ func marshalString(s string) string {
 }
 
 func marshalKey(s string) string {
-
 	return "\"" + s + "\" : "
-
 }
 
 func cleanTr(s string) string {
@@ -67,7 +64,6 @@ func parseBool(s string) bool {
 }
 
 func parseInt(s string) int {
-
 	i, err := strconv.Atoi(s)
 
 	if err != nil {
@@ -75,22 +71,103 @@ func parseInt(s string) int {
 	}
 
 	return i
-
 }
 
-// s is supposed to be non null and already trimmed
-func parseCount(s string) float32 {
+func TrimParseInt(s string) int {
+	s = strings.TrimSpace(s)
 
-	if s == "" {
-		return 0
-	}
-
-	count, err := strconv.ParseFloat(s, 32)
-
+	val, err := strconv.Atoi(s)
 	if err != nil {
-		return 0
+		panic(err)
 	}
 
-	return float32(count)
+	return val
+}
 
+func TrimParseIntPointer(s string, nils ...string) *int {
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil
+		}
+	}
+
+	i := TrimParseInt(s)
+	return &i
+}
+
+func TrimParseInt64(s string) int64 {
+	s = strings.TrimSpace(s)
+
+	val, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return val
+}
+
+func TrimParseFloat64(s string) float64 {
+	s = strings.TrimSpace(s)
+
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return val
+}
+
+func TrimParseFloat64Pointer(s string, nils ...string) *float64 {
+	s = strings.TrimSpace(s)
+
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil
+		}
+	}
+
+	f := TrimParseFloat64(s)
+	return &f
+}
+
+func TrimParseBool(s string) bool {
+	s = strings.TrimSpace(s)
+
+	return parseBool(s)
+}
+
+func TrimParseStringPointer(s string, nils ...string) *string {
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil
+		}
+	}
+
+	return &s
+}
+
+func parseKeyValueColonSeparated(b []byte) map[string]string {
+	scanner := bufio.NewScanner(strings.NewReader(string(b)))
+
+	data := make(map[string]string, 20)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		splitted := strings.Split(line, ":")
+		key := strings.TrimSpace(splitted[0])
+		value := strings.TrimSpace(splitted[1])
+
+		data[key] = value
+	}
+
+	return data
+}
+
+func newIter(splitted []string) func() string {
+	i := -1
+	return func() string {
+		i++
+
+		return splitted[i]
+	}
 }

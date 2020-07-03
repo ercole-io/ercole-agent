@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,10 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package model
+package agentmodel
 
-// License holds information about Oracle database license
-type License struct {
-	Name  string
-	Count float32
+// StorageServerName string
+type StorageServerName string
+
+// OratabEntry struct
+type OratabEntry struct {
+	DBName     string
+	OracleHome string
 }

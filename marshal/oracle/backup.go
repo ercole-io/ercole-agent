@@ -13,36 +13,37 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
+	"strconv"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole/model"
 )
 
-// Tablespaces returns information about database tablespaces extracted
-// from the tablespaces fetcher command output.
-func Tablespaces(cmdOutput []byte) []model.Tablespace {
-	tablespaces := []model.Tablespace{}
+// Backups marshals a backup output list into a struct.
+func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
+	backups := []model.OracleDatabaseBackup{}
+
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		tablespace := new(model.Tablespace)
+		backup := new(model.OracleDatabaseBackup)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 9 {
-			tablespace.Database = strings.TrimSpace(splitted[2])
-			tablespace.Name = strings.TrimSpace(splitted[3])
-			tablespace.MaxSize = strings.TrimSpace(splitted[4])
-			tablespace.Total = strings.TrimSpace(splitted[5])
-			tablespace.Used = strings.TrimSpace(splitted[6])
-			tablespace.UsedPerc = strings.TrimSpace(splitted[7])
-			tablespace.Status = strings.TrimSpace(splitted[8])
+		if len(splitted) == 5 {
+			backup.BackupType = strings.TrimSpace(splitted[0])
+			backup.Hour = strings.TrimSpace(splitted[1])
 
-			tablespaces = append(tablespaces, *tablespace)
+			weekDays := strings.TrimSpace(splitted[2])
+			backup.WeekDays = strings.Split(weekDays, ",")
+
+			backup.AvgBckSize, _ = strconv.ParseFloat(splitted[3], 64)
+			backup.Retention = strings.TrimSpace(splitted[4])
+			backups = append(backups, *backup)
 		}
 	}
-	return tablespaces
+	return backups
 }

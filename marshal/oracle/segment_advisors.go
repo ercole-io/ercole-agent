@@ -13,21 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package marshal
+package oracle
 
 import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/model"
+	"github.com/ercole-io/ercole-agent/marshal"
+	"github.com/ercole-io/ercole/model"
 )
 
-func SegmentAdvisor(cmdOutput []byte) []model.SegmentAdvisor {
-	segmentadvisors := []model.SegmentAdvisor{}
+// SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.
+func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
+	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		segmentadvisor := new(model.SegmentAdvisor)
+		segmentadvisor := new(model.OracleDatabaseSegmentAdvisor)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 8 {
@@ -35,15 +37,15 @@ func SegmentAdvisor(cmdOutput []byte) []model.SegmentAdvisor {
 			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
 			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
 			segmentadvisor.PartitionName = strings.TrimSpace(splitted[5])
-			segmentadvisor.Reclaimable = strings.TrimSpace(splitted[6])
+			segmentadvisor.Reclaimable = marshal.TrimParseFloat64(splitted[6])
 			segmentadvisor.Recommendation = strings.TrimSpace(splitted[7])
 			segmentadvisors = append(segmentadvisors, *segmentadvisor)
 		}
-
 	}
+
 	if len(segmentadvisors) == 0 {
 		return segmentadvisors
-	} else {
-		return segmentadvisors[2:len(segmentadvisors)]
 	}
+
+	return segmentadvisors[2:]
 }
