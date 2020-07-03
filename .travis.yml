@@ -38,7 +38,7 @@ install:
 script:
   - GOOS=$GOOS2 go build -ldflags="-X main.version=${VERSION}" -o ${BIN}
 
-  - GOOS=$GOOS2 go test ./...
+  - go test ./...
 
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
