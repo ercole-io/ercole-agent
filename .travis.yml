@@ -62,6 +62,7 @@ script:
   - if [ $DIST_FAMILY == "WIN" ]; then file ercole-agent.exe; fi
   - if [ $DIST_FAMILY == "WIN" ]; then cp ercole-agent-setup-${VERSION}.exe dist/; fi
 
+  - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
