@@ -137,6 +137,8 @@ SELECT
    FROM v$database) AS DB_Unique_name,
   (SELECT instance_number
    FROM v$instance) AS Instance_number,
+  (SELECT instance_name
+   FROM v$instance) AS Instance_name,
   (SELECT status
    FROM v$instance) AS DB_Status, (
                                      (SELECT VERSION

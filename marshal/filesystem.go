@@ -33,7 +33,7 @@ func Filesystems(cmdOutput []byte) []model.Filesystem {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		iter := newIter(strings.Fields(line))
+		iter := NewIter(strings.Fields(line))
 
 		fs := model.Filesystem{}
 
