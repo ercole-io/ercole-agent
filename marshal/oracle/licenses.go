@@ -40,7 +40,10 @@ func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
 			value = strings.Replace(value, "\t", "", -1)
 
 			license.Name = key
-			license.Count = marshal.TrimParseFloat64(value)
+
+			if strings.TrimSpace(value) != "" {
+				license.Count = marshal.TrimParseFloat64(value)
+			}
 
 			licenses = append(licenses, *license)
 		}

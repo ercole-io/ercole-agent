@@ -32,8 +32,9 @@ if [ -z "$AWR" ]; then
   exit 1
 fi
 
-ERCOLE_HOME=$(dirname "$0")
-ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
+LINUX_FETCHERS_DIR=$(dirname "$0")
+FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
+ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
 export ORAENV_ASK=NO 
 export ORACLE_SID=$SID

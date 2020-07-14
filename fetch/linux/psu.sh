@@ -39,8 +39,9 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-ERCOLE_HOME=$(dirname "$0")
-ERCOLE_HOME="$(dirname "$ERCOLE_HOME")"
+LINUX_FETCHERS_DIR=$(dirname "$0")
+FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
+ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
 if [ $DBV -lt "12" ]; then
   sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/psu-1.sql
