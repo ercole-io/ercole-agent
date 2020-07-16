@@ -34,7 +34,7 @@ import (
 )
 
 var version = "latest"
-var hostDataSchemaVersion = 4
+var hostDataSchemaVersion = 1
 
 type program struct {
 	log logger.Logger
@@ -67,6 +67,7 @@ func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
 
 	hostData.AgentVersion = version
 	hostData.SchemaVersion = hostDataSchemaVersion
+	hostData.Tags = []string{}
 
 	sendData(hostData, configuration, log)
 }

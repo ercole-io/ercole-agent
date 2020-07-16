@@ -71,6 +71,8 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 			database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
 			database.PSUs = []model.OracleDatabasePSU{}
 			database.Backups = []model.OracleDatabaseBackup{}
+			database.PDBs = []model.OracleDatabasePluggableDatabase{}
+			database.Services = []model.OracleDatabaseService{}
 
 			// compute db edition
 			var dbEdition string
@@ -202,6 +204,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	wg.Wait()
+
+	database.PDBs = []model.OracleDatabasePluggableDatabase{}
+	database.Services = []model.OracleDatabaseService{}
 
 	return &database
 }

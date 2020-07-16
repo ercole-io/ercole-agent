@@ -23,7 +23,7 @@ select
 (select value from v$parameter where name='db_name') as Nome_DB,
 (select db_unique_name from v$database) as DB_Unique_name,
 (select instance_number from v$instance) as Instance_number,
-(select instance_name from v$instance) as Instance_name,
+(select instance_name from v$instance) AS Instance_name,
 (select status from v$instance) as DB_Status,
 ((SELECT version FROM V$INSTANCE)||(select (case when UPPER(banner) like '%EXTREME%' then ' Extreme Edition' when UPPER(banner) like '%ENTERPRISE%' then ' Enterprise Edition' else ' Standard Edition' end) from v$version where rownum=1)) as Versione,
 (SELECT platform_name  FROM V$database) as platform,
