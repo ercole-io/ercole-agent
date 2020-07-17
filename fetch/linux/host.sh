@@ -56,7 +56,16 @@ else
   OS=$(grep "^NAME=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
 fi
 
-OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
+if [[ -f /etc/os-release ]]; then
+  OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
+else
+  if [[ -f /etc/redhat-release ]]; then
+    OS_VERSION=$(cat /etc/redhat-release | rev | cut -d' ' -f2 | rev)
+  else
+    OS=???
+  fi
+fi
+
 
 MEM_TOTAL=$(echo "$(($(free -k | grep Mem | awk -F ' ' '{print $2}') / 1024 / 1024))")
 SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}') / 1024 / 1024))")

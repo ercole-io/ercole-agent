@@ -25,5 +25,5 @@ select
 	   (select value from v$parameter where name='db_name') as Nome_DB,
 	   (select db_unique_name from v$database) as DB_Unique_name,
 	   (select version from v$instance) as Version,
-           id,action,comments,to_char(action_time,'DD-MON-YYYY') from registry$history order by action_time;
+           id,action,comments,to_char(action_time,'YYYY-MM-DD') from registry$history order by action_time;
 exit

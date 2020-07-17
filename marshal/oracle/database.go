@@ -32,7 +32,7 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 24 {
+		if len(splitted) == 25 {
 			iter := marshal.NewIter(splitted)
 
 			db.Name = strings.TrimSpace(iter())
@@ -63,8 +63,8 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			db.ASM = marshal.TrimParseBool(iter())
 			db.Dataguard = marshal.TrimParseBool(iter())
 
-			if *db.DailyCPUUsage == 0 {
-				*db.DailyCPUUsage = *db.Work
+			if db.DailyCPUUsage == nil {
+				db.DailyCPUUsage = db.Work
 			}
 		}
 	}
