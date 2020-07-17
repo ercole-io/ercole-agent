@@ -73,6 +73,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 			database.Backups = []model.OracleDatabaseBackup{}
 			database.PDBs = []model.OracleDatabasePluggableDatabase{}
 			database.Services = []model.OracleDatabaseService{}
+			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
 			// compute db edition
 			var dbEdition string

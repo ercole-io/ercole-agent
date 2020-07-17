@@ -82,23 +82,31 @@ function getSysinfo {
 	$crs  = 0
 	$nfo_cpu | foreach { $_.numberofcores } | Foreach { $crs += $_}
 	$sck = 0
-	$sck += $($nfo_cpu | foreach { $_.numberoflogicalprocessors } | Foreach { $sck += $_})
+	$nfo_cpu | foreach { $_.numberoflogicalprocessors } | Foreach { $sck += $_}
 	if ($nfo_cpu -is [array]) {   #cpu model, cores and threads
 		Write-Host "CPUModel:"$($nfo_cpu[0].name)  #is multisocket (pick the 1st label)
+		Write-Host "CPUFrequency:"$($nfo_cpu[0].MaxClockSpeed)" MHz"
 	} else {	#is singlesocket
 		Write-Host "CPUModel:"$($nfo_cpu.name)
+		Write-Host "CPUFrequency:"$($nfo_cpu.MaxClockSpeed)"MHz"
 	}
+	
 	Write-Host "CPUCores:"$crs					
 	Write-Host "CPUThreads:"$sck
 	if ($(isVirtual) -eq "Y") {
-		Write-Host "Socket:0" 						#sockets no
+		Write-Host "HardwareAbstraction: VIRT"
+		Write-Host "CPUSockets:0" 						#sockets no
 	} else {
-		Write-Host "Socket:"$($nfo_cpu | foreach { $_.socketdesignation }).count 						#sockets no
+		Write-Host "HardwareAbstraction: PH"
+		Write-Host "CPUSockets:"$($nfo_cpu | foreach { $_.socketdesignation }).count 						#sockets no
 	}
-	Write-Host "Type:"$(getType)
-	Write-Host "Virtual:"$(isVirtual)																#virtual/physical
-	Write-Host "Kernel:"$($nfo_opsys.version)														#kernel version
-	Write-Host "OS:"$($nfo_opsys.caption)															#os
+	Write-Host "ThreadsPerCore: 2"
+	Write-Host "CoresPerSocket:"$($constant * $crs)
+	Write-Host "HardwareAbstractionTechnology:"$(getType)
+	Write-Host "Kernel: NT"														#kernel
+	Write-Host "KernelVersion:"$($nfo_opsys.version)														#kernel version
+	Write-Host "OS:"$($nfo_opsys.caption)		
+	Write-Host "OSVersion:"$($nfo_opsys.caption)															#os#os
 	Write-Host "MemoryTotal:"$stmem																	#total memory
 	Write-Host "SwapTotal:"$stvmem																	#virtual memory
 }
