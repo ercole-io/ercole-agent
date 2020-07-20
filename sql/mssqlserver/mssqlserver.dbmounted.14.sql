@@ -30,7 +30,7 @@ SELECT
 			WHEN convert(varchar(128), SERVERPROPERTY('Edition')) LIKE '%Azure%' THEN 'AZU'
 			ELSE 'ANOTHER'
 		END
-	) AS [versione],
+	) AS [version],
 	(	SELECT 
 			host_platform 
 		FROM 
