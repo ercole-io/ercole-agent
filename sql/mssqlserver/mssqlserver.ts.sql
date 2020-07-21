@@ -20,10 +20,10 @@ SELECT
 	[df].NAME as [file_name], 
 	round( ([df].size*(8E/1024)),2) as [alloc_mb],
 	round( (fileproperty([df].name,'SpaceUsed')*(8E/1024) ),2)  AS [used_mb],
-	round( ( fileproperty([df].name,'SpaceUsed')*(8E/1024) ) / ([df].size*(8E/1024)) ,2) *100 AS [used_percentage],
+		round( ( fileproperty([df].name,'SpaceUsed')*(8E/1024) ) / ([df].size*(8E/1024)) ,2) *100 AS [used_percentage],
 	case [df].[IS_PERCENT_GROWTH] when 1 then [df].[GROWTH] else ([df].[GROWTH] *(8E/1024)) end AS [growth], 
 	case [df].is_percent_growth when 1 then '%' else 'MB' end as [growthUnit],
-	substring([df].type_desc,1,1)  as [fileType],
+	[df].type_desc  as [fileType],
 	[df].state_desc as [status]	
 FROM sys.database_files as [df]
 
