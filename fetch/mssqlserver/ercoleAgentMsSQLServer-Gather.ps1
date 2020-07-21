@@ -15,7 +15,7 @@
 
 param(
     [Parameter(Mandatory=$false)][string]$instance = $null,
-    [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver",
+    [Parameter(Mandatory=$false)][string]$sqlDir ="..\..\sql\mssqlserver",
     [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "listInstances"
 )
 

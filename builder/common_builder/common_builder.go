@@ -68,7 +68,7 @@ func NewCommonBuilder(configuration config.Configuration, log logger.Logger) Com
 
 // Run fill hostData
 func (b *CommonBuilder) Run(hostData *model.HostData) {
-	if b.configuration.Features.Exadata.Enabled {
+	if b.configuration.Features.OracleExadata.Enabled {
 		b.log.Debug("Exadata mode enabled")
 
 		b.checksToRunExadata()
@@ -85,7 +85,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
 
-	if b.configuration.Features.Databases.Enabled {
+	if b.configuration.Features.OracleDatabase.Enabled {
 		b.log.Debug("Databases mode enabled")
 		hostData.Filesystems = b.fetcher.GetFilesystems()
 
@@ -100,7 +100,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Clusters = b.getClustersInfos()
 	}
 
-	if b.configuration.Features.Exadata.Enabled {
+	if b.configuration.Features.OracleExadata.Enabled {
 		b.log.Debug("Exadata mode enabled")
 
 		if err := b.fetcher.SetUserAsCurrent(); err != nil {
@@ -127,12 +127,12 @@ func (b *CommonBuilder) checksToRunExadata() {
 }
 
 func (b *CommonBuilder) setExadataFetchersUser() {
-	if strings.TrimSpace(b.configuration.Features.Exadata.FetchersUser) == "" {
-		b.log.Warn("You didn't set FetchersUser, but you have exadata mode enabled, using current user")
+	if strings.TrimSpace(b.configuration.Features.OracleExadata.FetcherUser) == "" {
+		b.log.Warn("You didn't set FetcherUser, but you have exadata mode enabled, using current user")
 		return
 	}
 
-	if err := b.fetcher.SetUser(b.configuration.Features.Exadata.FetchersUser); err != nil {
-		b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", b.configuration.Features.Exadata.FetchersUser, err)
+	if err := b.fetcher.SetUser(b.configuration.Features.OracleExadata.FetcherUser); err != nil {
+		b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", b.configuration.Features.OracleExadata.FetcherUser, err)
 	}
 }

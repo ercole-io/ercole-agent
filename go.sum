@@ -47,6 +47,10 @@ github.com/ercole-io/ercole v0.0.0-20200713111959-e85b058ccc3e h1:IGXE/OJrkK3XcM
 github.com/ercole-io/ercole v0.0.0-20200713111959-e85b058ccc3e/go.mod h1:4OyoWGUfLfxlfbNm85j2aPgsv9fMlQmO8S7/XcVxSNo=
 github.com/ercole-io/ercole v0.0.0-20200721075312-7a9582b28223 h1:wTXFGn8beRF6ix4M317A2gRx0pz6IP/XF4ZJ5SuAW+4=
 github.com/ercole-io/ercole v0.0.0-20200721075312-7a9582b28223/go.mod h1:4OyoWGUfLfxlfbNm85j2aPgsv9fMlQmO8S7/XcVxSNo=
+github.com/ercole-io/ercole v0.0.0-20200721115011-8c1436ceae44 h1:t1PSfD35laTHyLsloZKSvtpR4QajceVY56QHrLFSoa4=
+github.com/ercole-io/ercole v0.0.0-20200721115011-8c1436ceae44/go.mod h1:4OyoWGUfLfxlfbNm85j2aPgsv9fMlQmO8S7/XcVxSNo=
+github.com/ercole-io/ercole v0.0.0-20200721133859-3491343c835b h1:3542hVlJeAnN98QpAkJ/n1+21/PE9mZi/DY/m8Egazo=
+github.com/ercole-io/ercole v0.0.0-20200721133859-3491343c835b/go.mod h1:4OyoWGUfLfxlfbNm85j2aPgsv9fMlQmO8S7/XcVxSNo=
 github.com/etcd-io/etcd v3.3.17+incompatible/go.mod h1:cdZ77EstHBwVtD6iTgzgvogwcjo9m4iOqoijouPJ4bs=
 github.com/fsnotify/fsnotify v1.4.3-0.20170329110642-4da3e2cfbabc/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=

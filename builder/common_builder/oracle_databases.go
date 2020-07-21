@@ -150,7 +150,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	dbVersion := b.fetcher.GetOracleDbVersion(entry)
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
-	if b.configuration.Forcestats {
+	if b.configuration.Features.OracleDatabase.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
 			b.fetcher.RunOracleStats(entry)
 
