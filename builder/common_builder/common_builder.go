@@ -72,7 +72,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	// build data about Oracle/Database
 	if b.configuration.Features.OracleDatabase.Enabled {
 		b.log.Debugf("Databases mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
-		b.setFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
+		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
 
 		lazyInitOracleFeature(&hostData.Features)
 		hostData.Features.Oracle.Database = b.getOracleDatabaseFeature(
@@ -85,7 +85,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	// build data about Oracle/Exadata
 	if b.configuration.Features.OracleExadata.Enabled {
 		b.log.Debugf("Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
-		b.setFetcherUser(b.configuration.Features.OracleExadata.FetcherUser)
+		b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser)
 		b.checksToRunExadata()
 
 		lazyInitOracleFeature(&hostData.Features)
@@ -95,7 +95,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	// build data about Virtualization
 	if b.configuration.Features.Virtualization.Enabled {
 		b.log.Debugf("Virtualization mode enabled (user='%s')", b.configuration.Features.Virtualization.FetcherUser)
-		b.setFetcherUser(b.configuration.Features.Virtualization.FetcherUser)
+		b.setOrResetFetcherUser(b.configuration.Features.Virtualization.FetcherUser)
 
 		hostData.Clusters = b.getClustersInfos()
 	}
@@ -111,7 +111,7 @@ func (b *CommonBuilder) checksToRunExadata() {
 	}
 }
 
-func (b *CommonBuilder) setFetcherUser(user string) {
+func (b *CommonBuilder) setOrResetFetcherUser(user string) {
 	if strings.TrimSpace(user) == "" {
 		if err := b.fetcher.SetUserAsCurrent(); err != nil {
 			b.log.Panicf("Can't set current user for fetcher, err: [%v]", user, err)
