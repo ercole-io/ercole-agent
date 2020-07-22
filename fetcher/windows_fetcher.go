@@ -26,6 +26,7 @@ import (
 	"github.com/ercole-io/ercole-agent/config"
 	"github.com/ercole-io/ercole-agent/logger"
 	"github.com/ercole-io/ercole-agent/marshal"
+	marshal_microsoft "github.com/ercole-io/ercole-agent/marshal/microsoft"
 	marshal_oracle "github.com/ercole-io/ercole-agent/marshal/oracle"
 	"github.com/ercole-io/ercole/model"
 )
@@ -36,7 +37,7 @@ type WindowsFetcherImpl struct {
 	log           logger.Logger
 }
 
-const notImplemented = "Not yet implemented for Windows"
+const notImplementedWindows = "Not yet implemented for windows"
 
 // NewWindowsFetcherImpl constructor
 func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) *WindowsFetcherImpl {
@@ -93,40 +94,40 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, params ...string) []by
 
 // SetUser not implemented
 func (wf *WindowsFetcherImpl) SetUser(username string) error {
-	wf.log.Error(notImplemented)
-	return fmt.Errorf(notImplemented)
+	wf.log.Error(notImplementedWindows)
+	return fmt.Errorf(notImplementedWindows)
 }
 
 // SetUserAsCurrent set user used by fetcher to run commands as current process user
 func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
-	wf.log.Error(notImplemented)
-	return fmt.Errorf(notImplemented)
+	wf.log.Error(notImplementedWindows)
+	return fmt.Errorf(notImplementedWindows)
 }
 
 // GetClusters not implemented
 func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
-	wf.log.Error(notImplemented)
+	wf.log.Error(notImplementedWindows)
 
 	return make([]model.ClusterInfo, 0)
 }
 
 // GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
 func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo {
-	wf.log.Error(notImplemented)
+	wf.log.Error(notImplementedWindows)
 
 	return make(map[string][]model.VMInfo, 0)
 }
 
 // GetOracleExadataComponents get
 func (wf *WindowsFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
-	wf.log.Error(notImplemented)
+	wf.log.Error(notImplementedWindows)
 
 	return make([]model.OracleExadataComponent, 0)
 }
 
 // GetOracleExadataCellDisks get
 func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
-	wf.log.Error(notImplemented)
+	wf.log.Error(notImplementedWindows)
 
 	return make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, 0)
 }
@@ -241,4 +242,64 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry
 func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup {
 	out := wf.execute("win.ps1", "-s", "backup", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Backups(out)
+}
+
+// GetMicrosoftSQLServerInstances get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
+	return marshal_microsoft.ListInstances(out)
+}
+
+// GetMicrosoftSQLServerInstanceInfo get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "dbmounted", "-instance", conn)
+	marshal_microsoft.DbMounted(out, inst)
+}
+
+// GetMicrosoftSQLServerInstanceEdition get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance) {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "edition", "-instance", conn)
+	marshal_microsoft.Edition(out, inst)
+}
+
+// GetMicrosoftSQLServerInstanceLicensingInfo get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "licensingInfo", "-instance", conn)
+	marshal_microsoft.LicensingInfo(out, inst)
+}
+
+// GetMicrosoftSQLServerInstanceDatabase get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "db", "-instance", conn)
+	return marshal_microsoft.ListDatabases(out)
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseBackups get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "backup_schedule", "-instance", conn)
+	return marshal_microsoft.BackupSchedule(out)
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseSchemas get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "schema", "-instance", conn)
+	return marshal_microsoft.Schemas(out)
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseTablespaces get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "ts", "-instance", conn)
+	return marshal_microsoft.Tablespaces(out)
+}
+
+// GetMicrosoftSQLServerInstancePatches get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "patches", "-instance", conn)
+	return marshal_microsoft.Patches(out)
+}
+
+// GetMicrosoftSQLServerProductFeatures get
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
+	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "sqlFeatures", "-instance", conn)
+	return marshal_microsoft.Features(out)
 }

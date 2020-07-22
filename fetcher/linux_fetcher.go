@@ -35,6 +35,8 @@ type LinuxFetcherImpl struct {
 	fetcherUser   *User
 }
 
+const notImplementedLinux = "Not yet implemented for GNU/Linux"
+
 // NewLinuxFetcherImpl constructor
 func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) *LinuxFetcherImpl {
 	return &LinuxFetcherImpl{
@@ -304,4 +306,61 @@ func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageSe
 func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() model.ClusterMembershipStatus {
 	out := lf.execute("cluster_membership_status")
 	return marshal.ClusterMembershipStatus(out)
+}
+
+// GetMicrosoftSQLServerInstances get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerInstanceInfo get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+	lf.log.Error(notImplementedLinux)
+}
+
+// GetMicrosoftSQLServerInstanceEdition get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance) {
+	lf.log.Error(notImplementedLinux)
+}
+
+// GetMicrosoftSQLServerInstanceLicensingInfo get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+	lf.log.Error(notImplementedLinux)
+}
+
+// GetMicrosoftSQLServerInstanceDatabase get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseBackups get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseSchemas get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerInstanceDatabaseTablespaces get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerInstancePatches get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch {
+	lf.log.Error(notImplementedLinux)
+	return nil
+}
+
+// GetMicrosoftSQLServerProductFeatures get
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
+	lf.log.Error(notImplementedLinux)
+	return nil
 }

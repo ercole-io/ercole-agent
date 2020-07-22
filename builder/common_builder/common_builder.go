@@ -71,7 +71,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	// build data about Oracle/Database
 	if b.configuration.Features.OracleDatabase.Enabled {
-		b.log.Debugf("Databases mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
+		b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
 
 		lazyInitOracleFeature(&hostData.Features)
@@ -84,12 +84,21 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	// build data about Oracle/Exadata
 	if b.configuration.Features.OracleExadata.Enabled {
-		b.log.Debugf("Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
+		b.log.Debugf("Oracle/Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser)
 		b.checksToRunExadata()
 
 		lazyInitOracleFeature(&hostData.Features)
 		hostData.Features.Oracle.Exadata = b.getOracleExadataFeature()
+	}
+
+	// build data about Oracle/Database
+	if b.configuration.Features.MicrosoftSQLServer.Enabled {
+		b.log.Debugf("Microsoft/SQLServer mode enabled (user='%s')", b.configuration.Features.MicrosoftSQLServer.FetcherUser)
+		b.setOrResetFetcherUser(b.configuration.Features.MicrosoftSQLServer.FetcherUser)
+
+		lazyInitMicrosoftFeature(&hostData.Features)
+		hostData.Features.Microsoft.SQLServer = b.getMicrosoftSQLServerFeature()
 	}
 
 	// build data about Virtualization
@@ -113,18 +122,31 @@ func (b *CommonBuilder) checksToRunExadata() {
 
 func (b *CommonBuilder) setOrResetFetcherUser(user string) {
 	if strings.TrimSpace(user) == "" {
-		if err := b.fetcher.SetUserAsCurrent(); err != nil {
-			b.log.Panicf("Can't set current user for fetcher, err: [%v]", user, err)
+		if runtime.GOOS == "linux" {
+			if err := b.fetcher.SetUserAsCurrent(); err != nil {
+				b.log.Panicf("Can't set current user for fetchers, err: [%v]", user, err)
+			}
 		}
 	} else {
-		if err := b.fetcher.SetUser(user); err != nil {
-			b.log.Panicf("Can't set user [%s] for fetcher, err: [%v]", user, err)
+		if runtime.GOOS != "linux" {
+			b.log.Warnf("Can't set user [%s] for fetcher because it is not supported")
+		} else {
+			if err := b.fetcher.SetUser(user); err != nil {
+				b.log.Panicf("Can't set user [%s] for fetchers, err: [%v]", user, err)
+			}
 		}
+
 	}
 }
 
 func lazyInitOracleFeature(fs *model.Features) {
 	if fs.Oracle == nil {
 		fs.Oracle = new(model.OracleFeature)
+	}
+}
+
+func lazyInitMicrosoftFeature(fs *model.Features) {
+	if fs.Microsoft == nil {
+		fs.Microsoft = new(model.MicrosoftFeature)
 	}
 }

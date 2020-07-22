@@ -42,12 +42,13 @@ type Configuration struct {
 
 // Features holds features params
 type Features struct {
-	OracleDatabase OracleDatabaseFeature
-	Virtualization VirtualizationFeature
-	OracleExadata  OracleExadataFeature
+	OracleDatabase     OracleDatabaseFeature
+	Virtualization     VirtualizationFeature
+	OracleExadata      OracleExadataFeature
+	MicrosoftSQLServer MicrosoftSQLServerFeature
 }
 
-// OracleDatabaseFeature holds virtualization feature params
+// OracleDatabaseFeature holds oracle database feature params
 type OracleDatabaseFeature struct {
 	Enabled     bool
 	FetcherUser string
@@ -73,8 +74,14 @@ type Hypervisor struct {
 	OvmControl string
 }
 
-// OracleExadataFeature holds exadata feature params
+// OracleExadataFeature holds oracle exadata feature params
 type OracleExadataFeature struct {
+	Enabled     bool
+	FetcherUser string
+}
+
+// MicrosoftSQLServerFeature holds microsoft sql server feature params
+type MicrosoftSQLServerFeature struct {
 	Enabled     bool
 	FetcherUser string
 }

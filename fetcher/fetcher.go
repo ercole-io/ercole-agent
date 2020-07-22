@@ -56,6 +56,16 @@ type Fetcher interface {
 	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
 
 	// Microsoft/SQLServer fetchers
+	GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel
+	GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance)
+	GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance)
+	GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance)
+	GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase
+	GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel
+	GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel
+	GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel
+	GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch
+	GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature
 }
 
 // User struct
