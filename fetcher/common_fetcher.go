@@ -61,7 +61,7 @@ func (cf *CommonFetcherImpl) GetFilesystems() []model.Filesystem {
 
 // GetOracleOratabEntries get
 func (cf *CommonFetcherImpl) GetOracleOratabEntries() []agentmodel.OratabEntry {
-	out := cf.Execute("oratab", cf.Configuration.Oratab)
+	out := cf.Execute("oratab", cf.Configuration.Features.OracleDatabase.Oratab)
 	return marshal_oracle.Oratab(out)
 }
 
@@ -90,7 +90,7 @@ func (cf *CommonFetcherImpl) RunOracleStats(entry agentmodel.OratabEntry) {
 
 // GetOracleOpenDb get
 func (cf *CommonFetcherImpl) GetOracleOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
-	out := cf.Execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(cf.Configuration.AWR))
+	out := cf.Execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(cf.Configuration.Features.OracleDatabase.AWR))
 	return marshal_oracle.Database(out)
 }
 

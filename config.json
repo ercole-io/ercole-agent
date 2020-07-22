@@ -1,44 +1,44 @@
 {
-    "hostname": "default",
-    "envtype": "TST",
-    "location": "Germany",
-    "serverurl": "http://localhost:9080/hosts",
-    "serverusr": "user",
-    "serverpsw": "password",
-    "frequency": 24,
-    "forcestats": true,
-    "enableservervalidation": false,
-    "forcepwshversion": "0",
-    "oratab": "/etc/oratab",
-    "AWR": 30,
-    "parallelizeRequests": true,
-    "verbose": false,
-    "features": {
-        "databases": {
-            "enabled": true
+    "Hostname": "default",
+    "Environment": "TST",
+    "Location": "Germany",
+    "DataserviceURL": "http://127.0.0.1:11111",
+    "AgentUser": "user",
+    "ServerUser": "password",
+    "Period": 24,
+    "EnableServerValidation": false,
+    "ForcePwshVersion": "0",
+    "ParallelizeRequests": true,
+    "Verbose": false,
+    "Features": {
+        "OracleDatabase": {
+            "Enabled": true,
+            "Oratab": "/etc/oratab",
+            "Forcestats": true,
+            "AWR": 30
         },
-        "virtualization": {
-            "enabled": false,
-            "hypervisors": [
+        "Virtualization": {
+            "Enabled": false,
+            "Hypervisors": [
                 {
-                    "type": "vmware",
-                    "endpoint": "10.20.30.40",
-                    "username": "reader@vsphere.local",
-                    "password": "reader"
+                    "Type": "vmware",
+                    "Endpoint": "10.20.30.40",
+                    "Username": "reader@vsphere.local",
+                    "Password": "reader"
                 },
                 {
-                    "type": "ovm",
-                    "endpoint": "10.20.30.40",
-                    "username": "reader",
-                    "password": "R34d3r",
-                    "ovmuserkey": "92838932423",
-                    "ovmcontrol": "/path/to/ovmcontrol"
+                    "Type": "ovm",
+                    "Endpoint": "10.20.30.40",
+                    "Username": "reader",
+                    "Password": "R34d3r",
+                    "Ovmuserkey": "92838932423",
+                    "Ovmcontrol": "/path/to/ovmcontrol"
                 }
             ]
         },
-        "exadata": {
-            "enabled": false,
-            "fetchersuser": ""
+        "OracleExadata": {
+            "Enabled": false,
+            "FetcherUser": ""
         }
     }
 }

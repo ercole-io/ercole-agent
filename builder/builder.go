@@ -27,7 +27,7 @@ func BuildData(configuration config.Configuration, log logger.Logger) *model.Hos
 	hostData := new(model.HostData)
 
 	hostData.Location = configuration.Location
-	hostData.Environment = configuration.Envtype
+	hostData.Environment = configuration.Environment
 
 	builder := common.NewCommonBuilder(configuration, log)
 

@@ -18,11 +18,11 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/ercole-io/ercole-agent/builder"
@@ -52,7 +52,7 @@ func (p *program) run() {
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
-	_, err := scheduler.RunEvery(time.Duration(configuration.Frequency)*time.Hour, doBuildAndSend, configuration, p.log)
+	_, err := scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, doBuildAndSend, configuration, p.log)
 
 	if err != nil {
 		p.log.Fatal("Error sending data", err)
@@ -91,11 +91,9 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 		}
 	}
 
-	req, err := http.NewRequest("POST", configuration.Serverurl, bytes.NewReader(dataBytes))
+	req, err := http.NewRequest("POST", filepath.Join(configuration.DataserviceURL, "hosts"), bytes.NewReader(dataBytes))
 	req.Header.Add("Content-Type", "application/json")
-	auth := configuration.Serverusr + ":" + configuration.Serverpsw
-	authEnc := b64.StdEncoding.EncodeToString([]byte(auth))
-	req.Header.Add("Authorization", "Basic "+authEnc)
+	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
 	resp, err := client.Do(req)
 
 	sendResult := "FAILED"

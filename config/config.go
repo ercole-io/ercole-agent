@@ -27,38 +27,39 @@ import (
 // Configuration holds the agent configuration options
 type Configuration struct {
 	Hostname               string
-	Envtype                string
+	Environment            string
 	Location               string
-	HostType               string
-	Serverurl              string
-	Serverusr              string
-	Serverpsw              string
-	Frequency              int
-	Forcestats             bool
+	DataserviceURL         string
+	AgentUser              string
+	AgentPassword          string
 	EnableServerValidation bool
 	ForcePwshVersion       string
-	Oratab                 string
-	AWR                    int
-	ParallelizeRequests    bool
+	Period                 int
 	Verbose                bool
+	ParallelizeRequests    bool
 	Features               Features
 }
 
 // Features holds features params
 type Features struct {
-	Databases      DatabasesFeature
+	OracleDatabase OracleDatabaseFeature
 	Virtualization VirtualizationFeature
-	Exadata        ExadataFeature
+	OracleExadata  OracleExadataFeature
 }
 
-// DatabasesFeature holds virtualization feature params
-type DatabasesFeature struct {
-	Enabled bool
+// OracleDatabaseFeature holds virtualization feature params
+type OracleDatabaseFeature struct {
+	Enabled     bool
+	FetcherUser string
+	Oratab      string
+	AWR         int
+	Forcestats  bool
 }
 
 // VirtualizationFeature holds virtualization feature params
 type VirtualizationFeature struct {
 	Enabled     bool
+	FetcherUser string
 	Hypervisors []Hypervisor
 }
 
@@ -72,10 +73,10 @@ type Hypervisor struct {
 	OvmControl string
 }
 
-// ExadataFeature holds exadata feature params
-type ExadataFeature struct {
-	Enabled      bool
-	FetchersUser string
+// OracleExadataFeature holds exadata feature params
+type OracleExadataFeature struct {
+	Enabled     bool
+	FetcherUser string
 }
 
 // ReadConfig reads the configuration file from the current dir
@@ -109,11 +110,8 @@ func ReadConfig() Configuration {
 		log.Fatal("Unable to parse configuration file", err)
 	}
 
-	if conf.Oratab == "" {
-		conf.Oratab = "/etc/oratab"
-	}
-	if conf.HostType == "" {
-		conf.HostType = "oracledb"
+	if conf.Features.OracleDatabase.Oratab == "" {
+		conf.Features.OracleDatabase.Oratab = "/etc/oratab"
 	}
 
 	return conf
