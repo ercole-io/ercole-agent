@@ -22,8 +22,7 @@ install: all install-fetchers install-bin install-bin install-config install-scr
 
 install-fetchers:
 	install -d $(DESTDIR)/fetch
-	cp -rp fetch/* $(DESTDIR)/fetch
-	rm $(DESTDIR)/fetch/win.ps1
+	cp -rp fetch/linux $(DESTDIR)/fetch
 
 install-bin:
 	install -m 755 ercole-agent $(DESTDIR)/ercole-agent
