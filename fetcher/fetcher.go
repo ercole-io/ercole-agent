@@ -26,30 +26,36 @@ type Fetcher interface {
 	SetUser(username string) error
 	SetUserAsCurrent() error
 
+	// Operating system fetchers
 	GetHost() model.Host
 	GetFilesystems() []model.Filesystem
-	GetClusters(hv config.Hypervisor) []model.ClusterInfo
-	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
 	GetClustersMembershipStatus() model.ClusterMembershipStatus
 
-	// Oracle related functions
-	GetOracleOratabEntries() []agentmodel.OratabEntry
-	GetOracleDbStatus(entry agentmodel.OratabEntry) string
-	GetOracleMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
-	GetOracleDbVersion(entry agentmodel.OratabEntry) string
-	RunOracleStats(entry agentmodel.OratabEntry)
-	GetOracleOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase
-	GetOracleTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
-	GetOracleSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema
-	GetOraclePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch
+	// Virtualization fetcher
+	GetClusters(hv config.Hypervisor) []model.ClusterInfo
+	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
+
+	// Oracle/Database fetchers
+	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
+	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string
+	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string
+	RunOracleDatabaseStats(entry agentmodel.OratabEntry)
+	GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
+	GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema
+	GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch
 	GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat
-	GetOracleLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
-	GetOracleADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
-	GetOracleSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor
-	GetOraclePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU
-	GetOracleBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup
+	GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
+	GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
+	GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor
+	GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU
+	GetOracleDatabaseBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup
+	// Oracle/Exadata fetchers
 	GetOracleExadataComponents() []model.OracleExadataComponent
 	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
+
+	// Microsoft/SQLServer fetchers
 }
 
 // User struct

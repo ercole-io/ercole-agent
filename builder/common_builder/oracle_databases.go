@@ -25,8 +25,19 @@ import (
 	"github.com/ercole-io/ercole/model"
 )
 
+func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) *model.OracleDatabaseFeature {
+	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
+	oracleDatabaseFeature.Databases = b.getOracleDBs(
+		hardwareAbstractionTechnology,
+		cpuCores,
+		cpuSockets,
+	)
+
+	return oracleDatabaseFeature
+}
+
 func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {
-	oratabEntries := b.fetcher.GetOracleOratabEntries()
+	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
 
 	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
 
@@ -52,7 +63,7 @@ func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCo
 }
 
 func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string, cpuCores, cpuSockets int) *model.OracleDatabase {
-	dbStatus := b.fetcher.GetOracleDbStatus(entry)
+	dbStatus := b.fetcher.GetOracleDatabaseDbStatus(entry)
 	var database *model.OracleDatabase
 
 	switch dbStatus {
@@ -60,7 +71,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 		database = b.getOpenDatabase(entry, hardwareAbstractionTechnology)
 	case "MOUNTED":
 		{
-			db := b.fetcher.GetOracleMountedDb(entry)
+			db := b.fetcher.GetOracleDatabaseMountedDb(entry)
 			database = &db
 
 			database.Tablespaces = []model.OracleDatabaseTablespace{}
@@ -147,12 +158,12 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 }
 
 func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
-	dbVersion := b.fetcher.GetOracleDbVersion(entry)
+	dbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
-			b.fetcher.RunOracleStats(entry)
+			b.fetcher.RunOracleDatabaseStats(entry)
 
 			cancelStatsCtx()
 		})
@@ -160,20 +171,20 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		cancelStatsCtx()
 	}
 
-	database := b.fetcher.GetOracleOpenDb(entry)
+	database := b.fetcher.GetOracleDatabaseOpenDb(entry)
 
 	var wg sync.WaitGroup
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Tablespaces = b.fetcher.GetOracleTablespaces(entry)
+		database.Tablespaces = b.fetcher.GetOracleDatabaseTablespaces(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas = b.fetcher.GetOracleSchemas(entry)
+		database.Schemas = b.fetcher.GetOracleDatabaseSchemas(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches = b.fetcher.GetOraclePatches(entry, dbVersion)
+		database.Patches = b.fetcher.GetOracleDatabasePatches(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -185,23 +196,23 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.Licenses = b.fetcher.GetOracleLicenses(entry, dbVersion, hardwareAbstractionTechnology)
+		database.Licenses = b.fetcher.GetOracleDatabaseLicenses(entry, dbVersion, hardwareAbstractionTechnology)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.ADDMs = b.fetcher.GetOracleADDMs(entry)
+		database.ADDMs = b.fetcher.GetOracleDatabaseADDMs(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.SegmentAdvisors = b.fetcher.GetOracleSegmentAdvisors(entry)
+		database.SegmentAdvisors = b.fetcher.GetOracleDatabaseSegmentAdvisors(entry)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.PSUs = b.fetcher.GetOraclePSUs(entry, dbVersion)
+		database.PSUs = b.fetcher.GetOracleDatabasePSUs(entry, dbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Backups = b.fetcher.GetOracleBackups(entry)
+		database.Backups = b.fetcher.GetOracleDatabaseBackups(entry)
 	}, &wg)
 
 	wg.Wait()
