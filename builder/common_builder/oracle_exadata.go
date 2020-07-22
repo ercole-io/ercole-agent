@@ -20,6 +20,13 @@ import (
 	"github.com/ercole-io/ercole/model"
 )
 
+func (b *CommonBuilder) getOracleExadataFeature() *model.OracleExadataFeature {
+	oracleExadataFeature := new(model.OracleExadataFeature)
+	oracleExadataFeature.Components = b.getOracleExadataComponents()
+
+	return oracleExadataFeature
+}
+
 func (b *CommonBuilder) getOracleExadataComponents() []model.OracleExadataComponent {
 	exadataDevices := b.fetcher.GetOracleExadataComponents()
 	exadataCellDisks := b.fetcher.GetOracleExadataCellDisks()

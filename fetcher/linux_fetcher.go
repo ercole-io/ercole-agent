@@ -28,7 +28,7 @@ import (
 	"github.com/ercole-io/ercole/model"
 )
 
-// LinuxFetcherImpl SpecializedFetcher implementation for linux
+// LinuxFetcherImpl fetcher implementation for linux
 type LinuxFetcherImpl struct {
 	configuration config.Configuration
 	log           logger.Logger
@@ -36,8 +36,8 @@ type LinuxFetcherImpl struct {
 }
 
 // NewLinuxFetcherImpl constructor
-func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) LinuxFetcherImpl {
-	return LinuxFetcherImpl{
+func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) *LinuxFetcherImpl {
+	return &LinuxFetcherImpl{
 		conf,
 		log,
 		nil,
@@ -84,7 +84,7 @@ func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
 }
 
 // Execute execute bash script by name
-func (lf *LinuxFetcherImpl) Execute(fetcherName string, args ...string) []byte {
+func (lf *LinuxFetcherImpl) execute(fetcherName string, args ...string) []byte {
 	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
 	lf.log.Infof("Fetching %s %s", commandName, strings.Join(args, " "))
 
@@ -140,6 +140,107 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 	return stdout
 }
 
+// GetHost get
+func (lf *LinuxFetcherImpl) GetHost() model.Host {
+	out := lf.execute("host")
+	return marshal.Host(out)
+}
+
+// GetFilesystems get
+func (lf *LinuxFetcherImpl) GetFilesystems() []model.Filesystem {
+	out := lf.execute("filesystem")
+	return marshal.Filesystems(out)
+}
+
+// GetOracleDatabaseOratabEntries get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry {
+	out := lf.execute("oratab", lf.configuration.Features.OracleDatabase.Oratab)
+	return marshal_oracle.Oratab(out)
+}
+
+// GetOracleDatabaseDbStatus get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string {
+	out := lf.execute("dbstatus", entry.DBName, entry.OracleHome)
+	return strings.TrimSpace(string(out))
+}
+
+// GetOracleDatabaseMountedDb get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+	out := lf.execute("dbmounted", entry.DBName, entry.OracleHome)
+	return marshal_oracle.Database(out)
+}
+
+// GetOracleDatabaseDbVersion get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string {
+	out := lf.execute("dbversion", entry.DBName, entry.OracleHome)
+	return strings.Split(string(out), ".")[0]
+}
+
+// RunOracleDatabaseStats Execute stats script
+func (lf *LinuxFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry) {
+	lf.execute("stats", entry.DBName, entry.OracleHome)
+}
+
+// GetOracleDatabaseOpenDb get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+	out := lf.execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(lf.configuration.Features.OracleDatabase.AWR))
+	return marshal_oracle.Database(out)
+}
+
+// GetOracleDatabaseTablespaces get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace {
+	out := lf.execute("tablespace", entry.DBName, entry.OracleHome)
+	return marshal_oracle.Tablespaces(out)
+}
+
+// GetOracleDatabaseSchemas get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema {
+	out := lf.execute("schema", entry.DBName, entry.OracleHome)
+	return marshal_oracle.Schemas(out)
+}
+
+// GetOracleDatabasePatches get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch {
+	out := lf.execute("patch", entry.DBName, dbVersion, entry.OracleHome)
+	return marshal_oracle.Patches(out)
+}
+
+// GetOracleDatabaseFeatureUsageStat get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat {
+	out := lf.execute("opt", entry.DBName, dbVersion, entry.OracleHome)
+	return marshal_oracle.DatabaseFeatureUsageStat(out)
+}
+
+// GetOracleDatabaseLicenses get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense {
+	out := lf.execute("license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
+	return marshal_oracle.Licenses(out)
+}
+
+// GetOracleDatabaseADDMs get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm {
+	out := lf.execute("addm", entry.DBName, entry.OracleHome)
+	return marshal_oracle.Addms(out)
+}
+
+// GetOracleDatabaseSegmentAdvisors get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor {
+	out := lf.execute("segmentadvisor", entry.DBName, entry.OracleHome)
+	return marshal_oracle.SegmentAdvisor(out)
+}
+
+// GetOracleDatabasePSUs get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU {
+	out := lf.execute("psu", entry.DBName, dbVersion, entry.OracleHome)
+	return marshal_oracle.PSU(out)
+}
+
+// GetOracleDatabaseBackups get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup {
+	out := lf.execute("backup", entry.DBName, entry.OracleHome)
+	return marshal_oracle.Backups(out)
+}
+
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
 	var out []byte
@@ -149,7 +250,7 @@ func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInf
 		out = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
 
 	case "ovm":
-		out = lf.Execute("ovm", "cluster", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
+		out = lf.execute("ovm", "cluster", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
 
 	default:
 		lf.log.Errorf("Hypervisor not supported: %v (%v)", hv.Type, hv)
@@ -174,7 +275,7 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 		vms = marshal.VmwareVMs(out)
 
 	case "ovm":
-		out := lf.Execute("ovm", "vms", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
+		out := lf.execute("ovm", "vms", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
 		vms = marshal.OvmVMs(out)
 
 	default:
@@ -189,18 +290,18 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 
 // GetOracleExadataComponents get
 func (lf *LinuxFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
-	out := lf.Execute("exadata/info")
+	out := lf.execute("exadata/info")
 	return marshal_oracle.ExadataComponent(out)
 }
 
 // GetOracleExadataCellDisks get
 func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
-	out := lf.Execute("exadata/storage-status")
+	out := lf.execute("exadata/storage-status")
 	return marshal_oracle.ExadataCellDisks(out)
 }
 
 // GetClustersMembershipStatus get
 func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() model.ClusterMembershipStatus {
-	out := lf.Execute("cluster_membership_status")
+	out := lf.execute("cluster_membership_status")
 	return marshal.ClusterMembershipStatus(out)
 }
