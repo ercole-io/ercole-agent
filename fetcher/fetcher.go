@@ -37,6 +37,7 @@ type Fetcher interface {
 
 	// Oracle/Database fetchers
 	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
+	GetOracleDatabaseRunningDatabases() []string
 	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string
 	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
 	GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string

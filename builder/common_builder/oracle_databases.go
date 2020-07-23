@@ -32,8 +32,30 @@ func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology s
 		cpuCores,
 		cpuSockets,
 	)
+	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oracleDatabaseFeature.Databases)
 
 	return oracleDatabaseFeature
+}
+
+func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleDatabase) []string {
+	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
+	unlistedRunningDBs := make([]string, 0)
+
+rdbsfor:
+	for _, r := range runningDBs {
+		if r == "" {
+			continue
+		}
+		for _, d := range listedDBs {
+			if r == d.Name {
+				continue rdbsfor
+			}
+		}
+
+		unlistedRunningDBs = append(unlistedRunningDBs, r)
+	}
+
+	return unlistedRunningDBs
 }
 
 func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {

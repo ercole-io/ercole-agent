@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent
 go 1.14
 
 require (
-	github.com/ercole-io/ercole v0.0.0-20200721133859-3491343c835b
+	github.com/ercole-io/ercole v0.0.0-20200723094215-317bb26514be
 	github.com/kardianos/service v1.1.0
 	github.com/plandem/xlsx v1.0.4 // indirect
 	github.com/sirupsen/logrus v1.6.0

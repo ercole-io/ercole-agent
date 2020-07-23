@@ -158,6 +158,12 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseOratabEntries() []agentmodel.Oratab
 	return marshal_oracle.Oratab(out)
 }
 
+// GetOracleDatabaseRunningDatabases get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() []string {
+	out := lf.execute("oracle_running_databases", lf.configuration.Features.OracleDatabase.Oratab)
+	return strings.Split(strings.TrimSpace(string(out)), "\n")
+}
+
 // GetOracleDatabaseDbStatus get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string {
 	out := lf.execute("dbstatus", entry.DBName, entry.OracleHome)

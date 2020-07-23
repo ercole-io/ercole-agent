@@ -80,6 +80,7 @@ install -m 644 package/rhel5/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 /opt/ercole-agent/fetch/linux/stats.sh
 /opt/ercole-agent/fetch/linux/tablespace.sh
 /opt/ercole-agent/fetch/linux/tablespace_pdb.sh
+/opt/ercole-agent/fetch/linux/oracle_running_databases.sh
 /opt/ercole-agent/fetch/linux/vmware.ps1
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/storage-status.sh
