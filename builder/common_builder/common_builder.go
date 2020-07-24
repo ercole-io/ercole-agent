@@ -121,21 +121,22 @@ func (b *CommonBuilder) checksToRunExadata() {
 }
 
 func (b *CommonBuilder) setOrResetFetcherUser(user string) {
-	if strings.TrimSpace(user) == "" {
-		if runtime.GOOS == "linux" {
-			if err := b.fetcher.SetUserAsCurrent(); err != nil {
-				b.log.Panicf("Can't set current user for fetchers, err: [%v]", user, err)
-			}
-		}
-	} else {
-		if runtime.GOOS != "linux" {
-			b.log.Warnf("Can't set user [%s] for fetcher because it is not supported")
-		} else {
-			if err := b.fetcher.SetUser(user); err != nil {
-				b.log.Panicf("Can't set user [%s] for fetchers, err: [%v]", user, err)
-			}
+	if runtime.GOOS != "linux" {
+		if strings.TrimSpace(user) != "" {
+			b.log.Errorf("Can't set user [%s] for fetcher because it is not supported")
 		}
 
+		return
+	}
+
+	if strings.TrimSpace(user) == "" {
+		if err := b.fetcher.SetUserAsCurrent(); err != nil {
+			b.log.Panicf("Can't set current user for fetchers, err: [%v]", user, err)
+		}
+	} else {
+		if err := b.fetcher.SetUser(user); err != nil {
+			b.log.Panicf("Can't set user [%s] for fetchers, err: [%v]", user, err)
+		}
 	}
 }
 
