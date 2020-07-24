@@ -17,6 +17,7 @@ package common
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"sync"
 
@@ -39,20 +40,20 @@ func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology s
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleDatabase) []string {
 	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
+
+	// copy listedDBs names to listedDBNames
+	listedDBNames := make([]string, len(listedDBs))
+	for i, s := range listedDBs {
+		listedDBNames[i] = s.Name
+	}
+	sort.Strings(listedDBNames)
+
+	// make the subtraction
 	unlistedRunningDBs := make([]string, 0)
-
-rdbsfor:
 	for _, r := range runningDBs {
-		if r == "" {
-			continue
+		if len(listedDBNames) == sort.SearchStrings(listedDBNames, r) {
+			unlistedRunningDBs = append(unlistedRunningDBs, r)
 		}
-		for _, d := range listedDBs {
-			if r == d.Name {
-				continue rdbsfor
-			}
-		}
-
-		unlistedRunningDBs = append(unlistedRunningDBs, r)
 	}
 
 	return unlistedRunningDBs
