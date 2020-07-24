@@ -17,3 +17,4 @@ SELECT NAME,
        OPEN_MODE
 FROM v$pdbs
 WHERE name NOT LIKE 'PDB$SEED';
+exit
