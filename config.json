@@ -4,7 +4,7 @@
     "Location": "Germany",
     "DataserviceURL": "http://127.0.0.1:11111",
     "AgentUser": "user",
-    "ServerUser": "password",
+    "AgentPassword": "password",
     "Period": 24,
     "EnableServerValidation": false,
     "ForcePwshVersion": "0",

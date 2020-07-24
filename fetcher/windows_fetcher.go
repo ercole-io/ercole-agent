@@ -242,3 +242,27 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEn
 	out := wf.execute("win.ps1", "-s", "backup", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Backups(out)
 }
+
+// GetOracleDatabaseCheckPDB get
+func (wf *WindowsFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) bool {
+	wf.log.Warn(notImplemented)
+	return false
+}
+
+// GetOracleDatabasePDBs get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase {
+	wf.log.Panic(notImplemented)
+	return nil
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace {
+	wf.log.Panic(notImplemented)
+	return nil
+}
+
+// GetOracleDatabasePDBSchemas get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema {
+	wf.log.Panic(notImplemented)
+	return nil
+}

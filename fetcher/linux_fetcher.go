@@ -241,6 +241,30 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntr
 	return marshal_oracle.Backups(out)
 }
 
+// GetOracleDatabaseCheckPDB get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) bool {
+	out := lf.execute("checkpdb", entry.DBName, entry.OracleHome)
+	return strings.TrimSpace(string(out)) == "TRUE"
+}
+
+// GetOracleDatabasePDBs get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase {
+	out := lf.execute("listpdb", entry.DBName, entry.OracleHome)
+	return marshal_oracle.ListPDB(out)
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace {
+	out := lf.execute("tablespace_pdb", entry.DBName, entry.OracleHome, pdb)
+	return marshal_oracle.Tablespaces(out)
+}
+
+// GetOracleDatabasePDBSchemas get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema {
+	out := lf.execute("schema_pdb", entry.DBName, entry.OracleHome, pdb)
+	return marshal_oracle.Schemas(out)
+}
+
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInfo {
 	var out []byte

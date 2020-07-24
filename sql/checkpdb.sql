@@ -18,3 +18,4 @@ SELECT CASE
            WHEN count(*) = 0 THEN 'FALSE'
        END
 FROM v$pdbs;
+exit

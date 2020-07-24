@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/ercole-io/ercole-agent/builder"
@@ -91,7 +90,7 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 		}
 	}
 
-	req, err := http.NewRequest("POST", filepath.Join(configuration.DataserviceURL, "hosts"), bytes.NewReader(dataBytes))
+	req, err := http.NewRequest("POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
 	resp, err := client.Do(req)
