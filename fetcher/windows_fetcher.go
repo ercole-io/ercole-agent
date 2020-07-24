@@ -160,6 +160,11 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseOratabEntries() []agentmodel.Orat
 	return marshal_oracle.Oratab(out)
 }
 
+// GetOracleDatabaseRunningDatabases get
+func (lf *WindowsFetcherImpl) GetOracleDatabaseRunningDatabases() []string {
+	return []string{}
+}
+
 // GetOracleDatabaseDbStatus get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string {
 	out := wf.execute("win.ps1", "-s", "dbstatus", entry.DBName, entry.OracleHome)
