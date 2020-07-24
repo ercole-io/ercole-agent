@@ -17,12 +17,14 @@ package common
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/agentmodel"
 	"github.com/ercole-io/ercole-agent/utils"
 	"github.com/ercole-io/ercole/model"
+	"github.com/hashicorp/go-version"
 )
 
 func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) *model.OracleDatabaseFeature {
@@ -32,8 +34,30 @@ func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology s
 		cpuCores,
 		cpuSockets,
 	)
+	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oracleDatabaseFeature.Databases)
 
 	return oracleDatabaseFeature
+}
+
+func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleDatabase) []string {
+	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
+
+	// copy listedDBs names to listedDBNames
+	listedDBNames := make([]string, len(listedDBs))
+	for i, s := range listedDBs {
+		listedDBNames[i] = s.Name
+	}
+	sort.Strings(listedDBNames)
+
+	// make the subtraction
+	unlistedRunningDBs := make([]string, 0)
+	for _, r := range runningDBs {
+		if len(listedDBNames) == sort.SearchStrings(listedDBNames, r) {
+			unlistedRunningDBs = append(unlistedRunningDBs, r)
+		}
+	}
+
+	return unlistedRunningDBs
 }
 
 func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {
@@ -160,6 +184,12 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
 	dbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
 
+	v1, err := version.NewVersion(dbVersion)
+	if err != nil {
+		panic(err)
+	}
+	v2, _ := version.NewVersion("11.2.0.4.0")
+
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
@@ -172,8 +202,29 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}
 
 	database := b.fetcher.GetOracleDatabaseOpenDb(entry)
-
 	var wg sync.WaitGroup
+
+	if v1.GreaterThanOrEqual(v2) {
+		database.IsCDB = b.fetcher.GetOracleDatabaseCheckPDB(entry)
+
+		if database.IsCDB {
+			database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
+
+			for i := range database.PDBs {
+				var pdbPtr *model.OracleDatabasePluggableDatabase = &database.PDBs[i]
+				utils.RunRoutineInGroup(b.configuration, func() {
+					pdbPtr.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdbPtr.Name)
+				}, &wg)
+
+				utils.RunRoutineInGroup(b.configuration, func() {
+					pdbPtr.Schemas = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdbPtr.Name)
+				}, &wg)
+			}
+		}
+
+	} else {
+		database.IsCDB = false
+	}
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		database.Tablespaces = b.fetcher.GetOracleDatabaseTablespaces(entry)
@@ -217,7 +268,6 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	wg.Wait()
 
-	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 	database.Services = []model.OracleDatabaseService{}
 
 	return &database

@@ -37,6 +37,7 @@ type Fetcher interface {
 
 	// Oracle/Database fetchers
 	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
+	GetOracleDatabaseRunningDatabases() []string
 	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string
 	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
 	GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string
@@ -51,6 +52,11 @@ type Fetcher interface {
 	GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor
 	GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU
 	GetOracleDatabaseBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup
+	GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) bool
+	GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase
+	GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace
+	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema
+
 	// Oracle/Exadata fetchers
 	GetOracleExadataComponents() []model.OracleExadataComponent
 	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
