@@ -326,8 +326,6 @@ function listInstances(){
        
 
 function main(){
-    Clear-Host
-     
     if (-not $sqlDir.ToString().EndsWith("\")){
         $sqlDir = $($sqlDir.ToString()+'\' )
     }
