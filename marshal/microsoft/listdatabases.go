@@ -23,8 +23,8 @@ import (
 
 // ListDatabases marshals -action db output
 func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
-	var rawOut struct {
-		Data []struct {
+	var rawOut []struct {
+		Data struct {
 			DatabaseID      int     `json:"database_id"`
 			Name            string  `json:"name"`
 			CollationName   string  `json:"collation_name"`
@@ -46,23 +46,23 @@ func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
 		panic(err)
 	}
 
-	out := make([]model.MicrosoftSQLServerDatabase, len(rawOut.Data))
+	out := make([]model.MicrosoftSQLServerDatabase, len(rawOut))
 
-	for i, v := range rawOut.Data {
-		out[i].DatabaseID = v.DatabaseID
-		out[i].Name = v.Name
-		out[i].CollationName = v.CollationName
-		out[i].Status = v.StateDesc
-		out[i].RecoveryModel = v.RecoveryModel
-		out[i].CollationName = v.CollationName
-		out[i].BlockSize = v.BlockSize
-		out[i].SchedulersCount = v.SchedulersCount
-		out[i].AffinityMask = v.AffinityMask
-		out[i].MinServerMemory = v.MinServerMemory
-		out[i].MaxServerMemory = v.MaxServerMemory
-		out[i].CTP = v.CTP
-		out[i].MaxDop = v.MaxDop
-		out[i].Alloc = v.Alloc
+	for i, v := range rawOut {
+		out[i].DatabaseID = v.Data.DatabaseID
+		out[i].Name = v.Data.Name
+		out[i].CollationName = v.Data.CollationName
+		out[i].Status = v.Data.StateDesc
+		out[i].RecoveryModel = v.Data.RecoveryModel
+		out[i].CollationName = v.Data.CollationName
+		out[i].BlockSize = v.Data.BlockSize
+		out[i].SchedulersCount = v.Data.SchedulersCount
+		out[i].AffinityMask = v.Data.AffinityMask
+		out[i].MinServerMemory = v.Data.MinServerMemory
+		out[i].MaxServerMemory = v.Data.MaxServerMemory
+		out[i].CTP = v.Data.CTP
+		out[i].MaxDop = v.Data.MaxDop
+		out[i].Alloc = v.Data.Alloc
 	}
 
 	return out
