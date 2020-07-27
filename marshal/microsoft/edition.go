@@ -25,7 +25,7 @@ import (
 func Edition(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 	var out struct {
 		Data struct {
-			Edition string `json:"version"`
+			Edition string `json:"edition"`
 		} `json:"data"`
 	}
 
