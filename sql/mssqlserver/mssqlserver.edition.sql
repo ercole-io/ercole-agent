@@ -24,4 +24,4 @@ SELECT
 		WHEN convert(varchar(128), SERVERPROPERTY('Edition')) LIKE '%Azure%' THEN 'AZU'
 		ELSE 'ANOTHER'
 	END
-	AS 'version'
+	AS 'edition'

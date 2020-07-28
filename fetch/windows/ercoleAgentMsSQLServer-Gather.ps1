@@ -248,6 +248,16 @@ function executeQueue([System.Collections.ArrayList]$queryList, [System.Collecti
                                 pdatabase_id =  @{name='pdatabase_id'; value=$($dbInfo.database_id); datatype='Int'; size=$null; precision=$null}
                             }	
                             $execResult = getQuery -dbName $($dbInfo.name) -QueryPath $queryPath -Parameters $parameters |ConvertFrom-Json
+                            if ($auxLayout -eq "backup_schedule"){
+                                if ([String]::IsNullOrEmpty($execResult)){
+                                    $execResult = new-object System.Collections.ArrayList;
+                                }
+                                elseif(-not [bool]($execResult.PSobject.Properties.name -match "Count")){
+                                    $oneRow = $execResult
+                                    $execResult = new-object System.Collections.ArrayList;
+                                    $execResult.Add($oneRow) |Out-Null
+                                }
+                            }
                             $jsonbase = @{layout=$auxLayout; database_name=$($dbInfo.name)}
                             $jsonbase.Add("data",$execResult)
                             $resultList.Add($jsonbase) |Out-Null

@@ -28,6 +28,7 @@ func (b *CommonBuilder) getMicrosoftSQLServerFeature() *model.MicrosoftSQLServer
 	return &model.MicrosoftSQLServerFeature{
 		Instances: b.getMicrosoftSQLServerInstances(instances),
 		Features:  b.getMicrosoftSQLServerProductFeatures(instances[0].ConnString),
+		Patches:   b.fetcher.GetMicrosoftSQLServerInstancePatches(instances[0].ConnString),
 	}
 }
 
@@ -41,10 +42,13 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 
 		if v.Status == "Running" {
 			instances[i].Platform = "Windows"
+			b.fetcher.GetMicrosoftSQLServerInstanceInfo(v.ConnString, &instances[i])
+
 			b.fetcher.GetMicrosoftSQLServerInstanceEdition(v.ConnString, &instances[i])
 			b.fetcher.GetMicrosoftSQLServerInstanceLicensingInfo(v.ConnString, &instances[i])
 
 			instances[i].Databases = b.fetcher.GetMicrosoftSQLServerInstanceDatabase(v.ConnString)
+			instances[i].CollationName = instances[i].Databases[0].CollationName
 			dbsMap := make(map[string]*model.MicrosoftSQLServerDatabase)
 
 			for j, db := range instances[i].Databases {
@@ -87,8 +91,6 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 					dbsMap[v.DatabaseName].Tablespaces[i].Status = b.Status
 				}
 			}
-
-			instances[i].Patches = b.fetcher.GetMicrosoftSQLServerInstancePatches(v.ConnString)
 		}
 	}
 

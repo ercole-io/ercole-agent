@@ -26,7 +26,7 @@ func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
 	var rawOut []struct {
 		Data struct {
 			DatabaseID      int     `json:"database_id"`
-			Name            string  `json:"name"`
+			Name            string  `json:"database_name"`
 			CollationName   string  `json:"collation_name"`
 			StateDesc       string  `json:"state_desc"`
 			RecoveryModel   string  `json:"recovery_model"`
