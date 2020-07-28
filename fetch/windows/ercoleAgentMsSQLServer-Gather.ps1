@@ -277,7 +277,15 @@ function executeQueue([System.Collections.ArrayList]$queryList, [System.Collecti
     $execResult = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Sort-Object -Property DisplayName `
         | Select-Object -Property DisplayName, DisplayVersion, InstallDate `
         | Where-Object {($_.DisplayName -like "Hotfix*SQL*") -or ($_.DisplayName -like "Service Pack*SQL*")} 
-
+    
+    if ([String]::IsNullOrEmpty($execResult)){
+        $execResult = new-object System.Collections.ArrayList;
+    }
+    elseif(-not [bool]($execResult.PSobject.Properties.name -match "Count")){
+        $oneRow = $execResult
+        $execResult = new-object System.Collections.ArrayList;
+        $execResult.Add($oneRow) |Out-Null
+    }
     $jsonbase.Add("data",$execResult)                            
     $jsonbase| ConvertTo-Json -Depth 10
 }

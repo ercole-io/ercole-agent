@@ -25,9 +25,11 @@ import (
 func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 	var out struct {
 		Data struct {
-			ServerName    string `json:"servername"`
-			StateDesc     string `json:"state_desc"`
-			Platform      string `json:"platform"`
+			ServerName string `json:"servername"`
+			StateDesc  string `json:"state_desc"`
+			Platform   string `json:"platform"`
+			DatabaseID int    `json:"database_id"`
+
 			CollationName string `json:"collation_name"`
 		} `json:"data"`
 	}
@@ -42,4 +44,5 @@ func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 	inst.Platform = out.Data.Platform
 	inst.CollationName = out.Data.CollationName
 	inst.Databases = []model.MicrosoftSQLServerDatabase{}
+	inst.DatabaseID = out.Data.DatabaseID
 }

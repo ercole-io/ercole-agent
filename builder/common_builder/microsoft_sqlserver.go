@@ -89,6 +89,7 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 					dbsMap[v.DatabaseName].Tablespaces[i].GrowthUnit = b.GrowthUnit
 					dbsMap[v.DatabaseName].Tablespaces[i].FileType = b.FileType
 					dbsMap[v.DatabaseName].Tablespaces[i].Status = b.Status
+					dbsMap[v.DatabaseName].Tablespaces[i].Filename = b.Filename
 				}
 			}
 		}

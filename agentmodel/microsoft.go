@@ -49,6 +49,7 @@ type DbTablespacesModel struct {
 		Growth     float64 `json:"growth"`
 		GrowthUnit string  `json:"growthUnit"`
 		FileType   string  `json:"fileType"`
+		Filename   string  `json:"file_name"`
 		Status     string  `json:"status"`
 	} `json:"data"`
 }
