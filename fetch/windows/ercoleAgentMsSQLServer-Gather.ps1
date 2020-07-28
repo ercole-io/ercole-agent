@@ -15,8 +15,9 @@
 
 param(
     [Parameter(Mandatory=$false)][string]$instance = $null,
-    [Parameter(Mandatory=$false)][string]$sqlDir ="..\..\sql\mssqlserver",
-    [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "listInstances"
+    [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver",
+    [Parameter(Mandatory=$false)][string]$agentPath = "C:\ErcoleAgent",
+    [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "edition"
 )
 
 
@@ -248,6 +249,16 @@ function executeQueue([System.Collections.ArrayList]$queryList, [System.Collecti
                                 pdatabase_id =  @{name='pdatabase_id'; value=$($dbInfo.database_id); datatype='Int'; size=$null; precision=$null}
                             }	
                             $execResult = getQuery -dbName $($dbInfo.name) -QueryPath $queryPath -Parameters $parameters |ConvertFrom-Json
+                            if ($auxLayout -eq "backup_schedule"){
+                                if ([String]::IsNullOrEmpty($execResult)){
+                                    $execResult = new-object System.Collections.ArrayList;
+                                }
+                                elseif(-not [bool]($execResult.PSobject.Properties.name -match "Count")){
+                                    $oneRow = $execResult
+                                    $execResult = new-object System.Collections.ArrayList;
+                                    $execResult.Add($oneRow) |Out-Null
+                                }
+                            }
                             $jsonbase = @{layout=$auxLayout; database_name=$($dbInfo.name)}
                             $jsonbase.Add("data",$execResult)
                             $resultList.Add($jsonbase) |Out-Null
@@ -267,7 +278,15 @@ function executeQueue([System.Collections.ArrayList]$queryList, [System.Collecti
     $execResult = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Sort-Object -Property DisplayName `
         | Select-Object -Property DisplayName, DisplayVersion, InstallDate `
         | Where-Object {($_.DisplayName -like "Hotfix*SQL*") -or ($_.DisplayName -like "Service Pack*SQL*")} 
-
+    
+    if ([String]::IsNullOrEmpty($execResult)){
+        $execResult = new-object System.Collections.ArrayList;
+    }
+    elseif(-not [bool]($execResult.PSobject.Properties.name -match "Count")){
+        $oneRow = $execResult
+        $execResult = new-object System.Collections.ArrayList;
+        $execResult.Add($oneRow) |Out-Null
+    }
     $jsonbase.Add("data",$execResult)                            
     $jsonbase| ConvertTo-Json -Depth 10
 }
@@ -326,8 +345,7 @@ function listInstances(){
        
 
 function main(){
-    Clear-Host
-     
+    Set-Location $agentPath
     if (-not $sqlDir.ToString().EndsWith("\")){
         $sqlDir = $($sqlDir.ToString()+'\' )
     }

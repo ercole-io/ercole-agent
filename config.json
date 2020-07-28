@@ -39,6 +39,10 @@
         "OracleExadata": {
             "Enabled": false,
             "FetcherUser": ""
+        },
+        "MicrosoftSQLServer": {
+            "Enabled": false,
+            "FetcherUser": ""
         }
     }
 }

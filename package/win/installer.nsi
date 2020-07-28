@@ -24,7 +24,7 @@ Section "MainSection" SEC01
   File "..\..\config.json"
   File /r "..\..\sql"
   SetOutPath "$INSTDIR\fetch"
-  File /r "..\..\fetch\win.ps1"
+  File /r "..\..\fetch\windows"
   SimpleSC::InstallService "ErcoleAgent" "Ercole Agent" "16" "2" "$INSTDIR\ercole-agent.exe" "" "" ""
 SectionEnd
 
