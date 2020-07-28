@@ -16,6 +16,7 @@
 param(
     [Parameter(Mandatory=$false)][string]$instance = $null,
     [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver",
+    [Parameter(Mandatory=$false)][string]$agentPath = "C:\ErcoleAgent",
     [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "edition"
 )
 
@@ -344,6 +345,7 @@ function listInstances(){
        
 
 function main(){
+    Set-Location $agentPath
     if (-not $sqlDir.ToString().EndsWith("\")){
         $sqlDir = $($sqlDir.ToString()+'\' )
     }
