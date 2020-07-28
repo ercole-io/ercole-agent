@@ -39,7 +39,7 @@ param (
 	[Parameter()][int]$v,
 	[Parameter()][string]$t,
 	[Parameter()][string]$oraclepath,
-	[Parameter()][string]$awr,
+	[Parameter()][string]$awr
 )
 
 
