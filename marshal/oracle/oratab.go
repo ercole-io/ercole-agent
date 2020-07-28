@@ -29,10 +29,13 @@ func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
 
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 	for scanner.Scan() {
-		oratabEntry := agentmodel.OratabEntry{}
 		line := scanner.Text()
 		splitted := strings.Split(line, ":")
+		if len(splitted) < 2 {
+			continue
+		}
 
+		oratabEntry := agentmodel.OratabEntry{}
 		oratabEntry.DBName = strings.TrimSpace(splitted[0])
 		oratabEntry.OracleHome = strings.TrimSpace(splitted[1])
 
