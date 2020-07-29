@@ -51,13 +51,17 @@ func (p *program) run() {
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
-	_, err := scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, doBuildAndSend, configuration, p.log)
-
+	_, err := scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, func() {
+		doBuildAndSend(configuration, p.log)
+	})
 	if err != nil {
-		p.log.Fatal("Error sending data", err)
+		p.log.Fatal("Error scheduling Ercole agent", err)
 	}
 
-	scheduler.Start()
+	if err := scheduler.Start(); err != nil {
+		p.log.Fatal("Error starting Ercole agent scheduler", err)
+	}
+
 	scheduler.Wait()
 }
 
