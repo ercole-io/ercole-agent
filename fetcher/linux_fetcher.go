@@ -92,9 +92,7 @@ func (lf *LinuxFetcherImpl) execute(fetcherName string, args ...string) []byte {
 
 	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, args...)
 
-	if len(stdout) > 0 {
-		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
-	}
+	lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
 
 	if len(stderr) > 0 {
 		format := "Fetcher [%s] exitCode: [%v] stderr: [%v]"
@@ -162,8 +160,19 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseOratabEntries() []agentmodel.Oratab
 
 // GetOracleDatabaseRunningDatabases get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() []string {
-	out := lf.execute("oracle_running_databases", lf.configuration.Features.OracleDatabase.Oratab)
-	return strings.Split(strings.TrimSpace(string(out)), "\n")
+	out := lf.execute("oracle_running_databases")
+
+	dbs := strings.Split(string(out), "\n")
+
+	ret := make([]string, 0)
+	for _, db := range dbs {
+		tmp := strings.TrimSpace(db)
+		if len(tmp) > 0 {
+			ret = append(ret, db)
+		}
+	}
+
+	return ret
 }
 
 // GetOracleDatabaseDbStatus get
