@@ -102,16 +102,16 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	sendResult := "FAILED"
 
 	if err != nil {
-		log.Error("Error sending data", err)
+		log.Error("Error sending data: ", err)
 	} else {
-		log.Info("Response status:", resp.Status)
+		log.Info("Response status: ", resp.Status)
 		if resp.StatusCode == 200 {
 			sendResult = "SUCCESS"
 		}
 		defer resp.Body.Close()
 	}
 
-	log.Info("Sending result:", sendResult)
+	log.Info("Sending result: ", sendResult)
 }
 
 func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
