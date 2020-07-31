@@ -182,13 +182,12 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 }
 
 func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
-	dbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
+	stringDbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
 
-	v1, err := version.NewVersion(dbVersion)
+	dbVersion, err := version.NewVersion(stringDbVersion)
 	if err != nil {
 		panic(err)
 	}
-	v2, _ := version.NewVersion("11.2.0.4.0")
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
@@ -204,27 +203,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	database := b.fetcher.GetOracleDatabaseOpenDb(entry)
 	var wg sync.WaitGroup
 
-	if v1.GreaterThanOrEqual(v2) {
-		database.IsCDB = b.fetcher.GetOracleDatabaseCheckPDB(entry)
-
-		if database.IsCDB {
-			database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
-
-			for i := range database.PDBs {
-				var pdbPtr *model.OracleDatabasePluggableDatabase = &database.PDBs[i]
-				utils.RunRoutineInGroup(b.configuration, func() {
-					pdbPtr.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdbPtr.Name)
-				}, &wg)
-
-				utils.RunRoutineInGroup(b.configuration, func() {
-					pdbPtr.Schemas = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdbPtr.Name)
-				}, &wg)
-			}
-		}
-
-	} else {
-		database.IsCDB = false
-	}
+	utils.RunRoutineInGroup(b.configuration, func() {
+		b.setPDBs(&database, *dbVersion, entry)
+	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		database.Tablespaces = b.fetcher.GetOracleDatabaseTablespaces(entry)
@@ -235,19 +216,19 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches = b.fetcher.GetOracleDatabasePatches(entry, dbVersion)
+		database.Patches = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.FeatureUsageStats = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, dbVersion)
+		database.FeatureUsageStats = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, stringDbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.Licenses = b.fetcher.GetOracleDatabaseLicenses(entry, dbVersion, hardwareAbstractionTechnology)
+		database.Licenses = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -259,7 +240,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.PSUs = b.fetcher.GetOracleDatabasePSUs(entry, dbVersion)
+		database.PSUs = b.fetcher.GetOracleDatabasePSUs(entry, stringDbVersion)
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -286,4 +267,36 @@ func (b *CommonBuilder) getDatabasesAndSchemaNames(databases []model.OracleDatab
 	schemasNames = strings.TrimSpace(schemasNames)
 
 	return
+}
+
+func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) {
+	database.PDBs = []model.OracleDatabasePluggableDatabase{}
+
+	v2, _ := version.NewVersion("11.2.0.4.0")
+	if dbVersion.LessThan(v2) {
+		database.IsCDB = false
+		return
+	}
+
+	database.IsCDB = b.fetcher.GetOracleDatabaseCheckPDB(entry)
+
+	if database.IsCDB {
+		database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
+
+		var wg sync.WaitGroup
+
+		for i := range database.PDBs {
+			var pdb *model.OracleDatabasePluggableDatabase = &database.PDBs[i]
+
+			utils.RunRoutineInGroup(b.configuration, func() {
+				pdb.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name)
+			}, &wg)
+
+			utils.RunRoutineInGroup(b.configuration, func() {
+				pdb.Schemas = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
+			}, &wg)
+		}
+
+		wg.Wait()
+	}
 }
