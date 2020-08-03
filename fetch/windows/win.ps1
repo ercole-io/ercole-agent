@@ -38,8 +38,7 @@ param (
 	[Parameter()][string]$d,
 	[Parameter()][int]$v,
 	[Parameter()][string]$t,
-	[Parameter()][string]$oraclepath,
-	[Parameter()][string]$awr
+	[Parameter()][string]$oraclepath
 )
 
 
@@ -193,7 +192,7 @@ function getDb {
 		$env:ORACLE_SID= $dbs.PathName.Split()[1]
 		if (!(Test-Path .\sql\db.sql)) { Write-Warning "file db*.sql unavailable!"; throw }
 		else {
-			$ar = '-silent / as sysdba @".\sql\db.sql" '+$d + ' ' + $awr
+			$ar = '-silent / as sysdba @".\sql\db.sql" '+ $d + ' ' + $awr
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -492,7 +491,7 @@ switch($s.ToUpper()) {
 	"DBVERSION"			{ getVer $d }
 	"STATS"				{ getStats $d }
 	"DBSTATUS"			{ getStatus $d }
-	"DB"				{ getDb $d $awr }
+	"DB"				{ getDb $d $v }
 	"DBMOUNTED"			{ getDbMount $d $v }
 	"TABLESPACE"		{ getDbTbs $d }
 	"SCHEMA"			{ getDbSchema $d }
