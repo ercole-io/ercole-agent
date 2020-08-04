@@ -77,8 +77,11 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, params ...string) []by
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err = cmd.Run()
+
+	wf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(stdout.String()))
+
 	if len(stderr.Bytes()) > 0 {
-		wf.log.Error(string(stderr.Bytes()))
+		wf.log.Error("Fetcher [%s] stderr: [%v]", fetcherName, strings.TrimSpace(stderr.String()))
 	}
 
 	if err != nil {
@@ -162,7 +165,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseOratabEntries() []agentmodel.Orat
 }
 
 // GetOracleDatabaseRunningDatabases get
-func (lf *WindowsFetcherImpl) GetOracleDatabaseRunningDatabases() []string {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseRunningDatabases() []string {
 	return []string{}
 }
 
@@ -191,7 +194,7 @@ func (wf *WindowsFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntr
 
 // GetOracleDatabaseOpenDb get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
-	out := wf.execute("win.ps1", "-s", "db", entry.DBName, entry.OracleHome, strconv.Itoa(wf.configuration.Features.OracleDatabase.AWR))
+	out := wf.execute("win.ps1", "-s", "db", entry.DBName, strconv.Itoa(wf.configuration.Features.OracleDatabase.AWR))
 	return marshal_oracle.Database(out)
 }
 
