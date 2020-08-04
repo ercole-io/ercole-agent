@@ -183,16 +183,21 @@ function getStatus {
 function getDb {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)]$awr
+		[Parameter(Mandatory=$true)][int]$awr
 	)
-	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
+
+	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } }
+	else { Write-Warning "missing arguments"; throw }
+
 	if (!$dbs) { Write "" } #wrong or no instance
 	else {
+		if($awr -le 0){Write-Host "awr must be greater than zero"; throw}
+
 		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
 		$env:ORACLE_SID= $dbs.PathName.Split()[1]
 		if (!(Test-Path .\sql\db.sql)) { Write-Warning "file db*.sql unavailable!"; throw }
 		else {
-			$ar = '-silent / as sysdba @".\sql\db.sql" '+ $d + ' ' + $awr
+			$ar = '-silent / as sysdba @".\sql\db.sql" '+ $awr
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
