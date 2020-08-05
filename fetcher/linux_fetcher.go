@@ -301,6 +301,7 @@ func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInf
 	fetchedClusters := marshal.Clusters(out)
 	for i := range fetchedClusters {
 		fetchedClusters[i].Type = hv.Type
+		fetchedClusters[i].FetchEndpoint = hv.Endpoint
 	}
 
 	return fetchedClusters
