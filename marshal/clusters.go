@@ -30,11 +30,12 @@ func Clusters(cmdOutput []byte) []model.ClusterInfo {
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, ",")
+
+		//Check if the line is not the header line
 		if len(splitted) == 3 && splitted[0] == "Name" && splitted[1] == "NumCPU" && splitted[2] == "NumSockets" {
 			continue
 		}
 
-		//Check if the line is not the header line
 		clusterInfo := model.ClusterInfo{
 			Name: strings.TrimSpace(splitted[0]),
 			CPU:  parseInt(splitted[1]),
