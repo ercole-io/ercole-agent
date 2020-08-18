@@ -16,14 +16,14 @@
 col RECOMMENDATIONS for a300
 col SEGMENT_OWNER for a60
 col TABLESPACE_NAME like SEGMENT_OWNER
-col RECL_GB for 9999999
+col RECL_GB for 9999999.99
 col HOSTNAME for a255
 col SEGMENT_NAME for a82
 col SEGMENT_TYPE like SEGMENT_OWNER
 col PARTITION_NAME like SEGMENT_OWNER
 
 set autoprint on
-set lines 900 pages 50000
+set lines 900 pages 0
 SET FEEDBACK OFF
 set colsep "|||"
 VARIABLE x refcursor;
@@ -71,7 +71,7 @@ IF(v_count > 0 ) THEN
                  SEGMENT_NAME,
                  SEGMENT_TYPE,
                  PARTITION_NAME,
-                 decode(round(RECLAIMABLE_SPACE/1024/1024/1024,0),'0','<1',round(RECLAIMABLE_SPACE/1024/1024/1024,0)) as RECL_GB, 
+                 RECLAIMABLE_SPACE/1024/1024/1024 as RECL_GB,
                  RECOMMENDATIONS
                  FROM TABLE(dbms_space.asa_recommendations())
                  where segment_owner not in ('ANONYMOUS','APEX_030200','APEX_040000','APEX_SSO','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS') 
