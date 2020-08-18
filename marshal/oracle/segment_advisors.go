@@ -29,10 +29,13 @@ func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
 	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
 
 	for scanner.Scan() {
-		segmentadvisor := new(model.OracleDatabaseSegmentAdvisor)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
+
 		if len(splitted) == 8 {
+			segmentadvisor := new(model.OracleDatabaseSegmentAdvisor)
+
 			segmentadvisor.SegmentOwner = strings.TrimSpace(splitted[2])
 			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
 			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
@@ -43,9 +46,5 @@ func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
 		}
 	}
 
-	if len(segmentadvisors) == 0 {
-		return segmentadvisors
-	}
-
-	return segmentadvisors[2:]
+	return segmentadvisors
 }
