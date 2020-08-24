@@ -79,7 +79,8 @@ func OvmVMs(cmdOutput []byte) map[string][]model.VMInfo {
 
 		clusterName := strings.TrimSpace(splitted[0])
 		if clusterName == "" {
-			clusterName = "not_in_cluster"
+			// not_in_cluster vms are ignored
+			continue
 		}
 
 		addVMInfoToClustersMap(vms, clusterName, vm)

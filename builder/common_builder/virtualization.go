@@ -59,14 +59,6 @@ func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 }
 
 func setVMsInClusterInfo(clusters []model.ClusterInfo, clusterMap map[string][]model.VMInfo) []model.ClusterInfo {
-	clusters = append(clusters, model.ClusterInfo{
-		Name:    "not_in_cluster",
-		Type:    "unknown",
-		CPU:     0,
-		Sockets: 0,
-		VMs:     []model.VMInfo{},
-	})
-
 	for i := range clusters {
 		if clusterMap[clusters[i].Name] != nil {
 			clusters[i].VMs = clusterMap[clusters[i].Name]
