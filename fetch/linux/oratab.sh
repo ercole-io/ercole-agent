@@ -24,7 +24,7 @@ fi
 
 if [ ! -r "$ORATAB" ]; then
   >&2 echo "The file $ORATAB doesn't exist or isn't readable"
-  exit 0
+  exit 1
 fi
 
 sed 's/#.*$//' $ORATAB | grep -v "^$" | grep "^\s*[A-Za-z0-9].*\s*\:" || true
