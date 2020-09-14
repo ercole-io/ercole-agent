@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"fmt"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/marshal"
@@ -42,7 +43,16 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			db.Status = strings.TrimSpace(iter())
 			db.Version = strings.TrimSpace(iter())
 			db.Platform = strings.TrimSpace(iter())
-			db.Archivelog = marshal.TrimParseBool(iter())
+
+			archivelog := strings.TrimSpace(iter())
+			if archivelog == "ARCHIVELOG" {
+				db.Archivelog = true
+			} else if archivelog == "NOARCHIVELOG" {
+				db.Archivelog = false
+			} else {
+				panic(fmt.Sprintf("Invalid archivelog value: %s", archivelog))
+			}
+
 			db.Charset = strings.TrimSpace(iter())
 			db.NCharset = strings.TrimSpace(iter())
 			db.BlockSize = marshal.TrimParseInt(iter())
