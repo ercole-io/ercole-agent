@@ -56,14 +56,18 @@ else
   OS=$(grep "^NAME=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
 fi
 
+if [[ -z $OS ]]; then
+  OS="unknown"
+fi
+
 if [[ -f /etc/os-release ]]; then
   OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
-else
-  if [[ -f /etc/redhat-release ]]; then
+elif [[ -f /etc/redhat-release ]]; then
     OS_VERSION=$(cat /etc/redhat-release | rev | cut -d' ' -f2 | rev)
-  else
-    OS=???
-  fi
+fi
+
+if [[ -z $OS_VERSION ]]; then
+  OS_VERSION="unknown"
 fi
 
 
