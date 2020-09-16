@@ -63,7 +63,7 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			db.SGAMaxSize = marshal.TrimParseFloat64(iter())
 			db.SegmentsSize = marshal.TrimParseFloat64(iter())
 			db.DatafileSize = marshal.TrimParseFloat64(iter())
-			db.Allocated = marshal.TrimParseFloat64(iter())
+			db.Allocable = marshal.TrimParseFloat64(iter())
 
 			db.Elapsed = marshal.TrimParseFloat64Pointer(iter(), "N/A")
 			db.DBTime = marshal.TrimParseFloat64Pointer(iter(), "N/A")
