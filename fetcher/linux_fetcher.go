@@ -16,7 +16,9 @@
 package fetcher
 
 import (
+	"encoding/json"
 	"os/user"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -116,6 +118,36 @@ func (lf *LinuxFetcherImpl) execute(fetcherName string, args ...string) []byte {
 	return stdout
 }
 
+// simpleExecute execute the fetcher by /path/to/fetcher
+func (lf *LinuxFetcherImpl) simpleExecute(pathToFetcher string, args []string) []byte {
+	lf.log.Infof("Fetching %s %s", pathToFetcher, strings.Join(args, " "))
+
+	if !filepath.IsAbs(pathToFetcher) {
+		pathToFetcher = filepath.Join(config.GetBaseDir(), pathToFetcher)
+	}
+
+	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, pathToFetcher, args...)
+
+	lf.log.Debugf("Fetcher [%s] stdout: [%v]", pathToFetcher, strings.TrimSpace(string(stdout)))
+
+	if len(stderr) > 0 {
+		format := "Fetcher [%s] exitCode: [%v] stderr: [%v]"
+		args := []interface{}{pathToFetcher, exitCode, strings.TrimSpace(string(stderr))}
+
+		if exitCode == 0 {
+			lf.log.Debugf(format, args...)
+		} else {
+			lf.log.Errorf(format, args...)
+		}
+	}
+
+	if err != nil {
+		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", pathToFetcher, strings.Join(args, " "), err)
+	}
+
+	return stdout
+}
+
 // executePwsh execute pwsh script by name
 func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
 	scriptPath := config.GetBaseDir() + "/fetch/linux/" + fetcherName
@@ -150,6 +182,19 @@ func (lf *LinuxFetcherImpl) GetHost() model.Host {
 func (lf *LinuxFetcherImpl) GetFilesystems() []model.Filesystem {
 	out := lf.execute("filesystem")
 	return marshal.Filesystems(out)
+}
+
+// Unkown/UnkownFeature fetcher
+func (lf *LinuxFetcherImpl) GetFetcherOutputMap(pathToFetcher string, arguments []string) map[string]interface{} {
+	stdout := lf.simpleExecute(pathToFetcher, arguments)
+	var res map[string]interface{}
+
+	err := json.Unmarshal(stdout, &res)
+	if err != nil {
+		lf.log.Fatal(err)
+	}
+
+	return res
 }
 
 // GetOracleDatabaseOratabEntries get

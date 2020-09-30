@@ -108,6 +108,14 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 		hostData.Clusters = b.getClustersInfos()
 	}
+
+	// build data about Unknown/Features
+	if b.configuration.Features.UnknownFeatures.Enabled {
+		b.log.Debugf("Unknown/UnknownFeatures mode enabled")
+		lazyInitUnknownFeature(&hostData.Features)
+
+		hostData.Features.Unknown.UnknownFeatures = b.getUnknownFeatures()
+	}
 }
 
 func (b *CommonBuilder) checksToRunExadata() {
@@ -149,5 +157,11 @@ func lazyInitOracleFeature(fs *model.Features) {
 func lazyInitMicrosoftFeature(fs *model.Features) {
 	if fs.Microsoft == nil {
 		fs.Microsoft = new(model.MicrosoftFeature)
+	}
+}
+
+func lazyInitUnknownFeature(fs *model.Features) {
+	if fs.Unknown == nil {
+		fs.Unknown = new(model.UnknownFeature)
 	}
 }

@@ -121,6 +121,13 @@ func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[strin
 	return make(map[string][]model.VMInfo, 0)
 }
 
+// Unkown/UnkownFeature fetcher
+func (wf *WindowsFetcherImpl) GetFetcherOutputMap(pathToFetcher string, arguments []string) map[string]interface{} {
+	wf.log.Error(notImplementedWindows)
+
+	return nil
+}
+
 // GetOracleExadataComponents get
 func (wf *WindowsFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
 	wf.log.Error(notImplementedWindows)

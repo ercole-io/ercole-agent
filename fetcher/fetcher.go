@@ -35,6 +35,9 @@ type Fetcher interface {
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
 	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
 
+	// Unkown/UnkownFeature fetcher
+	GetFetcherOutputMap(pathToFetcher string, arguments []string) map[string]interface{}
+
 	// Oracle/Database fetchers
 	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
 	GetOracleDatabaseRunningDatabases() []string

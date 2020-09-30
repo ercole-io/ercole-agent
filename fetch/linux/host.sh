@@ -58,6 +58,9 @@ fi
 
 if [[ -f /etc/os-release ]]; then
   OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F\= '{gsub(/"/,"",$2);print $2}')
+  if [[ -z $OS_VERSION ]]; then
+    OS_VERSION="rolling"
+  fi
 else
   if [[ -f /etc/redhat-release ]]; then
     OS_VERSION=$(cat /etc/redhat-release | rev | cut -d' ' -f2 | rev)

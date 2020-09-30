@@ -46,6 +46,7 @@ type Features struct {
 	Virtualization     VirtualizationFeature
 	OracleExadata      OracleExadataFeature
 	MicrosoftSQLServer MicrosoftSQLServerFeature
+	UnknownFeatures    UnknownFeatures
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -84,6 +85,19 @@ type OracleExadataFeature struct {
 type MicrosoftSQLServerFeature struct {
 	Enabled     bool
 	FetcherUser string
+}
+
+// UnknownFeatures holds Unknown/UnknownFeatures params
+type UnknownFeatures struct {
+	Enabled  bool
+	Fetchers []UnknownFeaturesFetcher
+}
+
+// UnknownFeatures holds fetchers of Unknown/UnknownFeatures
+type UnknownFeaturesFetcher struct {
+	FetcherUser string
+	Fetcher     string
+	Arguments   []string
 }
 
 // ReadConfig reads the configuration file from the current dir

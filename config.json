@@ -43,6 +43,16 @@
         "MicrosoftSQLServer": {
             "Enabled": false,
             "FetcherUser": ""
+        },
+        "UnknownFeatures": {
+            "Enabled": false,
+            "Fetchers": [
+                { 
+                    "FetcherUser": "",
+                    "Fetcher": "/path/to/fetcher",
+                    "Arguments": [ "ex" ]
+                }
+            ]
         }
     }
 }
