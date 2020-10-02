@@ -38,8 +38,7 @@ param (
 	[Parameter()][string]$d,
 	[Parameter()][int]$v,
 	[Parameter()][string]$t,
-	[Parameter()][string]$oraclepath,
-	[Parameter()][string]$awr
+	[Parameter()][string]$oraclepath
 )
 
 
@@ -511,7 +510,7 @@ switch($s.ToUpper()) {
 	"DBVERSION"			{ getVer $d }
 	"STATS"				{ getStats $d }
 	"DBSTATUS"			{ getStatus $d }
-	"DB"				{ getDb $d $awr }
+	"DB"				{ getDb $d $v }
 	"DBMOUNTED"			{ getDbMount $d $v }
 	"FEATURE"			{ getDbFeature $d $v }
 	"TABLESPACE"		{ getDbTbs $d }
