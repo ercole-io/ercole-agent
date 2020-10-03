@@ -109,12 +109,12 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Clusters = b.getClustersInfos()
 	}
 
-	// build data about Unknown/Features
-	if b.configuration.Features.UnknownFeatures.Enabled {
-		b.log.Debugf("Unknown/UnknownFeatures mode enabled")
+	// build data about Unknown/CustomData
+	if b.configuration.Features.UnknownCustomData.Enabled {
+		b.log.Debugf("Unknown/CustomData mode enabled")
 		lazyInitUnknownFeature(&hostData.Features)
 
-		hostData.Features.Unknown.UnknownFeatures = b.getUnknownFeatures()
+		hostData.Features.Unknown.CustomData = b.getUnknownCustomData()
 	}
 }
 

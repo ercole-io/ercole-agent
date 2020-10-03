@@ -15,14 +15,14 @@
 
 package common
 
-func (b *CommonBuilder) getUnknownFeatures() []map[string]interface{} {
-	unknownFeatures := make([]map[string]interface{}, len(b.configuration.Features.UnknownFeatures.Fetchers))
+func (b *CommonBuilder) getUnknownCustomData() []map[string]interface{} {
+	unknownCustomData := make([]map[string]interface{}, len(b.configuration.Features.UnknownCustomData.Fetchers))
 
-	for i, f := range b.configuration.Features.UnknownFeatures.Fetchers {
+	for i, f := range b.configuration.Features.UnknownCustomData.Fetchers {
 		b.setOrResetFetcherUser(f.FetcherUser)
 
-		unknownFeatures[i] = b.fetcher.GetFetcherOutputMap(f.Fetcher, f.Arguments)
+		unknownCustomData[i] = b.fetcher.GetFetcherOutputMap(f.Fetcher, f.Arguments)
 	}
 
-	return unknownFeatures
+	return unknownCustomData
 }

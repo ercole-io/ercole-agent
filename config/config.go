@@ -46,7 +46,7 @@ type Features struct {
 	Virtualization     VirtualizationFeature
 	OracleExadata      OracleExadataFeature
 	MicrosoftSQLServer MicrosoftSQLServerFeature
-	UnknownFeatures    UnknownFeatures
+	UnknownCustomData  UnknownCustomDataFeature
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -87,14 +87,14 @@ type MicrosoftSQLServerFeature struct {
 	FetcherUser string
 }
 
-// UnknownFeatures holds Unknown/UnknownFeatures params
-type UnknownFeatures struct {
+// UnknownCustomDataFeature holds Unknown/CustomData params
+type UnknownCustomDataFeature struct {
 	Enabled  bool
-	Fetchers []UnknownFeaturesFetcher
+	Fetchers []UnknownCustomDataFetcher
 }
 
-// UnknownFeatures holds fetchers of Unknown/UnknownFeatures
-type UnknownFeaturesFetcher struct {
+// UnknownCustomDataFetcher holds fetchers of Unknown/CustomData
+type UnknownCustomDataFetcher struct {
 	FetcherUser string
 	Fetcher     string
 	Arguments   []string
