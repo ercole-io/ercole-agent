@@ -28,7 +28,7 @@ func BuildData(configuration config.Configuration, version string, hostDataSchem
 	}
 
 	hostData.Extra.Filesystems = getFilesystems(configuration)
-	hostData.Extra.Databases = getDatabases(configuration, hostData.Info.Type)
+	hostData.Extra.Databases = getDatabases(configuration, hostData.Info)
 
 	hostData.Databases, hostData.Schemas = getDatabasesAndSchemaNames(hostData.Extra.Databases)
 
@@ -50,7 +50,7 @@ func getFilesystems(configuration config.Configuration) []model.Filesystem {
 	return marshal.Filesystems(out)
 }
 
-func getDatabases(configuration config.Configuration, hostType string) []model.Database {
+func getDatabases(configuration config.Configuration, host model.Host) []model.Database {
 	out := fetcher(configuration, "oratab", configuration.Oratab)
 	oratabEntries := marshal.Oratab(out)
 
@@ -60,7 +60,7 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 		entry := oratabEntries[i]
 
 		utils.RunRoutine(configuration, func() {
-			databaseChannel <- getDatabase(configuration, entry, hostType)
+			databaseChannel <- getDatabase(configuration, entry, host)
 		})
 	}
 
@@ -75,7 +75,7 @@ func getDatabases(configuration config.Configuration, hostType string) []model.D
 	return databases
 }
 
-func getDatabase(configuration config.Configuration, entry model.OratabEntry, hostType string) *model.Database {
+func getDatabase(configuration config.Configuration, entry model.OratabEntry, host model.Host) *model.Database {
 	dbStatusOut := fetcher(configuration, "dbstatus", entry.DBName, entry.OracleHome)
 	dbStatus := strings.TrimSpace(string(dbStatusOut))
 
@@ -83,7 +83,8 @@ func getDatabase(configuration config.Configuration, entry model.OratabEntry, ho
 
 	switch dbStatus {
 	case "OPEN":
-		database = getOpenDatabase(configuration, entry, hostType)
+		database = getOpenDatabase(configuration, entry, host.Type)
+
 	case "MOUNTED":
 		{
 			out := fetcher(configuration, "dbmounted", entry.DBName, entry.OracleHome)
@@ -99,7 +100,14 @@ func getDatabase(configuration config.Configuration, entry model.OratabEntry, ho
 			database.SegmentAdvisors = []model.SegmentAdvisor{}
 			database.LastPSUs = []model.PSU{}
 			database.Backups = []model.Backup{}
+
+			dbEdition := computeDBEdition(database.Version)
+
+			coreFactor := computeCoreFactor(host, dbEdition)
+
+			database.Licenses = computeLicenses(dbEdition, coreFactor)
 		}
+
 	default:
 		log.Println("Error! DBName: [" + entry.DBName + "] OracleHome: [" + entry.OracleHome + "]  Wrong dbStatus: [" + dbStatus + "]")
 		return nil
@@ -207,4 +215,77 @@ func getDatabasesAndSchemaNames(databases []model.Database) (databasesNames, sch
 	schemasNames = strings.TrimSpace(schemasNames)
 
 	return
+}
+
+func computeDBEdition(version string) (dbEdition string) {
+	if strings.Contains(strings.ToUpper(version), "ENTERPRISE") {
+		dbEdition = "ENT"
+	} else if strings.Contains(strings.ToUpper(version), "EXTREME") {
+		dbEdition = "EXE"
+	} else {
+		dbEdition = "STD"
+	}
+
+	return
+}
+
+func computeCoreFactor(host model.Host, dbEdition string) float32 {
+	coreFactor := float32(-1)
+	if host.Type == "OVM" || host.Type == "VMWARE" || host.Type == "VMOTHER" {
+		if dbEdition == "EXE" || dbEdition == "ENT" {
+			coreFactor = float32(host.CPUCores) * 0.25
+		} else if dbEdition == "STD" {
+			coreFactor = 0
+		}
+	} else if host.Type == "PH" {
+		if dbEdition == "EXE" || dbEdition == "ENT" {
+			coreFactor = float32(host.CPUCores) * 0.25
+		} else if dbEdition == "STD" {
+			coreFactor = float32(host.Socket)
+		}
+	}
+
+	return coreFactor
+}
+
+func computeLicenses(dbEdition string, coreFactor float32) []model.License {
+	licenses := make([]model.License, 0)
+
+	if dbEdition == "EXE" {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle EXE",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle EXE",
+			Count: 0,
+		})
+	}
+
+	if dbEdition == "ENT" {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle ENT",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle ENT",
+			Count: 0,
+		})
+	}
+
+	if dbEdition == "STD" {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle STD",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.License{
+			Name:  "Oracle STD",
+			Count: 0,
+		})
+	}
+
+	return licenses
 }
