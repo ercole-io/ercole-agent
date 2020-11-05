@@ -15,12 +15,11 @@
 
 set lines 32767 pages 0 feedback off verify off
 set colsep "|||"
-col owner for a30
-col Nome_Acronimo for a8
-col segment_name for a60
 
 select 
 (select value from v$parameter where name='db_name') as Nome_DB,
+(SELECT dbid FROM v$database) AS DBID,
+(SELECT DATABASE_ROLE FROM v$database) AS DBROLE,
 (select db_unique_name from v$database) as DB_Unique_name,
 (select instance_number from v$instance) as Instance_number,
 (select instance_name from v$instance) AS Instance_name,
@@ -36,16 +35,7 @@ select
 (select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='pga_aggregate_target') as Pga_Target,
 (select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='memory_target') as Pga_Target,
 (select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$parameter where name='sga_max_size') as sga_max_size,
---(select round(sum(bytes/1024/1024/1024)) from dba_segments),
-'0',
---((select round(sum(bytes/1024/1024/1024)) from v$datafile)+(select round(sum(bytes/1024/1024/1024)) from v$tempfile)+(select round(sum(bytes/1024/1024/1024)) from v$log)),
-'0',
---((select round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024))) from v$datafile)+(select round(sum(bytes/1024/1024/1024)) from v$tempfile)+(select round(sum(bytes/1024/1024/1024)) from v$log)),
-'0',
---(SELECT replace(replace(output,'Elapsed:',''),chr(32), '') FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <20 and output like '%Elapsed: %'),
---(SELECT replace(replace(output,'DB Time:',''),chr(32), '') FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0)) where rownum <20 and output like '%DB Time: %'),
---:elapsed,:dbtime,(select :result from dual),
-'0','0','0','0',
+'0','0','0','0','0','0','0',
 (select case when (select count(*) from v$datafile where name like '+%') > 0 then 'Y' else 'N' end as "ASM" from dual ),
 case when ( select count(*) from V$DATAGUARD_CONFIG) > 1 then 'Y' else 'N' end  as "Dataguard"
 from dual;
