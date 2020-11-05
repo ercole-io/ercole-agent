@@ -13,8 +13,10 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set lines 32767 pages 0 feedback off verify off
-set colsep "|||"
+--set lines 32767 pages 0 feedback off verify off
+--set colsep "|||"
+
+set lines 100 verify off
 
 VARIABLE dbid NUMBER;
 VARIABLE inst_num NUMBER;
@@ -133,6 +135,10 @@ SELECT
   (SELECT value
    FROM v$parameter
    WHERE name='db_name') AS Nome_DB,
+  (SELECT dbid
+   FROM v$database) AS DBID,
+  (SELECT DATABASE_ROLE
+   FROM v$database) AS DBROLE,
   (SELECT db_unique_name
    FROM v$database) AS DB_Unique_name,
   (SELECT instance_number
@@ -224,4 +230,4 @@ SELECT
                END AS "Dataguard"
 FROM dual;
 
-exit
+--exit
