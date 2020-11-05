@@ -13,10 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---set lines 32767 pages 0 feedback off verify off
---set colsep "|||"
-
-set lines 100 verify off
+set lines 32767 pages 0 feedback off verify off
+set colsep "|||"
 
 VARIABLE dbid NUMBER;
 VARIABLE inst_num NUMBER;
@@ -30,6 +28,7 @@ VARIABLE result varchar2(100);
 VARIABLE esclusion varchar2(100);
 VARIABLE CPUbid NUMBER;
 VARIABLE CPUeid NUMBER;
+VARIABLE version varchar2(100);
 
 BEGIN
 
@@ -37,6 +36,14 @@ SELECT 'N/A' into :elapsed from dual;
 SELECT 'N/A' into :dbtime from dual;
 SELECT 'N/A' into :result from dual;
 SELECT 'N/A' into :cputime from dual;
+
+SELECT (CASE
+            WHEN UPPER(banner) LIKE '%EXTREME%' THEN 'EXE'
+            WHEN UPPER(banner) LIKE '%ENTERPRISE%' THEN 'ENT'
+            ELSE 'STD'
+        END) AS versione into :version
+FROM v$version
+WHERE rownum=1;
 
 WITH strtime AS
   (SELECT max(startup_time) AS DATA,
@@ -81,7 +88,7 @@ IF(:esclusion ='DB01' or :esclusion ='DB02') THEN
 	:count_usage := 0;
 END IF;
 
-IF (:count_usage > 0) THEN
+IF (:count_usage > 0 AND :version ='ENT') THEN
    	WITH awrr AS
 	  (SELECT *
 	   FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0))
@@ -230,4 +237,4 @@ SELECT
                END AS "Dataguard"
 FROM dual;
 
---exit
+exit
