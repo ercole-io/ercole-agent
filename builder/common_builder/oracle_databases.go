@@ -101,7 +101,6 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 			database.Tablespaces = []model.OracleDatabaseTablespace{}
 			database.Schemas = []model.OracleDatabaseSchema{}
 			database.Patches = []model.OracleDatabasePatch{}
-			database.Licenses = []model.OracleDatabaseLicense{}
 			database.ADDMs = []model.OracleDatabaseAddm{}
 			database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
 			database.PSUs = []model.OracleDatabasePSU{}
@@ -110,67 +109,9 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 			database.Services = []model.OracleDatabaseService{}
 			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
-			// compute db edition
-			var dbEdition string
-			if strings.Contains(strings.ToUpper(database.Version), "ENTERPRISE") {
-				dbEdition = "ENT"
-			} else if strings.Contains(strings.ToUpper(database.Version), "EXTREME") {
-				dbEdition = "EXE"
-			} else {
-				dbEdition = "STD"
-			}
-
-			// compute coreFactor/factor
-			coreFactor := float64(-1)
-			if hardwareAbstractionTechnology == "OVM" || hardwareAbstractionTechnology == "VMWARE" || hardwareAbstractionTechnology == "VMOTHER" {
-				if dbEdition == "EXE" || dbEdition == "ENT" {
-					coreFactor = float64(cpuCores) * 0.25
-				} else if dbEdition == "STD" {
-					coreFactor = 0
-				}
-			} else if hardwareAbstractionTechnology == "PH" {
-				if dbEdition == "EXE" || dbEdition == "ENT" {
-					coreFactor = float64(cpuCores) * 0.25
-				} else if dbEdition == "STD" {
-					coreFactor = float64(cpuSockets)
-				}
-			}
-
-			if dbEdition == "EXE" {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle EXE",
-					Count: coreFactor,
-				})
-			} else {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle EXE",
-					Count: 0,
-				})
-			}
-
-			if dbEdition == "ENT" {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle ENT",
-					Count: coreFactor,
-				})
-			} else {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle ENT",
-					Count: 0,
-				})
-			}
-
-			if dbEdition == "STD" {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle STD",
-					Count: coreFactor,
-				})
-			} else {
-				database.Licenses = append(database.Licenses, model.OracleDatabaseLicense{
-					Name:  "Oracle STD",
-					Count: 0,
-				})
-			}
+			dbEdition := computeDBEdition(database.Version)
+			coreFactor := computeCoreFactor(cpuCores, cpuSockets, hardwareAbstractionTechnology, dbEdition)
+			database.Licenses = computeLicenses(dbEdition, coreFactor)
 		}
 	default:
 		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -299,4 +240,77 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 		wg.Wait()
 	}
+}
+
+func computeDBEdition(version string) (dbEdition string) {
+	if strings.Contains(strings.ToUpper(version), "ENTERPRISE") {
+		dbEdition = "ENT"
+	} else if strings.Contains(strings.ToUpper(version), "EXTREME") {
+		dbEdition = "EXE"
+	} else {
+		dbEdition = "STD"
+	}
+
+	return
+}
+
+func computeCoreFactor(cpuCores, cpuSockets int, hardwareAbstractionTechnology, dbEdition string) float64 {
+	coreFactor := float64(-1)
+	if hardwareAbstractionTechnology == "OVM" || hardwareAbstractionTechnology == "VMWARE" || hardwareAbstractionTechnology == "VMOTHER" {
+		if dbEdition == "EXE" || dbEdition == "ENT" {
+			coreFactor = float64(cpuCores) * 0.25
+		} else if dbEdition == "STD" {
+			coreFactor = 0
+		}
+	} else if hardwareAbstractionTechnology == "PH" {
+		if dbEdition == "EXE" || dbEdition == "ENT" {
+			coreFactor = float64(cpuCores) * 0.25
+		} else if dbEdition == "STD" {
+			coreFactor = float64(cpuSockets)
+		}
+	}
+
+	return coreFactor
+}
+
+func computeLicenses(dbEdition string, coreFactor float64) []model.OracleDatabaseLicense {
+	licenses := make([]model.OracleDatabaseLicense, 0)
+
+	if dbEdition == "EXE" {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle EXE",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle EXE",
+			Count: 0,
+		})
+	}
+
+	if dbEdition == "ENT" {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle ENT",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle ENT",
+			Count: 0,
+		})
+	}
+
+	if dbEdition == "STD" {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle STD",
+			Count: coreFactor,
+		})
+	} else {
+		licenses = append(licenses, model.OracleDatabaseLicense{
+			Name:  "Oracle STD",
+			Count: 0,
+		})
+	}
+
+	return licenses
 }
