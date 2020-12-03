@@ -106,6 +106,17 @@ func TrimParseInt64(s string) int64 {
 	return val
 }
 
+func TrimParseUint(s string) uint {
+	s = strings.TrimSpace(s)
+
+	val, err := strconv.ParseUint(s, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return uint(val)
+}
+
 func TrimParseFloat64(s string) float64 {
 	s = strings.TrimSpace(s)
 
