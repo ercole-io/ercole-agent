@@ -28,6 +28,7 @@ VARIABLE result varchar2(100);
 VARIABLE esclusion varchar2(100);
 VARIABLE CPUbid NUMBER;
 VARIABLE CPUeid NUMBER;
+VARIABLE version varchar2(100);
 
 BEGIN
 
@@ -35,6 +36,14 @@ SELECT 'N/A' into :elapsed from dual;
 SELECT 'N/A' into :dbtime from dual;
 SELECT 'N/A' into :result from dual;
 SELECT 'N/A' into :cputime from dual;
+
+SELECT (CASE
+            WHEN UPPER(banner) LIKE '%EXTREME%' THEN 'EXE'
+            WHEN UPPER(banner) LIKE '%ENTERPRISE%' THEN 'ENT'
+            ELSE 'STD'
+        END) AS versione into :version
+FROM v$version
+WHERE rownum=1;
 
 WITH strtime AS
   (SELECT max(startup_time) AS DATA,
@@ -79,7 +88,7 @@ IF(:esclusion ='DB01' or :esclusion ='DB02') THEN
 	:count_usage := 0;
 END IF;
 
-IF (:count_usage > 0) THEN
+IF (:count_usage > 0 AND :version ='ENT') THEN
    	WITH awrr AS
 	  (SELECT *
 	   FROM TABLE (DBMS_WORKLOAD_REPOSITORY.awr_report_text (:dbid, :inst_num, :bid, :eid, 0))
@@ -133,6 +142,10 @@ SELECT
   (SELECT value
    FROM v$parameter
    WHERE name='db_name') AS Nome_DB,
+  (SELECT dbid
+   FROM v$database) AS DBID,
+  (SELECT DATABASE_ROLE
+   FROM v$database) AS DBROLE,
   (SELECT db_unique_name
    FROM v$database) AS DB_Unique_name,
   (SELECT instance_number

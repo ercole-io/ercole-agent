@@ -33,10 +33,12 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 25 {
+		if len(splitted) == 27 {
 			iter := marshal.NewIter(splitted)
 
 			db.Name = strings.TrimSpace(iter())
+			db.DbID = marshal.TrimParseUint(iter())
+			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
 			db.InstanceNumber = marshal.TrimParseInt(iter())
 			db.InstanceName = strings.TrimSpace(iter())
