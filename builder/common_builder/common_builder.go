@@ -75,11 +75,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
 
 		lazyInitOracleFeature(&hostData.Features)
-		hostData.Features.Oracle.Database = b.getOracleDatabaseFeature(
-			hostData.Info.HardwareAbstractionTechnology,
-			hostData.Info.CPUCores,
-			hostData.Info.CPUSockets,
-		)
+		hostData.Features.Oracle.Database = b.getOracleDatabaseFeature(hostData.Info)
 	}
 
 	// build data about Oracle/Exadata
