@@ -18,7 +18,6 @@ package common
 import (
 	"context"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/agentmodel"
@@ -27,13 +26,9 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-func (b *CommonBuilder) getOracleDatabaseFeature(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) *model.OracleDatabaseFeature {
+func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) *model.OracleDatabaseFeature {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
-	oracleDatabaseFeature.Databases = b.getOracleDBs(
-		hardwareAbstractionTechnology,
-		cpuCores,
-		cpuSockets,
-	)
+	oracleDatabaseFeature.Databases = b.getOracleDBs(host)
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oracleDatabaseFeature.Databases)
 
 	return oracleDatabaseFeature
@@ -60,7 +55,7 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleData
 	return unlistedRunningDBs
 }
 
-func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCores int, cpuSockets int) []model.OracleDatabase {
+func (b *CommonBuilder) getOracleDBs(host model.Host) []model.OracleDatabase {
 	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
 
 	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
@@ -71,7 +66,7 @@ func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCo
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
 
-			databaseChannel <- b.getOracleDB(entry, hardwareAbstractionTechnology, cpuCores, cpuSockets)
+			databaseChannel <- b.getOracleDB(entry, host)
 		})
 	}
 
@@ -86,13 +81,13 @@ func (b *CommonBuilder) getOracleDBs(hardwareAbstractionTechnology string, cpuCo
 	return databases
 }
 
-func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string, cpuCores, cpuSockets int) *model.OracleDatabase {
+func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) *model.OracleDatabase {
 	dbStatus := b.fetcher.GetOracleDatabaseDbStatus(entry)
 	var database *model.OracleDatabase
 
 	switch dbStatus {
 	case "OPEN":
-		database = b.getOpenDatabase(entry, hardwareAbstractionTechnology)
+		database = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
 	case "MOUNTED":
 		{
 			db := b.fetcher.GetOracleDatabaseMountedDb(entry)
@@ -109,9 +104,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, hardwareAbstra
 			database.Services = []model.OracleDatabaseService{}
 			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
-			dbEdition := computeDBEdition(database.Version)
-			coreFactor := computeCoreFactor(cpuCores, cpuSockets, hardwareAbstractionTechnology, dbEdition)
-			database.Licenses = computeLicenses(dbEdition, coreFactor)
+			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host))
 		}
 	default:
 		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -195,21 +188,6 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	return &database
 }
 
-func (b *CommonBuilder) getDatabasesAndSchemaNames(databases []model.OracleDatabase) (databasesNames, schemasNames string) {
-	for _, db := range databases {
-		databasesNames += db.Name + " "
-
-		for _, sc := range db.Schemas {
-			schemasNames += sc.User + " "
-		}
-	}
-
-	databasesNames = strings.TrimSpace(databasesNames)
-	schemasNames = strings.TrimSpace(schemasNames)
-
-	return
-}
-
 func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) {
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 
@@ -240,37 +218,6 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 		wg.Wait()
 	}
-}
-
-func computeDBEdition(version string) (dbEdition string) {
-	if strings.Contains(strings.ToUpper(version), "ENTERPRISE") {
-		dbEdition = "ENT"
-	} else if strings.Contains(strings.ToUpper(version), "EXTREME") {
-		dbEdition = "EXE"
-	} else {
-		dbEdition = "STD"
-	}
-
-	return
-}
-
-func computeCoreFactor(cpuCores, cpuSockets int, hardwareAbstractionTechnology, dbEdition string) float64 {
-	coreFactor := float64(-1)
-	if hardwareAbstractionTechnology == "OVM" || hardwareAbstractionTechnology == "VMWARE" || hardwareAbstractionTechnology == "VMOTHER" {
-		if dbEdition == "EXE" || dbEdition == "ENT" {
-			coreFactor = float64(cpuCores) * 0.25
-		} else if dbEdition == "STD" {
-			coreFactor = 0
-		}
-	} else if hardwareAbstractionTechnology == "PH" {
-		if dbEdition == "EXE" || dbEdition == "ENT" {
-			coreFactor = float64(cpuCores) * 0.25
-		} else if dbEdition == "STD" {
-			coreFactor = float64(cpuSockets)
-		}
-	}
-
-	return coreFactor
 }
 
 func computeLicenses(dbEdition string, coreFactor float64) []model.OracleDatabaseLicense {
