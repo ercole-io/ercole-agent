@@ -104,7 +104,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			database.Services = []model.OracleDatabaseService{}
 			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
-			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host))
+			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host), host.CPUCores)
 		}
 	default:
 		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -220,13 +220,14 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	}
 }
 
-func computeLicenses(dbEdition string, coreFactor float64) []model.OracleDatabaseLicense {
+func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model.OracleDatabaseLicense {
 	licenses := make([]model.OracleDatabaseLicense, 0)
+	numLicenses := coreFactor * float64(cpuCores)
 
 	if dbEdition == "EXE" {
 		licenses = append(licenses, model.OracleDatabaseLicense{
 			Name:  "Oracle EXE",
-			Count: coreFactor,
+			Count: numLicenses,
 		})
 	} else {
 		licenses = append(licenses, model.OracleDatabaseLicense{
@@ -238,7 +239,7 @@ func computeLicenses(dbEdition string, coreFactor float64) []model.OracleDatabas
 	if dbEdition == "ENT" {
 		licenses = append(licenses, model.OracleDatabaseLicense{
 			Name:  "Oracle ENT",
-			Count: coreFactor,
+			Count: numLicenses,
 		})
 	} else {
 		licenses = append(licenses, model.OracleDatabaseLicense{
@@ -250,7 +251,7 @@ func computeLicenses(dbEdition string, coreFactor float64) []model.OracleDatabas
 	if dbEdition == "STD" {
 		licenses = append(licenses, model.OracleDatabaseLicense{
 			Name:  "Oracle STD",
-			Count: coreFactor,
+			Count: numLicenses,
 		})
 	} else {
 		licenses = append(licenses, model.OracleDatabaseLicense{
