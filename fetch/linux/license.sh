@@ -71,46 +71,46 @@ exit
 EOF
 )
 
-LICENSING_CPU_CORES=$(grep processor /proc/cpuinfo | wc -l)
+CPU_THREADS=$(grep processor /proc/cpuinfo | wc -l)
 
 if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' ]]; then
   if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-    CORE_FACTOR=$(echo 0.25*$LICENSING_CPU_CORES|bc)
+    LICENSES=$(echo 0.25*$CPU_THREADS|bc)
     FACTOR=0.25
   elif [[ $DB_VERSION == 'STD' ]]; then
-    CORE_FACTOR=0
+    LICENSES=0
     FACTOR=0
   fi
 elif [ $TYPE == 'PH' ]; then
   if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-    CORE_FACTOR=$(echo 0.25*$LICENSING_CPU_CORES|bc)
+    LICENSES=$(echo 0.25*$CPU_THREADS|bc)
     FACTOR=0.25
   elif [[ $DB_VERSION == 'STD' ]]; then
-    CORE_FACTOR=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
+    LICENSES=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
     FACTOR=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
   fi
 fi
 
 if [[ $DB_VERSION == 'EXE' ]]; then
-  echo "Oracle EXE; $CORE_FACTOR;"
+  echo "Oracle EXE; $LICENSES;"
 else
   echo "Oracle EXE;;"
 fi
 if [[ $DB_VERSION == 'ENT' ]]; then
-  echo "Oracle ENT; $CORE_FACTOR;"
+  echo "Oracle ENT; $LICENSES;"
 else
   echo "Oracle ENT;;"
 fi
 if [[ $DB_VERSION == 'STD' ]]; then
-  echo "Oracle STD; $CORE_FACTOR;"
+  echo "Oracle STD; $LICENSES;"
 else
   echo "Oracle STD;;"
 fi
 
 
 if [ $DBV == "10" ] ||  [ $DBV == "9" ]; then
-  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $LICENSING_CPU_CORES $FACTOR
+  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS $FACTOR
 else
-  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $LICENSING_CPU_CORES $FACTOR $DB_ONE
+  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS $FACTOR $DB_ONE
 fi
 
