@@ -24,12 +24,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/ercole-io/ercole-agent/builder"
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/scheduler"
-	"github.com/ercole-io/ercole-agent/scheduler/storage"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/builder"
+	"github.com/ercole-io/ercole-agent/v2/config"
+	"github.com/ercole-io/ercole-agent/v2/logger"
+	"github.com/ercole-io/ercole-agent/v2/scheduler"
+	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 var version = "latest"

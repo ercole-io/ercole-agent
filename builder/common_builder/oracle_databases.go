@@ -20,9 +20,9 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
-	"github.com/ercole-io/ercole-agent/utils"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	"github.com/ercole-io/ercole-agent/v2/utils"
+	"github.com/ercole-io/ercole/v2/model"
 	"github.com/hashicorp/go-version"
 )
 

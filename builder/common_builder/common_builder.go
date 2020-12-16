@@ -19,11 +19,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/fetcher"
-	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/utils"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/config"
+	"github.com/ercole-io/ercole-agent/v2/fetcher"
+	"github.com/ercole-io/ercole-agent/v2/logger"
+	"github.com/ercole-io/ercole-agent/v2/utils"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // CommonBuilder for Linux and Windows hosts

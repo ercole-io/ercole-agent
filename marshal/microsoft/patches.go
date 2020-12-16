@@ -18,7 +18,7 @@ package oracle
 import (
 	"encoding/json"
 
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // Patches marshals -action patches output

@@ -15,7 +15,7 @@
 
 package marshal
 
-import "github.com/ercole-io/ercole/model"
+import "github.com/ercole-io/ercole/v2/model"
 
 // ClusterMembershipStatus returns this struct filled from the output of the script
 func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {

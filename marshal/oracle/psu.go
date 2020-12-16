@@ -19,7 +19,7 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // PSU returns informations about PSU parsed from fetcher command output.

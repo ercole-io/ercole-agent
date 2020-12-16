@@ -18,7 +18,7 @@ package oracle
 import (
 	"encoding/json"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 )
 
 // ListInstances marshals -action listInstances output

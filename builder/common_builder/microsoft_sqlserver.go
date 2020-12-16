@@ -18,8 +18,8 @@ package common
 import (
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 func (b *CommonBuilder) getMicrosoftSQLServerFeature() *model.MicrosoftSQLServerFeature {

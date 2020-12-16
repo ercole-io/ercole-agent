@@ -18,7 +18,7 @@ package utils
 import (
 	"sync"
 
-	"github.com/ercole-io/ercole-agent/config"
+	"github.com/ercole-io/ercole-agent/v2/config"
 )
 
 // RunRoutine will run function in a separeted goroutine and wait or not due to config.

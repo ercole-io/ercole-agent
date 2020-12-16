@@ -19,7 +19,7 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // VmwareVMs returns a list of VMs entries extracted

@@ -1,9 +1,9 @@
-module github.com/ercole-io/ercole-agent
+module github.com/ercole-io/ercole-agent/v2
 
 go 1.14
 
 require (
-	github.com/ercole-io/ercole v0.0.0-20201211174410-7d6acd53382b
+	github.com/ercole-io/ercole/v2 v2.0.0
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/go-version v1.2.1
 	github.com/kardianos/service v1.2.0

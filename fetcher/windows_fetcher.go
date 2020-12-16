@@ -22,13 +22,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
-	"github.com/ercole-io/ercole-agent/config"
-	"github.com/ercole-io/ercole-agent/logger"
-	"github.com/ercole-io/ercole-agent/marshal"
-	marshal_microsoft "github.com/ercole-io/ercole-agent/marshal/microsoft"
-	marshal_oracle "github.com/ercole-io/ercole-agent/marshal/oracle"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	"github.com/ercole-io/ercole-agent/v2/config"
+	"github.com/ercole-io/ercole-agent/v2/logger"
+	"github.com/ercole-io/ercole-agent/v2/marshal"
+	marshal_microsoft "github.com/ercole-io/ercole-agent/v2/marshal/microsoft"
+	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // WindowsFetcherImpl SpecializedFetcher implementation for windows

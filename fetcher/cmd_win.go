@@ -20,7 +20,7 @@ package fetcher
 import (
 	"fmt"
 
-	"github.com/ercole-io/ercole-agent/logger"
+	"github.com/ercole-io/ercole-agent/v2/logger"
 )
 
 // RunCommandAs utility
