@@ -37,7 +37,8 @@ install:
 script:
   - GOOS=$GOOS2 go build -ldflags="-X main.version=${VERSION}" -o ${BIN}
 
-  - go test ./...
+  - go generate -v ./...
+  - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
@@ -60,8 +61,6 @@ script:
   - if [ $DIST_FAMILY == "WIN" ]; then md5sum ercole-agent.exe; fi
   - if [ $DIST_FAMILY == "WIN" ]; then file ercole-agent.exe; fi
   - if [ $DIST_FAMILY == "WIN" ]; then cp ercole-agent-setup-${VERSION}.exe dist/; fi
-
-  - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
