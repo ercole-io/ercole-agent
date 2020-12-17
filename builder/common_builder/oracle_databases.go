@@ -28,23 +28,24 @@ import (
 
 func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) *model.OracleDatabaseFeature {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
-	oracleDatabaseFeature.Databases = b.getOracleDBs(host)
-	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oracleDatabaseFeature.Databases)
+
+	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
+	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
+
+	oracleDatabaseFeature.Databases = b.getOracleDBs(oratabEntries, host)
 
 	return oracleDatabaseFeature
 }
 
-func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleDatabase) []string {
+func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []agentmodel.OratabEntry) []string {
 	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
 
-	// copy listedDBs names to listedDBNames
 	listedDBNames := make([]string, len(listedDBs))
-	for i, s := range listedDBs {
-		listedDBNames[i] = s.Name
+	for i, db := range listedDBs {
+		listedDBNames[i] = db.DBName
 	}
 	sort.Strings(listedDBNames)
 
-	// make the subtraction
 	unlistedRunningDBs := make([]string, 0)
 	for _, r := range runningDBs {
 		if len(listedDBNames) == sort.SearchStrings(listedDBNames, r) {
@@ -55,8 +56,7 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []model.OracleData
 	return unlistedRunningDBs
 }
 
-func (b *CommonBuilder) getOracleDBs(host model.Host) []model.OracleDatabase {
-	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
+func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) []model.OracleDatabase {
 
 	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
 
@@ -107,7 +107,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host), host.CPUCores)
 		}
 	default:
-		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+		b.log.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil
 	}
