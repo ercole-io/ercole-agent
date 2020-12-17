@@ -21,7 +21,7 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/ercole-io/ercole-agent/logger"
+	"github.com/ercole-io/ercole-agent/v2/logger"
 )
 
 // runCommandAs utility

@@ -18,7 +18,7 @@ package oracle
 import (
 	"encoding/json"
 
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // Features marshals -action features output

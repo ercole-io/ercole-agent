@@ -19,8 +19,8 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/marshal"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/marshal"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.

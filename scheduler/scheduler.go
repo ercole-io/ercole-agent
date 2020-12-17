@@ -24,8 +24,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ercole-io/ercole-agent/scheduler/storage"
-	"github.com/ercole-io/ercole-agent/scheduler/task"
+	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
+	"github.com/ercole-io/ercole-agent/v2/scheduler/task"
 )
 
 // Scheduler is used to schedule tasks. It holds information about those tasks

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/marshal"
-	"github.com/ercole-io/ercole/model"
+	"github.com/ercole-io/ercole-agent/v2/marshal"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // Database returns information about database extracted

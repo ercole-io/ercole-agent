@@ -19,7 +19,7 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/ercole-io/ercole-agent/agentmodel"
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 )
 
 // Oratab marshals a list of dbs (one per line) from the oratab command
