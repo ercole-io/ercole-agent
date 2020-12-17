@@ -5,3 +5,6 @@ build
 with.lst
 .vscode
 main
+
+# Mocks
+fake_*_test.go

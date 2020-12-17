@@ -8,6 +8,9 @@ default: ercole-agent
 
 clean:
 	rm -rf ercole-agent build ercole-agent.exe *.exe
+	find . -name "fake_*_test.go" -exec rm "{}" \;
+	go generate ./...
+	go clean -testcache
 
 ercole-agent:
 	GO111MODULE=on CGO_ENABLED=0 go build -o ercole-agent -a

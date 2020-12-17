@@ -31,13 +31,15 @@ before_install:
   - echo ${VERSION}
 
 install:
+  - go get github.com/golang/mock/mockgen@latest
   - docker run -d --rm -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name package_builder ${PACKAGE_BUILD_IMAGE} /bin/cat
   - if [ $DIST == "rhel5" ]; then docker exec -it package_builder /bin/sh -c "cd ${WORKSPACE} && echo '%_topdir %(echo \$HOME)/rpmbuild' > ~/.rpmmacros"; fi
 
 script:
-  - GOOS=$GOOS2 go build -ldflags="-X main.version=${VERSION}" -o ${BIN}
+  - go generate -v ./...
+  - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 
-  - go test ./...
+  - GOOS=$GOOS2 go build -ldflags="-X main.version=${VERSION}" -o ${BIN}
 
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
   - sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
@@ -60,8 +62,6 @@ script:
   - if [ $DIST_FAMILY == "WIN" ]; then md5sum ercole-agent.exe; fi
   - if [ $DIST_FAMILY == "WIN" ]; then file ercole-agent.exe; fi
   - if [ $DIST_FAMILY == "WIN" ]; then cp ercole-agent-setup-${VERSION}.exe dist/; fi
-
-  - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
