@@ -116,7 +116,6 @@ local task_pkg_build_rhel(setup) = {
 
 local task_deploy_repository(dist) = {
   name: 'deploy repository.ercole.io ' + dist,
-  approval: true,
   runtime: {
     type: 'pod',
     arch: 'amd64',
@@ -136,10 +135,12 @@ local task_deploy_repository(dist) = {
       type: 'run',
       name: 'curl',
       command: |||
-        for f in ./dist/*; do
+        cd dist
+        for f in *; do
         	URL=$(curl --user "${REPO_USER}" \
             --upload-file $f ${REPO_UPLOAD_URL} --insecure)
         	echo $URL
+        	md5sum $f
         	curl -H "X-API-Token: ${REPO_TOKEN}" \
           -H "Content-Type: application/json" --request POST --data "{ \"filename\": \"$f\", \"url\": \"$URL\" }" \
           ${REPO_INSTALL_URL} --insecure
@@ -174,6 +175,8 @@ local task_deploy_repository(dist) = {
             { type: 'clone' },
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
 
+            { type: 'run', name: '', command: 'go get github.com/golang/mock/mockgen@v1.4.4' },
+            { type: 'run', name: '', command: 'go generate -v ./...' },
             { type: 'run', name: '', command: 'go test -race -coverprofile=coverage.txt -covermode=atomic ./...' },
 
             { type: 'save_cache', key: 'cache-sum-{{ md5sum "go.sum" }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
