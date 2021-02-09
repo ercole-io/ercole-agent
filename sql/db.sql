@@ -37,6 +37,11 @@ SELECT 'N/A' into :dbtime from dual;
 SELECT 'N/A' into :result from dual;
 SELECT 'N/A' into :cputime from dual;
 
+END;
+/
+
+BEGIN
+
 SELECT (CASE
             WHEN UPPER(banner) LIKE '%EXTREME%' THEN 'EXE'
             WHEN UPPER(banner) LIKE '%ENTERPRISE%' THEN 'ENT'
