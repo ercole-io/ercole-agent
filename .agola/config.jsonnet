@@ -152,10 +152,6 @@ local task_deploy_repository(dist) = {
   when: {
     tag: '#.*#',
     branch: 'master',
-    ref: {
-      include: '#.*#',
-      exclude: ['#/refs/pull/.*#'],
-    },
   },
 };
 
