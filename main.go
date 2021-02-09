@@ -79,7 +79,7 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	log.Info("Sending data...")
 
 	dataBytes, _ := json.Marshal(data)
-	log.Infof("Hostdata: %v", string(dataBytes))
+	log.Debugf("Hostdata: %v", string(dataBytes))
 
 	if configuration.Verbose {
 		writeHostDataOnTmpFile(data, log)
