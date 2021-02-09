@@ -150,10 +150,8 @@ local task_deploy_repository(dist) = {
   ],
   depends: ['pkg build ' + dist],
   when: {
+    tag: '#.*#',
     branch: 'master',
-    ref: {
-      exclude: ['#/refs/pull/.*#'],
-    },
   },
 };
 
