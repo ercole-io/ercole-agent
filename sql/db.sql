@@ -24,7 +24,7 @@ VARIABLE elapsed varchar2(100);
 VARIABLE dbtime  varchar2(100);
 VARIABLE cputime  varchar2(100);
 VARIABLE count_usage NUMBER;
-VARIABLE result varchar2(100);
+VARIABLE work varchar2(100);
 VARIABLE esclusion varchar2(100);
 VARIABLE CPUbid NUMBER;
 VARIABLE CPUeid NUMBER;
@@ -34,8 +34,13 @@ BEGIN
 
 SELECT 'N/A' into :elapsed from dual;
 SELECT 'N/A' into :dbtime from dual;
-SELECT 'N/A' into :result from dual;
+SELECT 'N/A' into :work from dual;
 SELECT 'N/A' into :cputime from dual;
+
+END;
+/
+
+BEGIN
 
 SELECT (CASE
             WHEN UPPER(banner) LIKE '%EXTREME%' THEN 'EXE'
@@ -123,16 +128,16 @@ IF (:count_usage > 0 AND :version ='ENT') THEN
   FROM awrrCPU
   WHERE rownum <2;
 
-	select to_char(round(((to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :result 
+	select to_char(round(((to_number(:dbtime,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,''')/to_number(:elapsed,'9999999999.99',' NLS_NUMERIC_CHARACTERS = ''.,'''))),4),'99990') into :work 
 	from dual;
 
-IF (:result = 0) THEN
-select '1' into :result from dual;
+IF (:work = 0) THEN
+select '1' into :work from dual;
 END IF;
 ELSE
    	 SELECT 'N/A' into :elapsed from dual;
    	 SELECT 'N/A' into :dbtime from dual;
-   	 SELECT 'N/A' into :result from dual;
+   	 SELECT 'N/A' into :work from dual;
    	 SELECT 'N/A' into :cputime from dual;
 END IF;
 END;
@@ -222,7 +227,7 @@ SELECT
               ELSE 0
           END AS "cputime"
    FROM dual),
-  (SELECT :result
+  (SELECT :work
    FROM dual),
   (SELECT CASE
               WHEN
