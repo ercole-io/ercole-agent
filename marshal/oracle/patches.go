@@ -35,7 +35,12 @@ func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
 			patch.Version = strings.TrimSpace(splitted[4])
-			patch.PatchID = marshal.TrimParseInt(splitted[5])
+
+			patchID := strings.TrimSpace(splitted[5])
+			if patchID != "" {
+				patch.PatchID = marshal.TrimParseInt(patchID)
+			}
+
 			patch.Action = strings.TrimSpace(splitted[6])
 			patch.Description = strings.TrimSpace(splitted[7])
 			patch.Date = strings.TrimSpace(splitted[8])
