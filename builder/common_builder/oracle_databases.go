@@ -17,7 +17,6 @@ package common
 
 import (
 	"context"
-	"sort"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
@@ -37,19 +36,18 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) *model.OracleD
 	return oracleDatabaseFeature
 }
 
-func (b *CommonBuilder) getUnlistedRunningOracleDBs(listedDBs []agentmodel.OratabEntry) []string {
+func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
 	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
 
-	listedDBNames := make([]string, len(listedDBs))
-	for i, db := range listedDBs {
-		listedDBNames[i] = db.DBName
+	oratabEntriesNames := make(map[string]bool, len(oratabEntries))
+	for _, db := range oratabEntries {
+		oratabEntriesNames[db.DBName] = true
 	}
-	sort.Strings(listedDBNames)
 
 	unlistedRunningDBs := make([]string, 0)
-	for _, r := range runningDBs {
-		if len(listedDBNames) == sort.SearchStrings(listedDBNames, r) {
-			unlistedRunningDBs = append(unlistedRunningDBs, r)
+	for _, runningDB := range runningDBs {
+		if !oratabEntriesNames[runningDB] {
+			unlistedRunningDBs = append(unlistedRunningDBs, runningDB)
 		}
 	}
 

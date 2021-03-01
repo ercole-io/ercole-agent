@@ -20,6 +20,7 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/config"
+	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -45,6 +46,32 @@ func TestGetUnlistedRunningOracleDBs(t *testing.T) {
 	}
 
 	expected := []string{"topolino"}
+	actual := b.getUnlistedRunningOracleDBs(listedDBs)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestGetUnlistedRunningOracleDBs2(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	fakeFetcher := NewMockFetcher(ctrl)
+	fakeFetcher.
+		EXPECT().GetOracleDatabaseRunningDatabases().
+		Return([]string{"ERC002", "ERC001"})
+
+	b := CommonBuilder{
+		fetcher:       fakeFetcher,
+		configuration: config.Configuration{},
+		log:           logger.NewBasicLogger("TEST"),
+	}
+
+	listedDBs := []agentmodel.OratabEntry{
+		{
+			DBName:     "ERC002",
+			OracleHome: "",
+		},
+	}
+
+	expected := []string{"ERC001"}
 	actual := b.getUnlistedRunningOracleDBs(listedDBs)
 
 	assert.Equal(t, expected, actual)
