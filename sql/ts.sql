@@ -16,13 +16,7 @@
 set lines 8000 pages 0 feedback off verify off
 set colsep "|||"
 
---column "TOTAL ALLOC (MB)" format 9,999,990
---column "TOTAL PHYS ALLOC (MB)" format 9,999,990
---column "USED (MB)" format  9,999,990
---column "FREE (MB)" format 9,999,990
-column "% USED" format 990.00
-column "Nome_Acronimo" for a8
-column "DB_Name" for a10
+column "% USED" format 99990.00
 
 select 
 	   (select host_name from v$instance) as Hostname,
@@ -45,9 +39,5 @@ from ( select tablespace_name,
 	 ( select tablespace_name,status from dba_tablespaces ) c
 where a.tablespace_name = b.tablespace_name (+)
 and a.tablespace_name = c.tablespace_name (+)
---and   (nvl(b.tot_used,0)/a.bytes_alloc)*100 > 10
---and   a.tablespace_name not in (select distinct tablespace_name from dba_temp_files)
---and   a.tablespace_name not like 'UNDO%'
 order by 1;
---order by 5
 exit
