@@ -17,6 +17,9 @@ package marshal
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/csv"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -174,8 +177,68 @@ func parseKeyValueColonSeparated(b []byte) map[string]string {
 	return data
 }
 
+type Iterator func() string
+type CsvScanner struct {
+	//func() (iter Iterator, err error)
+
+	reader  *csv.Reader
+	records []string
+	iter    Iterator
+}
+
+// SafeScan advances the CsvScanner to the next line with correct number of fields,
+// which will then be available through the Iter method.
+// It returns false when the scan stops by reaching the end of the input.
+func (s *CsvScanner) SafeScan() bool {
+	var err error
+
+	for err != io.EOF {
+		s.records, err = s.reader.Read()
+
+		if err == nil {
+			s.iter = NewIter(s.records)
+			return true
+		}
+	}
+
+	s.iter = nil
+	return false
+}
+
+func (s *CsvScanner) Iter() string {
+	return s.iter()
+}
+
+//func (s *CsvScanner) Err() error {
+//	return s.err
+//}
+
+func NewCsvScanner(cmdOutput []byte, fieldsPerRecord int) CsvScanner {
+	reader := csv.NewReader(bytes.NewReader(cmdOutput))
+	reader.FieldsPerRecord = fieldsPerRecord
+	reader.Comma = ';'
+
+	scanner := CsvScanner{
+		reader: reader,
+	}
+
+	return scanner
+}
+
 // NewIter return a an iterator on each string of a slice
 func NewIter(splitted []string) func() string {
+	i := -1
+	return func() string {
+		i++
+
+		return splitted[i]
+	}
+}
+
+// NewIter return a an iterator on each string of a slice
+func NewSplitIter(s, sep string) func() string {
+	splitted := strings.Split(s, sep)
+
 	i := -1
 	return func() string {
 		i++
