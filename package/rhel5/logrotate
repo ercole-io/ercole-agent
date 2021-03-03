@@ -1,7 +1,0 @@
-/var/log/ercole-agent.log {
-    missingok
-    notifempty
-    create 0600 ercole root
-    rotate 6
-    monthly
-}
