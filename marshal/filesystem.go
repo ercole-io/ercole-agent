@@ -17,6 +17,7 @@ package marshal
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
@@ -29,7 +30,7 @@ import (
 func Filesystems(cmdOutput []byte) []model.Filesystem {
 	filesystems := []model.Filesystem{}
 
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		line := scanner.Text()

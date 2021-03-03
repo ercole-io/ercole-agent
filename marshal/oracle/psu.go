@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
@@ -25,7 +26,7 @@ import (
 // PSU returns informations about PSU parsed from fetcher command output.
 func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
 	psuS := []model.OracleDatabasePSU{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		psu := new(model.OracleDatabasePSU)

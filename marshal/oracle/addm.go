@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -26,7 +27,7 @@ import (
 // Addms marshaller
 func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
 	addms := []model.OracleDatabaseAddm{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		addm := new(model.OracleDatabaseAddm)

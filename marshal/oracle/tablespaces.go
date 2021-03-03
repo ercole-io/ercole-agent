@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -27,7 +28,7 @@ import (
 // from the tablespaces fetcher command output.
 func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
 	tablespaces := []model.OracleDatabaseTablespace{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		tablespace := new(model.OracleDatabaseTablespace)

@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
@@ -26,7 +27,7 @@ import (
 // from the listdb fetcher command output.
 func ListPDB(cmdOutput []byte) []model.OracleDatabasePluggableDatabase {
 	pdbs := []model.OracleDatabasePluggableDatabase{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		pdb := new(model.OracleDatabasePluggableDatabase)

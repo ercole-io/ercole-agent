@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strconv"
 	"strings"
 
@@ -27,7 +28,7 @@ import (
 func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 	backups := []model.OracleDatabaseBackup{}
 
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		backup := new(model.OracleDatabaseBackup)

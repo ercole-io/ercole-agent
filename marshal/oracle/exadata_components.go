@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -26,7 +27,7 @@ import (
 // ExadataComponent returns information about devices extracted from exadata-info command.
 func ExadataComponent(cmdOutput []byte) []model.OracleExadataComponent {
 	devices := []model.OracleExadataComponent{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		device := new(model.OracleExadataComponent)

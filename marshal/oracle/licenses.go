@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -28,7 +29,7 @@ import (
 func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
 	var licenses []model.OracleDatabaseLicense
 
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	for scanner.Scan() {
 		license := new(model.OracleDatabaseLicense)
 		line := scanner.Text()
