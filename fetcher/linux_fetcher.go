@@ -24,6 +24,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/ercole-io/ercole-agent/v2/marshal"
+	marshal_mysql "github.com/ercole-io/ercole-agent/v2/marshal/mysql"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
 	"github.com/ercole-io/ercole/v2/model"
 )
@@ -403,4 +404,28 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
 	lf.log.Error(notImplementedLinux)
 	return nil
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstance) *model.MySQLInstance {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a instance")
+
+	return marshal_mysql.Instance(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstance) []model.MySQLDatabase {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a databases")
+
+	return marshal_mysql.Databases(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstance) []model.MySQLTableSchema {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a table_schemas")
+
+	return marshal_mysql.TableSchemas(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstance) []model.MySQLSegmentAdvisor {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a segment_advisors")
+
+	return marshal_mysql.SegmentAdvisors(out)
 }
