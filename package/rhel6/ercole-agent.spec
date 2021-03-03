@@ -51,6 +51,7 @@ chkconfig ercole-agent on
 /etc/logrotate.d/ercole-agent
 /opt/ercole-agent/ercole-agent
 /opt/ercole-agent/ercole-setup
+
 /opt/ercole-agent/fetch/linux/addm.sh
 /opt/ercole-agent/fetch/linux/backup.sh
 /opt/ercole-agent/fetch/linux/checkpdb.sh
@@ -76,8 +77,12 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/tablespace_pdb.sh
 /opt/ercole-agent/fetch/linux/oracle_running_databases.sh
 /opt/ercole-agent/fetch/linux/vmware.ps1
+
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/storage-status.sh
+
+/opt/ercole-agent/fetch/linux/mysql/ercoleAgentMysql-Gather.sh
+
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/checkpdb.sql
@@ -100,6 +105,13 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/stats.sql
 /opt/ercole-agent/sql/ts.sql
 /opt/ercole-agent/sql/ts_pdb.sql
+
+/opt/ercole-agent/sql/mysql/db.sql
+/opt/ercole-agent/sql/mysql/dbmounted.sql
+/opt/ercole-agent/sql/mysql/dbstatus.sql
+/opt/ercole-agent/sql/mysql/edition.sql
+/opt/ercole-agent/sql/mysql/schema.sql
+/opt/ercole-agent/sql/mysql/segment_advisor.sql
 
 %changelog
 * Mon May  7 2018 Simone Rota <srota2@sorint.it>
