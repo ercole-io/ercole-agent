@@ -73,7 +73,6 @@ WITH ONE AS(
     TWO
 )
 SELECT
-    concat(@@global.hostname,':',@@global.port) as instance,
     THREE.TABLE_SCHEMA,
     THREE.TABLE_NAME,
     'InnoDB' as ENGINE,
@@ -85,7 +84,6 @@ FROM
   THREE
 UNION ALL
 SELECT 
-  concat(@@global.hostname,':',@@global.port) as instance,
   TABLE_SCHEMA,
   TABLE_NAME, 
   ENGINE,

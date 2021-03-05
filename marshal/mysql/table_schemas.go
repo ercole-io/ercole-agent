@@ -25,11 +25,9 @@ import (
 func TableSchemas(cmdOutput []byte) []model.MySQLTableSchema {
 	tableSchemas := make([]model.MySQLTableSchema, 0)
 
-	scanner := marshal.NewCsvScanner(cmdOutput, 4)
+	scanner := marshal.NewCsvScanner(cmdOutput, 3)
 
 	for scanner.SafeScan() {
-		_ = scanner.Iter() // throw away instance name
-
 		tableSchema := model.MySQLTableSchema{
 			Name:       strings.TrimSpace(scanner.Iter()),
 			Engine:     strings.TrimSpace(scanner.Iter()),

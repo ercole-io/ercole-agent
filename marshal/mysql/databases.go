@@ -25,13 +25,10 @@ import (
 func Databases(cmdOutput []byte) []model.MySQLDatabase {
 	dbs := make([]model.MySQLDatabase, 0)
 
-	scanner := marshal.NewCsvScanner(cmdOutput, 7)
+	scanner := marshal.NewCsvScanner(cmdOutput, 4)
 
 	for scanner.SafeScan() {
 		db := model.MySQLDatabase{
-			Instance:  strings.TrimSpace(scanner.Iter()),
-			Version:   strings.TrimSpace(scanner.Iter()),
-			Edition:   strings.TrimSpace(scanner.Iter()),
 			Name:      strings.TrimSpace(scanner.Iter()),
 			Charset:   strings.TrimSpace(scanner.Iter()),
 			Collation: strings.TrimSpace(scanner.Iter()),

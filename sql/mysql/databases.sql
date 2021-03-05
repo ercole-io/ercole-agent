@@ -14,12 +14,6 @@
 #-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 SELECT 
-  concat(@@global.hostname,':',@@global.port) as instance,
-  @@global.version as version,
-  CASE 
-    WHEN @@global.version_comment LIKE '%Community%' THEN  'COMMUNITY'
-    ELSE 'ENTERPRISE'
-  END as edition,
   a.SCHEMA_NAME as database_name,
   a.DEFAULT_CHARACTER_SET_NAME as charset,
   a.DEFAULT_COLLATION_NAME as collation,

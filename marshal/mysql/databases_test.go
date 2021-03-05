@@ -8,8 +8,8 @@ import (
 )
 
 var testDbData = `mysql: [Warning] Using a password on the command line interface can be insecure.
-"erclinmysql:3306";"8.0.23";"COMMUNITY";"mysql";"utf8mb4";"utf8mb4_0900_ai_ci";"NO"
-"erclinmysql:3306";"8.0.23";"COMMUNITY";"classicmodels";"latin1";"latin1_swedish_ci";"NO"
+"mysql";"utf8mb4";"utf8mb4_0900_ai_ci";"NO"
+"classicmodels";"latin1";"latin1_swedish_ci";"NO"
 `
 
 func TestDatabases(t *testing.T) {
@@ -19,18 +19,12 @@ func TestDatabases(t *testing.T) {
 
 	expected := []model.MySQLDatabase{
 		{
-			Instance:  "erclinmysql:3306",
-			Version:   "8.0.23",
-			Edition:   "COMMUNITY",
 			Name:      "mysql",
 			Charset:   "utf8mb4",
 			Collation: "utf8mb4_0900_ai_ci",
 			Encrypted: false,
 		},
 		{
-			Instance:  "erclinmysql:3306",
-			Version:   "8.0.23",
-			Edition:   "COMMUNITY",
 			Name:      "classicmodels",
 			Charset:   "latin1",
 			Collation: "latin1_swedish_ci",

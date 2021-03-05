@@ -36,7 +36,6 @@ WITH ONE AS(
     TABLE_SCHEMA
 )
 SELECT
-  concat(@@global.hostname,':',@@global.port) as instance,
   TWO.TABLE_SCHEMA,
   'InnoDB' AS ENGINE,
   TWO.ALLOC_MB
@@ -44,7 +43,6 @@ FROM
   TWO
 UNION ALL
 SELECT 
-  concat(@@global.hostname,':',@@global.port) as instance,
   TABLE_SCHEMA,
   ENGINE,
   ALLOC_MB

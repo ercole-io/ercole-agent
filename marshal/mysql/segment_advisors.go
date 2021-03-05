@@ -25,11 +25,9 @@ import (
 func SegmentAdvisors(cmdOutput []byte) []model.MySQLSegmentAdvisor {
 	segmentAdvs := make([]model.MySQLSegmentAdvisor, 0)
 
-	scanner := marshal.NewCsvScanner(cmdOutput, 8)
+	scanner := marshal.NewCsvScanner(cmdOutput, 7)
 
 	for scanner.SafeScan() {
-		_ = scanner.Iter() // throw away instance name
-
 		segmentAdv := model.MySQLSegmentAdvisor{
 			TableSchema: strings.TrimSpace(scanner.Iter()),
 			TableName:   strings.TrimSpace(scanner.Iter()),

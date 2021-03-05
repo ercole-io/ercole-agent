@@ -23,9 +23,9 @@ import (
 )
 
 var testSegmentAdvisorsData = `mysql: [Warning] Using a password on the command line interface can be insecure.
-"erclinmysql:3306";"classicmodels";"customers";"InnoDB";"0.109";"0.078";"0.031";"0.000"
-"erclinmysql:3306";"classicmodels";"employees";"InnoDB";"0.141";"0.094";"0.047";"0.000"
-"erclinmysql:3306";"classicmodels";"offices";"InnoDB";"0.078";"0.062";"0.016";"0.000"
+"classicmodels";"customers";"InnoDB";"0.109";"0.078";"0.031";"0.000"
+"classicmodels";"employees";"InnoDB";"0.141";"0.094";"0.047";"0.000"
+"classicmodels";"offices";"InnoDB";"0.078";"0.062";"0.016";"0.000"
 `
 
 func TestSegmentAdvisors(t *testing.T) {

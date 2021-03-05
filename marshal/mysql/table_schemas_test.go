@@ -23,12 +23,12 @@ import (
 )
 
 var testTableSchemasData = `mysql: [Warning] Using a password on the command line interface can be insecure.
-"erclinmysql:3306";"classicmodels";"InnoDB";"1.094"
-"erclinmysql:3306";"innodb_temporary";"InnoDB";"12.000"
-"erclinmysql:3306";"innodb_undo_001";"InnoDB";"16.000"
-"erclinmysql:3306";"innodb_undo_002";"InnoDB";"16.000"
-"erclinmysql:3306";"mysql";"InnoDB";"24.004"
-"erclinmysql:3306";"sys";"InnoDB";"0.078"
+"classicmodels";"InnoDB";"1.094"
+"innodb_temporary";"InnoDB";"12.000"
+"innodb_undo_001";"InnoDB";"16.000"
+"innodb_undo_002";"InnoDB";"16.000"
+"mysql";"InnoDB";"24.004"
+"sys";"InnoDB";"0.078"
 `
 
 func TestTableSchemas(t *testing.T) {
