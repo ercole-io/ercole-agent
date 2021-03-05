@@ -406,26 +406,26 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []
 	return nil
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstance) *model.MySQLInstance {
-	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a instance")
+func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "instance")
 
 	return marshal_mysql.Instance(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstance) []model.MySQLDatabase {
-	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a databases")
+func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "databases")
 
 	return marshal_mysql.Databases(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstance) []model.MySQLTableSchema {
-	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a table_schemas")
+func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "table_schemas")
 
 	return marshal_mysql.TableSchemas(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstance) []model.MySQLSegmentAdvisor {
-	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a segment_advisors")
+func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "segment_advisors")
 
 	return marshal_mysql.SegmentAdvisors(out)
 }

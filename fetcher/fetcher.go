@@ -80,10 +80,10 @@ type Fetcher interface {
 
 	// MySQL fetchers
 
-	GetMySQLInstance(connection config.MySQLInstance) *model.MySQLInstance
-	GetMySQLDatabases(connection config.MySQLInstance) []model.MySQLDatabase
-	GetMySQLTableSchemas(connection config.MySQLInstance) []model.MySQLTableSchema
-	GetMySQLSegmentAdvisors(connection config.MySQLInstance) []model.MySQLSegmentAdvisor
+	GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance
+	GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase
+	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema
+	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor
 }
 
 // User struct

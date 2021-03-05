@@ -104,6 +104,12 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 		hostData.Clusters = b.getClustersInfos()
 	}
+
+	if b.configuration.Features.MySQL.Enabled {
+		b.log.Debugf("MySQL mode enabled")
+
+		hostData.Features.MySQL = b.getMySQLFeature()
+	}
 }
 
 func (b *CommonBuilder) checksToRunExadata() {

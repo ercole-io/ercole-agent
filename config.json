@@ -43,6 +43,16 @@
         "MicrosoftSQLServer": {
             "Enabled": false,
             "FetcherUser": ""
+        },
+        "MySQL": {
+            "Enabled": false,
+            "Instances": [
+                {
+                    "Host": "",
+                    "User": "",
+                    "Password": ""
+                }
+            ]
         }
     }
 }
