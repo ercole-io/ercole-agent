@@ -19,4 +19,4 @@ require (
 
 replace gopkg.in/robfig/cron.v3 => github.com/robfig/cron/v3 v3.0.1
 
-// replace github.com/ercole-io/ercole => ../ercole
+// replace github.com/ercole-io/ercole/v2 => ../ercole

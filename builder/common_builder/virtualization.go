@@ -41,7 +41,7 @@ func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 		clusters = append(clusters, (<-clustersChan)...)
 	}
 
-	allVMs := make(map[string][]model.VMInfo, 0)
+	allVMs := make(map[string][]model.VMInfo)
 	for i := 0; i < countHypervisors; i++ {
 		vmsMap := <-vmsChan
 

@@ -89,8 +89,9 @@ type MicrosoftSQLServerFeature struct {
 }
 
 type MySQLFeature struct {
-	Enabled   bool
-	Instances []MySQLInstanceConnection
+	Enabled     bool
+	FetcherUser string
+	Instances   []MySQLInstanceConnection
 }
 
 type MySQLInstanceConnection struct {
