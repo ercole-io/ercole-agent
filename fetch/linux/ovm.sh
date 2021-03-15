@@ -114,7 +114,7 @@ if [ $# -ne 6 ]
         echo "           ovm.sh cluster admin Password2 root /tmp/ovm/ovm_util/ovm-utils_2.1"
 	echo "====================================================================================================="
 	echo ""
-	exit -1
+	exit 1
 fi
 
 check_connection
@@ -143,5 +143,5 @@ elif [[ $TYPE == "cluster" ]]; then
 
 else
 	echo "Option not valid"
-	exit -1
+	exit 1
 fi

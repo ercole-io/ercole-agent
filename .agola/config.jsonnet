@@ -51,7 +51,7 @@ local task_build_go(setup) = {
       }],
     },
   ],
-  depends: ['test'],
+  depends: ['test', 'shellchecks'],
 };
 
 local task_pkg_build_rhel(setup) = {
@@ -179,6 +179,22 @@ local task_deploy_repository(dist) = {
 
             { type: 'save_cache', key: 'cache-sum-{{ md5sum "go.sum" }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
             { type: 'save_cache', key: 'cache-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
+          ],
+        },
+        {
+          name: 'shellchecks',
+          runtime: {
+            type: 'pod',
+            arch: 'amd64',
+            containers: [
+              { image: 'koalaman/shellcheck-alpine:stable' },
+            ],
+          },
+          steps: [
+            { type: 'run', command: 'apk add git' },
+            { type: 'clone' },
+            { type: 'run', command: 'find . -name "*.sh" | xargs -n1 shellcheck --severity=error' },
+
           ],
         },
       ] + [

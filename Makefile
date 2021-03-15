@@ -39,4 +39,5 @@ install-config:
 	install -m 644 config.json $(DESTDIR)/config.json
 
 test:
+	find . -name "*.sh" | xargs -n1 shellcheck --severity=error
 	go test ./...
