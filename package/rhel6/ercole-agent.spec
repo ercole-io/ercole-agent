@@ -81,7 +81,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/storage-status.sh
 
-/opt/ercole-agent/fetch/linux/mysql/ercoleAgentMysql-Gather.sh
+/opt/ercole-agent/fetch/linux/mysql/mysql_gather.sh
 
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql
@@ -106,12 +106,25 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/ts.sql
 /opt/ercole-agent/sql/ts_pdb.sql
 
-/opt/ercole-agent/sql/mysql/db.sql
-/opt/ercole-agent/sql/mysql/dbmounted.sql
-/opt/ercole-agent/sql/mysql/dbstatus.sql
-/opt/ercole-agent/sql/mysql/edition.sql
-/opt/ercole-agent/sql/mysql/schema.sql
-/opt/ercole-agent/sql/mysql/segment_advisor.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.backup_schedule.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.db.10.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.db.14.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.dbmounted.10.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.dbmounted.14.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.dbstatus.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.edition.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.instanceVersion.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.licensingInfo.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.listDatabases.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.psu-1.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.schema.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.segment_advisor.sql
+/opt/ercole-agent/sql/mssqlserver/mssqlserver.ts.sql
+
+/opt/ercole-agent/sql/mysql/databases.sql
+/opt/ercole-agent/sql/mysql/instance.sql
+/opt/ercole-agent/sql/mysql/segment_advisors.sql
+/opt/ercole-agent/sql/mysql/table_schemas.sql
 
 %changelog
 * Mon May  7 2018 Simone Rota <srota2@sorint.it>
