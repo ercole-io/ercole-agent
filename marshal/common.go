@@ -63,7 +63,10 @@ func cleanTr(s string) string {
 }
 
 func parseBool(s string) bool {
-	return s == "Y" || s == "TRUE"
+	return strings.EqualFold(s, "y") ||
+		strings.EqualFold(s, "yes") ||
+		strings.EqualFold(s, "true") ||
+		strings.EqualFold(s, "1")
 }
 
 func parseInt(s string) int {

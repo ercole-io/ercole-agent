@@ -31,4 +31,5 @@ SELECT
   (@@global.innodb_buffer_pool_size/1024/1024) as buffer_pool_size_MB,
   (@@global.innodb_log_buffer_size/1024/1024) as log_buffer_size_MB,
   (@@global.innodb_sort_buffer_size /1024/1024) as sort_buffer_size_MB,
-  @@global.read_only as read_only;
+  @@global.read_only as read_only,
+  @@global.log_bin as log_bin;

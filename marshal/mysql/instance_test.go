@@ -23,7 +23,7 @@ import (
 )
 
 var testInstanceData = `mysql: [Warning] Using a password on the command line interface can be insecure.
-"erclinmysql:3306";"8.0.23";"COMMUNITY";"Linux";"x86_64";"InnoDB";"ON";"utf8mb4";"utf8";"16.0000";"0";"128.00000000";"16.00000000";"1.00000000";"0"
+"erclinmysql:3306";"8.0.23";"COMMUNITY";"Linux";"x86_64";"InnoDB";"ON";"utf8mb4";"utf8";"16.0000";"0";"128.00000000";"16.00000000";"1.00000000";"0";"1"
 `
 
 func TestInstance(t *testing.T) {
@@ -47,6 +47,7 @@ func TestInstance(t *testing.T) {
 		LogBufferSize:      16,
 		SortBufferSize:     1,
 		ReadOnly:           false,
+		LogBin:             true,
 		Databases:          nil,
 	}
 

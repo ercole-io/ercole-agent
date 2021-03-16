@@ -23,7 +23,7 @@ import (
 )
 
 func Instance(cmdOutput []byte) (instance *model.MySQLInstance) {
-	scanner := marshal.NewCsvScanner(cmdOutput, 15)
+	scanner := marshal.NewCsvScanner(cmdOutput, 16)
 
 	for scanner.SafeScan() {
 		instance := model.MySQLInstance{
@@ -42,6 +42,7 @@ func Instance(cmdOutput []byte) (instance *model.MySQLInstance) {
 			LogBufferSize:      marshal.TrimParseFloat64(scanner.Iter()),
 			SortBufferSize:     marshal.TrimParseFloat64(scanner.Iter()),
 			ReadOnly:           marshal.TrimParseBool(scanner.Iter()),
+			LogBin:             marshal.TrimParseBool(scanner.Iter()),
 		}
 
 		return &instance
