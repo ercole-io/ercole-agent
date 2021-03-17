@@ -17,6 +17,7 @@ package marshal
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
@@ -26,7 +27,7 @@ import (
 // from the vms fetcher command output.
 func VmwareVMs(cmdOutput []byte) map[string][]model.VMInfo {
 	//This is a true determistic algorithm. I should prove it!
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	vms := map[string][]model.VMInfo{}
 
 	for scanner.Scan() {
@@ -57,7 +58,7 @@ func VmwareVMs(cmdOutput []byte) map[string][]model.VMInfo {
 // from the vms fetcher command output.
 func OvmVMs(cmdOutput []byte) map[string][]model.VMInfo {
 	//This is a true determistic algorithm. I should prove it!
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	vms := map[string][]model.VMInfo{}
 
 	for scanner.Scan() {

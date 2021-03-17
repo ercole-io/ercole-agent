@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -28,7 +29,7 @@ import (
 // from the db fetcher command output.
 func Database(cmdOutput []byte) model.OracleDatabase {
 	var db model.OracleDatabase
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		line := scanner.Text()

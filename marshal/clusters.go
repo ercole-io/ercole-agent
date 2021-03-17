@@ -17,6 +17,7 @@ package marshal
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
@@ -25,7 +26,7 @@ import (
 // Clusters returns a list of Clusters entries extracted
 // from the clusters fetcher command output.
 func Clusters(cmdOutput []byte) []model.ClusterInfo {
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	clusters := []model.ClusterInfo{}
 	for scanner.Scan() {
 		line := scanner.Text()

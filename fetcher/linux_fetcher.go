@@ -24,6 +24,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/ercole-io/ercole-agent/v2/marshal"
+	marshal_mysql "github.com/ercole-io/ercole-agent/v2/marshal/mysql"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
 	"github.com/ercole-io/ercole/v2/model"
 )
@@ -403,4 +404,52 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
 	lf.log.Error(notImplementedLinux)
 	return nil
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "instance")
+
+	return marshal_mysql.Instance(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "databases")
+
+	return marshal_mysql.Databases(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "table_schemas")
+
+	return marshal_mysql.TableSchemas(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "segment_advisors")
+
+	return marshal_mysql.SegmentAdvisors(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "high_availability")
+
+	return marshal_mysql.HighAvailability(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLUUID() string {
+	out := lf.execute("grep server-uuid /var/lib/mysql/auto.cnf")
+
+	return marshal_mysql.UUID(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_hosts")
+
+	return marshal_mysql.SlaveHosts(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string) {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_status")
+
+	return marshal_mysql.SlaveStatus(out)
 }

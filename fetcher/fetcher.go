@@ -27,15 +27,18 @@ type Fetcher interface {
 	SetUserAsCurrent() error
 
 	// Operating system fetchers
+
 	GetHost() model.Host
 	GetFilesystems() []model.Filesystem
 	GetClustersMembershipStatus() model.ClusterMembershipStatus
 
 	// Virtualization fetcher
+
 	GetClusters(hv config.Hypervisor) []model.ClusterInfo
 	GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo
 
 	// Oracle/Database fetchers
+
 	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
 	GetOracleDatabaseRunningDatabases() []string
 	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string
@@ -58,10 +61,12 @@ type Fetcher interface {
 	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema
 
 	// Oracle/Exadata fetchers
+
 	GetOracleExadataComponents() []model.OracleExadataComponent
 	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
 
 	// Microsoft/SQLServer fetchers
+
 	GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel
 	GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance)
 	GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance)
@@ -72,6 +77,17 @@ type Fetcher interface {
 	GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel
 	GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch
 	GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature
+
+	// MySQL fetchers
+
+	GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance
+	GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase
+	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema
+	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor
+	GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool
+	GetMySQLUUID() string
+	GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string)
+	GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string)
 }
 
 // User struct

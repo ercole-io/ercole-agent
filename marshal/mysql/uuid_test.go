@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2021 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,30 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package oracle
+package mysql
 
 import (
-	"bufio"
-	"bytes"
-	"strings"
+	"testing"
 
-	"github.com/ercole-io/ercole/v2/model"
+	"github.com/stretchr/testify/assert"
 )
 
-// PSU returns informations about PSU parsed from fetcher command output.
-func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
-	psuS := []model.OracleDatabasePSU{}
-	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+var testUUIDData1 string = `server-uuid=a74c753e-7cfa-11eb-991a-566f86f30033`
 
-	for scanner.Scan() {
-		psu := new(model.OracleDatabasePSU)
-		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 2 {
-			psu.Description = strings.TrimSpace(splitted[0])
-			psu.Date = strings.TrimSpace(splitted[1])
-			psuS = append(psuS, *psu)
-		}
+var testUUIDData2 string = ``
+
+func TestUUID(t *testing.T) {
+	testCases := []struct {
+		data string
+		uuid string
+	}{
+		{testUUIDData1, "a74c753e-7cfa-11eb-991a-566f86f30033"},
+		{testUUIDData2, ""},
 	}
-	return psuS
+
+	for _, tc := range testCases {
+		cmdOutput := []byte(tc.data)
+
+		uuid := UUID(cmdOutput)
+
+		assert.Equal(t, tc.uuid, uuid)
+	}
 }

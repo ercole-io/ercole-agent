@@ -335,3 +335,43 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) 
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "sqlFeatures", "-instance", conn)
 	return marshal_microsoft.Features(out)
 }
+
+func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance {
+	wf.log.Error(notImplementedWindows)
+	return nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase {
+	wf.log.Error(notImplementedWindows)
+	return nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema {
+	wf.log.Error(notImplementedWindows)
+	return nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor {
+	wf.log.Error(notImplementedWindows)
+	return nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool {
+	wf.log.Error(notImplementedWindows)
+	return false
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLUUID() string {
+	wf.log.Error(notImplementedWindows)
+	return ""
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
+	wf.log.Error(notImplementedWindows)
+	return false, nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string) {
+	wf.log.Error(notImplementedWindows)
+	return false, nil
+}

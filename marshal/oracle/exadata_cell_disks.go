@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
@@ -27,7 +28,7 @@ import (
 // ExadataCellDisks returns information about the cell disks extracted from exadata-storage-status command.
 func ExadataCellDisks(cmdOutput []byte) map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
 	cellDisks := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		cellDisk := new(model.OracleExadataCellDisk)

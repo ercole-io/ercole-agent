@@ -17,6 +17,9 @@ package marshal
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/csv"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -60,7 +63,10 @@ func cleanTr(s string) string {
 }
 
 func parseBool(s string) bool {
-	return s == "Y" || s == "TRUE"
+	return strings.EqualFold(s, "y") ||
+		strings.EqualFold(s, "yes") ||
+		strings.EqualFold(s, "true") ||
+		strings.EqualFold(s, "1")
 }
 
 func parseInt(s string) int {
@@ -158,13 +164,17 @@ func TrimParseStringPointer(s string, nils ...string) *string {
 }
 
 func parseKeyValueColonSeparated(b []byte) map[string]string {
-	scanner := bufio.NewScanner(strings.NewReader(string(b)))
+	return ParseKeyValue(b, ":")
+}
+
+func ParseKeyValue(b []byte, sep string) map[string]string {
+	scanner := bufio.NewScanner(bytes.NewBuffer(b))
 
 	data := make(map[string]string, 20)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		splitted := strings.Split(line, ":")
+		splitted := strings.Split(line, sep)
 		key := strings.TrimSpace(splitted[0])
 		value := strings.TrimSpace(splitted[1])
 
@@ -174,8 +184,67 @@ func parseKeyValueColonSeparated(b []byte) map[string]string {
 	return data
 }
 
+type Iterator func() string
+
+type CsvScanner struct {
+	reader  *csv.Reader
+	records []string
+	iter    Iterator
+}
+
+// SafeScan advances the CsvScanner to the next line with correct number of fields,
+// which will then be available through the Iter method.
+// It returns false when the scan stops by reaching the end of the input.
+func (s *CsvScanner) SafeScan() bool {
+	var err error
+
+	for err != io.EOF {
+		s.records, err = s.reader.Read()
+
+		if err == nil {
+			s.iter = NewIter(s.records)
+			return true
+		}
+	}
+
+	s.iter = nil
+	return false
+}
+
+func (s *CsvScanner) Iter() string {
+	return s.iter()
+}
+
+func (s *CsvScanner) Get(i int) string {
+	return s.records[i]
+}
+
+func NewCsvScanner(cmdOutput []byte, fieldsPerRecord int) CsvScanner {
+	reader := csv.NewReader(bytes.NewReader(cmdOutput))
+	reader.FieldsPerRecord = fieldsPerRecord
+	reader.Comma = ';'
+
+	scanner := CsvScanner{
+		reader: reader,
+	}
+
+	return scanner
+}
+
 // NewIter return a an iterator on each string of a slice
-func NewIter(splitted []string) func() string {
+func NewIter(splitted []string) Iterator {
+	i := -1
+	return func() string {
+		i++
+
+		return splitted[i]
+	}
+}
+
+// NewIter return a an iterator on each string of a slice
+func NewSplitIter(s, sep string) func() string {
+	splitted := strings.Split(s, sep)
+
 	i := -1
 	return func() string {
 		i++

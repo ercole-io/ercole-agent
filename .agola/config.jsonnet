@@ -92,12 +92,9 @@ local task_pkg_build_rhel(setup) = {
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
-        sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel5/ercole-agent.spec
       |||,
     },
-    { type: 'run', command: 'if [ $DIST == "rhel5" ]; then echo \'%_topdir %(echo \\$HOME)/rpmbuild\' > ~/.rpmmacros ; fi' },
     { type: 'run', command: 'rpmbuild --quiet -bl package/${DIST}/ercole-agent.spec || echo ok' },
-    { type: 'run', command: 'if [ $DIST == "rhel5" ]; then mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS} ; fi' },
     { type: 'run', command: 'source /tmp/variables && mkdir -p ~/rpmbuild/SOURCES/ercole-agent-${VERSION}' },
     { type: 'run', command: 'source /tmp/variables && cp -r * ~/rpmbuild/SOURCES/ercole-agent-${VERSION}/' },
     { type: 'run', command: 'source /tmp/variables && tar -C ~/rpmbuild/SOURCES -cvzf ~/rpmbuild/SOURCES/ercole-agent-${VERSION}.tar.gz ercole-agent-${VERSION}' },
@@ -190,7 +187,6 @@ local task_deploy_repository(dist) = {
       ] + [
         task_pkg_build_rhel(setup)
         for setup in [
-          { pkg_build_image: 'amreo/rpmbuild-centos5', dist: 'rhel5', distfamily: 'rhel' },
           { pkg_build_image: 'amreo/rpmbuild-centos6', dist: 'rhel6', distfamily: 'rhel' },
           { pkg_build_image: 'amreo/rpmbuild-centos7', dist: 'rhel7', distfamily: 'rhel' },
           { pkg_build_image: 'amreo/rpmbuild-centos8', dist: 'rhel8', distfamily: 'rhel' },
@@ -240,7 +236,7 @@ local task_deploy_repository(dist) = {
         },
       ] + [
         task_deploy_repository(dist)
-        for dist in ['rhel5', 'rhel6', 'rhel7', 'rhel8', 'windows']
+        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows']
       ],
     },
   ],

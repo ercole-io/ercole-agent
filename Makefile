@@ -33,7 +33,7 @@ install-bin:
 
 install-scripts:
 	install -d $(DESTDIR)/sql
-	install -m 644 sql/*.sql $(DESTDIR)/sql
+	cp -rp sql/* $(DESTDIR)/sql
 
 install-config:
 	install -m 644 config.json $(DESTDIR)/config.json

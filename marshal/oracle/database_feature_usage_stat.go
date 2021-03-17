@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 // from the opt fetcher command output.
 func DatabaseFeatureUsageStat(cmdOutput []byte) []model.OracleDatabaseFeatureUsageStat {
 	featuresUsageStats := []model.OracleDatabaseFeatureUsageStat{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		stats := new(model.OracleDatabaseFeatureUsageStat)

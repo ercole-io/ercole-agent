@@ -22,7 +22,6 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/fetcher"
 	"github.com/ercole-io/ercole-agent/v2/logger"
-	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
 )
 
@@ -69,7 +68,6 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
 
-	// build data about Oracle/Database
 	if b.configuration.Features.OracleDatabase.Enabled {
 		b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
@@ -78,7 +76,6 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Features.Oracle.Database = b.getOracleDatabaseFeature(hostData.Info)
 	}
 
-	// build data about Oracle/Exadata
 	if b.configuration.Features.OracleExadata.Enabled {
 		b.log.Debugf("Oracle/Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser)
@@ -88,7 +85,6 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Features.Oracle.Exadata = b.getOracleExadataFeature()
 	}
 
-	// build data about Oracle/Database
 	if b.configuration.Features.MicrosoftSQLServer.Enabled {
 		b.log.Debugf("Microsoft/SQLServer mode enabled (user='%s')", b.configuration.Features.MicrosoftSQLServer.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.MicrosoftSQLServer.FetcherUser)
@@ -97,22 +93,18 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Features.Microsoft.SQLServer = b.getMicrosoftSQLServerFeature()
 	}
 
-	// build data about Virtualization
 	if b.configuration.Features.Virtualization.Enabled {
 		b.log.Debugf("Virtualization mode enabled (user='%s')", b.configuration.Features.Virtualization.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.Virtualization.FetcherUser)
 
 		hostData.Clusters = b.getClustersInfos()
 	}
-}
 
-func (b *CommonBuilder) checksToRunExadata() {
-	if runtime.GOOS != "linux" {
-		b.log.Panicf("Can't run exadata mode if os is different from linux, current os: [%v]", runtime.GOOS)
-	}
+	if b.configuration.Features.MySQL.Enabled {
+		b.log.Debugf("MySQL mode enabled")
+		b.setOrResetFetcherUser(b.configuration.Features.MySQL.FetcherUser)
 
-	if !utils.IsRunnigAsRootInLinux() {
-		b.log.Panicf("You must be root to run in exadata mode")
+		hostData.Features.MySQL = b.getMySQLFeature()
 	}
 }
 

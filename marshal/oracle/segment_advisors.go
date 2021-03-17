@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -26,7 +27,7 @@ import (
 // SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.
 func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
 	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		line := scanner.Text()

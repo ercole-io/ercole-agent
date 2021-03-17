@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,34 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package oracle
+package mysql
 
 import (
-	"bufio"
-	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 )
 
-// Addms marshaller
-func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
-	addms := []model.OracleDatabaseAddm{}
-	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+func Databases(cmdOutput []byte) []model.MySQLDatabase {
+	dbs := make([]model.MySQLDatabase, 0)
 
-	for scanner.Scan() {
-		addm := new(model.OracleDatabaseAddm)
-		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 6 {
-			addm.Finding = strings.TrimSpace(splitted[2])
-			addm.Recommendation = strings.TrimSpace(splitted[3])
-			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = marshal.TrimParseFloat64(splitted[5])
+	scanner := marshal.NewCsvScanner(cmdOutput, 4)
 
-			addms = append(addms, *addm)
+	for scanner.SafeScan() {
+		db := model.MySQLDatabase{
+			Name:      strings.TrimSpace(scanner.Iter()),
+			Charset:   strings.TrimSpace(scanner.Iter()),
+			Collation: strings.TrimSpace(scanner.Iter()),
+			Encrypted: marshal.TrimParseBool(scanner.Iter()),
 		}
+		dbs = append(dbs, db)
 	}
-	return addms
+
+	return dbs
 }

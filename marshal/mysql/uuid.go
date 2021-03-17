@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,30 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package oracle
+package mysql
 
 import (
-	"bufio"
-	"bytes"
-	"strings"
-
-	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole-agent/v2/marshal"
 )
 
-// PSU returns informations about PSU parsed from fetcher command output.
-func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
-	psuS := []model.OracleDatabasePSU{}
-	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-
-	for scanner.Scan() {
-		psu := new(model.OracleDatabasePSU)
-		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 2 {
-			psu.Description = strings.TrimSpace(splitted[0])
-			psu.Date = strings.TrimSpace(splitted[1])
-			psuS = append(psuS, *psu)
-		}
-	}
-	return psuS
+func UUID(cmdOutput []byte) string {
+	values := marshal.ParseKeyValue(cmdOutput, "=")
+	return values["server-uuid"]
 }

@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent/v2
 go 1.15
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0
+	github.com/ercole-io/ercole/v2 v2.0.0-20210317112126-96e00b6beb98
 	github.com/golang/mock v1.5.0
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/go-version v1.2.1
@@ -17,6 +17,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
 
-replace gopkg.in/robfig/cron.v3 => github.com/robfig/cron/v3 v3.0.1
-
-// replace github.com/ercole-io/ercole => ../ercole
+// replace gopkg.in/robfig/cron.v3 => github.com/robfig/cron/v3 v3.0.1
+// replace github.com/pkg/sftp => github.com/amreo/sftp v1.10.2-0.20200107133605-5981645e4b3b
+// replace github.com/ercole-io/ercole/v2 => ../ercole

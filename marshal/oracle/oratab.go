@@ -17,6 +17,7 @@ package oracle
 
 import (
 	"bufio"
+	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
@@ -27,7 +28,7 @@ func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
 
 	var oratab []agentmodel.OratabEntry
 
-	scanner := bufio.NewScanner(strings.NewReader(string(cmdOutput)))
+	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, ":")

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2020 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,34 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package oracle
+package mysql
 
 import (
-	"bufio"
-	"bytes"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 )
 
-// Addms marshaller
-func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
-	addms := []model.OracleDatabaseAddm{}
-	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+func SegmentAdvisors(cmdOutput []byte) []model.MySQLSegmentAdvisor {
+	segmentAdvs := make([]model.MySQLSegmentAdvisor, 0)
 
-	for scanner.Scan() {
-		addm := new(model.OracleDatabaseAddm)
-		line := scanner.Text()
-		splitted := strings.Split(line, "|||")
-		if len(splitted) == 6 {
-			addm.Finding = strings.TrimSpace(splitted[2])
-			addm.Recommendation = strings.TrimSpace(splitted[3])
-			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = marshal.TrimParseFloat64(splitted[5])
+	scanner := marshal.NewCsvScanner(cmdOutput, 7)
 
-			addms = append(addms, *addm)
+	for scanner.SafeScan() {
+		segmentAdv := model.MySQLSegmentAdvisor{
+			TableSchema: strings.TrimSpace(scanner.Iter()),
+			TableName:   strings.TrimSpace(scanner.Iter()),
+			Engine:      strings.TrimSpace(scanner.Iter()),
+			Allocation:  marshal.TrimParseFloat64(scanner.Iter()),
+			Data:        marshal.TrimParseFloat64(scanner.Iter()),
+			Index:       marshal.TrimParseFloat64(scanner.Iter()),
+			Free:        marshal.TrimParseFloat64(scanner.Iter()),
 		}
+
+		segmentAdvs = append(segmentAdvs, segmentAdv)
 	}
-	return addms
+
+	return segmentAdvs
 }

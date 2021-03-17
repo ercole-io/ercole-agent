@@ -16,6 +16,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -46,6 +47,7 @@ type Features struct {
 	Virtualization     VirtualizationFeature
 	OracleExadata      OracleExadataFeature
 	MicrosoftSQLServer MicrosoftSQLServerFeature
+	MySQL              MySQLFeature
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -86,6 +88,18 @@ type MicrosoftSQLServerFeature struct {
 	FetcherUser string
 }
 
+type MySQLFeature struct {
+	Enabled     bool
+	FetcherUser string
+	Instances   []MySQLInstanceConnection
+}
+
+type MySQLInstanceConnection struct {
+	Host     string
+	User     string
+	Password string
+}
+
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
 func ReadConfig() Configuration {
@@ -111,8 +125,10 @@ func ReadConfig() Configuration {
 	}
 
 	var conf Configuration
-	err = json.Unmarshal(raw, &conf)
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
 
+	err = decoder.Decode(&conf)
 	if err != nil {
 		log.Fatal("Unable to parse configuration file", err)
 	}
@@ -126,10 +142,8 @@ func ReadConfig() Configuration {
 
 func exists(name string) bool {
 	_, err := os.Stat(name)
-	if err != nil {
-		return false
-	}
-	return true
+
+	return err == nil
 }
 
 // GetBaseDir return executable base directory, os independant
