@@ -355,3 +355,23 @@ func (wf *WindowsFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLIns
 	wf.log.Error(notImplementedWindows)
 	return nil
 }
+
+func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool {
+	wf.log.Error(notImplementedWindows)
+	return false
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLUUID() string {
+	wf.log.Error(notImplementedWindows)
+	return ""
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
+	wf.log.Error(notImplementedWindows)
+	return false, nil
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string) {
+	wf.log.Error(notImplementedWindows)
+	return false, nil
+}

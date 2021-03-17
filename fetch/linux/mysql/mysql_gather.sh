@@ -28,16 +28,10 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -z "$host" ]; then
-        exit 1
-fi
-if [ -z "$user" ]; then
-        exit 1
-fi
-if [ -z "$password" ]; then
-        exit 1
-fi
-if [ -z "$action" ]; then
+if [ -z "$host" ] ||
+   [ -z "$user" ] ||
+   [ -z "$password" ] ||
+   [ -z "$action" ]; then
         exit 1
 fi
 
@@ -50,22 +44,19 @@ if [ -z "$path" ]; then
 fi
 
 #actions
-if [ $action ==  "instance" ]; then
-	query="${path}instance.sql"
-fi
-if [ $action ==  "databases" ]; then
-	query="${path}databases.sql"
-fi
-if [ $action ==  "table_schemas" ]; then
-	query="${path}table_schemas.sql"
-fi
-if [ $action ==  "segment_advisors" ]; then
-	query="${path}segment_advisors.sql"
+if [ "$action" ==  "instance" ] || 
+   [ "$action" ==  "databases" ] || 
+   [ "$action" ==  "table_schemas" ] || 
+   [ "$action" ==  "segment_advisors" ] ||
+   [ "$action" ==  "slave_hosts" ] ||
+   [ "$action" ==  "slave_status" ]; then
+	query="${path}${action}.sql"
+else 
+        exit 1
 fi
 
-#echo "query=$query"
 if [ -z "$loginPath" ]; then
-        mysql -h $host --user=$user --password=$password --skip-column-names --database=$database -B <$query| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        mysql -h "$host" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 else
-        mysql --login-path=$loginPath --skip-column-names --database=$database -B <$query| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        mysql --login-path="$loginPath" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 fi

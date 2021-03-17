@@ -164,13 +164,17 @@ func TrimParseStringPointer(s string, nils ...string) *string {
 }
 
 func parseKeyValueColonSeparated(b []byte) map[string]string {
-	scanner := bufio.NewScanner(strings.NewReader(string(b)))
+	return ParseKeyValue(b, ":")
+}
+
+func ParseKeyValue(b []byte, sep string) map[string]string {
+	scanner := bufio.NewScanner(bytes.NewBuffer(b))
 
 	data := make(map[string]string, 20)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		splitted := strings.Split(line, ":")
+		splitted := strings.Split(line, sep)
 		key := strings.TrimSpace(splitted[0])
 		value := strings.TrimSpace(splitted[1])
 
@@ -181,9 +185,8 @@ func parseKeyValueColonSeparated(b []byte) map[string]string {
 }
 
 type Iterator func() string
-type CsvScanner struct {
-	//func() (iter Iterator, err error)
 
+type CsvScanner struct {
 	reader  *csv.Reader
 	records []string
 	iter    Iterator
@@ -212,9 +215,9 @@ func (s *CsvScanner) Iter() string {
 	return s.iter()
 }
 
-//func (s *CsvScanner) Err() error {
-//	return s.err
-//}
+func (s *CsvScanner) Get(i int) string {
+	return s.records[i]
+}
 
 func NewCsvScanner(cmdOutput []byte, fieldsPerRecord int) CsvScanner {
 	reader := csv.NewReader(bytes.NewReader(cmdOutput))
@@ -229,7 +232,7 @@ func NewCsvScanner(cmdOutput []byte, fieldsPerRecord int) CsvScanner {
 }
 
 // NewIter return a an iterator on each string of a slice
-func NewIter(splitted []string) func() string {
+func NewIter(splitted []string) Iterator {
 	i := -1
 	return func() string {
 		i++

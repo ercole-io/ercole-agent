@@ -30,6 +30,12 @@ func (b *CommonBuilder) getMySQLFeature() *model.MySQLFeature {
 			continue
 		}
 
+		instance.HighAvailability = b.fetcher.GetMySQLHighAvailability(conf)
+
+		instance.UUID = b.fetcher.GetMySQLUUID()
+		instance.IsMaster, instance.SlaveUUIDs = b.fetcher.GetMySQLSlaveHosts(conf)
+		instance.IsSlave, instance.MasterUUID = b.fetcher.GetMySQLSlaveStatus(conf)
+
 		instance.Databases = b.fetcher.GetMySQLDatabases(conf)
 		instance.TableSchemas = b.fetcher.GetMySQLTableSchemas(conf)
 		instance.SegmentAdvisors = b.fetcher.GetMySQLSegmentAdvisors(conf)

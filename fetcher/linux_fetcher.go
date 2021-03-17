@@ -429,3 +429,27 @@ func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInsta
 
 	return marshal_mysql.SegmentAdvisors(out)
 }
+
+func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "high_availability")
+
+	return marshal_mysql.HighAvailability(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLUUID() string {
+	out := lf.execute("grep server-uuid /var/lib/mysql/auto.cnf")
+
+	return marshal_mysql.UUID(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_hosts")
+
+	return marshal_mysql.SlaveHosts(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string) {
+	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_status")
+
+	return marshal_mysql.SlaveStatus(out)
+}

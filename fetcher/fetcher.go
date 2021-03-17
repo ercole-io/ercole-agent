@@ -84,6 +84,10 @@ type Fetcher interface {
 	GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase
 	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema
 	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor
+	GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool
+	GetMySQLUUID() string
+	GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string)
+	GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string)
 }
 
 // User struct
