@@ -15,7 +15,11 @@
 
 package marshal
 
-import "github.com/ercole-io/ercole/v2/model"
+import (
+	"strings"
+
+	"github.com/ercole-io/ercole/v2/model"
+)
 
 // ClusterMembershipStatus returns this struct filled from the output of the script
 func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
@@ -23,9 +27,24 @@ func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
 
 	var clusterMembershipStatus model.ClusterMembershipStatus
 	clusterMembershipStatus.OracleClusterware = TrimParseBool(data["OracleClusterware"])
-	clusterMembershipStatus.VeritasClusterServer = TrimParseBool(data["VeritasClusterServer"])
 	clusterMembershipStatus.SunCluster = TrimParseBool(data["SunCluster"])
 	clusterMembershipStatus.HACMP = false
+
+	clusterMembershipStatus.VeritasClusterServer = TrimParseBool(data["VeritasClusterServer"])
+
+	hostnames := make([]string, 0)
+	for _, s := range strings.Split(data["VeritasClusterHostnames"], ";") {
+		fields := strings.Fields(s)
+		if len(fields) != 2 {
+			continue
+		}
+
+		hostnames = append(hostnames, fields[1])
+	}
+
+	if len(hostnames) > 0 {
+		clusterMembershipStatus.VeritasClusterHostnames = hostnames
+	}
 
 	return clusterMembershipStatus
 }
