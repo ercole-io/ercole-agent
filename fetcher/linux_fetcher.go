@@ -288,10 +288,10 @@ func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterInf
 	var out []byte
 
 	switch hv.Type {
-	case "vmware":
+	case model.TechnologyVMWare:
 		out = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
 
-	case "ovm":
+	case model.TechnologyOracleVM:
 		out = lf.execute("ovm", "cluster", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
 
 	default:
@@ -313,17 +313,17 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 	var vms map[string][]model.VMInfo
 
 	switch hv.Type {
-	case "vmware":
+	case model.TechnologyVMWare:
 		out := lf.executePwsh("vmware.ps1", "-s", "vms", hv.Endpoint, hv.Username, hv.Password)
 		vms = marshal.VmwareVMs(out)
 
-	case "ovm":
+	case model.TechnologyOracleVM:
 		out := lf.execute("ovm", "vms", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
 		vms = marshal.OvmVMs(out)
 
 	default:
 		lf.log.Errorf("Hypervisor not supported: %v (%v)", hv.Type, hv)
-		return make(map[string][]model.VMInfo, 0)
+		return make(map[string][]model.VMInfo)
 	}
 
 	lf.log.Debugf("Got %d vms from hypervisor: %s", len(vms), hv.Endpoint)

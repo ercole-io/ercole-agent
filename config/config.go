@@ -19,10 +19,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/ercole-io/ercole-agent/v2/logger"
+	"github.com/ercole-io/ercole/v2/model"
 )
 
 // Configuration holds the agent configuration options
@@ -102,7 +104,7 @@ type MySQLInstanceConnection struct {
 
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
-func ReadConfig() Configuration {
+func ReadConfig(log logger.Logger) Configuration {
 	baseDir := GetBaseDir()
 	configFile := ""
 	if runtime.GOOS == "windows" {
@@ -110,18 +112,18 @@ func ReadConfig() Configuration {
 	} else {
 		configFile = baseDir + "/config.json"
 	}
-	ex := exists(configFile)
-	if !ex {
+
+	if !exists(configFile) {
 		if runtime.GOOS == "windows" {
 			configFile = "C:\\ErcoleAgent\\config.json"
 		} else {
 			configFile = "/opt/ercole-agent/config.json"
 		}
 	}
-	raw, err := ioutil.ReadFile(configFile)
 
+	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		log.Fatal("Unable to read configuration file", err)
+		log.Fatal("Unable to read configuration file: ", err)
 	}
 
 	var conf Configuration
@@ -130,12 +132,14 @@ func ReadConfig() Configuration {
 
 	err = decoder.Decode(&conf)
 	if err != nil {
-		log.Fatal("Unable to parse configuration file", err)
+		log.Fatal("Unable to parse configuration file: ", err)
 	}
 
 	if conf.Features.OracleDatabase.Oratab == "" {
 		conf.Features.OracleDatabase.Oratab = "/etc/oratab"
 	}
+
+	checkConfiguration(log, &conf)
 
 	return conf
 }
@@ -144,6 +148,32 @@ func exists(name string) bool {
 	_, err := os.Stat(name)
 
 	return err == nil
+}
+
+func checkConfiguration(log logger.Logger, config *Configuration) {
+	if config.Features.Virtualization.Hypervisors != nil {
+		hypervisorTypes := map[string]string{
+			"ovm":    model.TechnologyOracleVM,
+			"vmware": model.TechnologyVMWare,
+		}
+
+		for i := range config.Features.Virtualization.Hypervisors {
+			hv := &config.Features.Virtualization.Hypervisors[i]
+
+			correctType, found := hypervisorTypes[hv.Type]
+			if !found {
+				log.Errorf("Hypervisor type not supported: %v", hv.Type)
+				log.Errorf("Hypervisor types supported are:")
+				for k, v := range hypervisorTypes {
+					log.Errorf("\t\"%v\" for %v", k, v)
+				}
+				log.Fatalf("Fix you configuration file")
+			}
+
+			hv.Type = correctType
+		}
+
+	}
 }
 
 // GetBaseDir return executable base directory, os independant

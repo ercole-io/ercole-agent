@@ -40,9 +40,9 @@ type program struct {
 }
 
 func (p *program) run() {
-	configuration := config.ReadConfig()
+	configuration := config.ReadConfig(p.log)
 
-	if configuration.Verbose == true {
+	if configuration.Verbose {
 		p.log.SetLevel(logger.DebugLevel)
 	}
 
@@ -88,13 +88,17 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	client := &http.Client{}
 
 	//Disable certificate validation if enableServerValidation is false
-	if configuration.EnableServerValidation == false {
+	if !configuration.EnableServerValidation {
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 	}
 
 	req, err := http.NewRequest("POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
+	if err != nil {
+		log.Error("Error creating request: ", err)
+	}
+
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
 	resp, err := client.Do(req)
