@@ -24,21 +24,44 @@ import (
 
 var testClusterMembershipStatusOutput string = `OracleClusterware: Y
 VeritasClusterServer: N
+VeritasClusterHostnames:
 SunCluster: Y`
 
+var testClusterMembershipStatusVeritas string = `OracleClusterware: N
+VeritasClusterServer: Y
+VeritasClusterHostnames: 0 sdlsts101;1 sdlsts102;2 sdlsts103 ;
+SunCluster: N`
+
 func TestClusterMembershipStatusOutput(t *testing.T) {
-	cmdOutput := []byte(testClusterMembershipStatusOutput)
-
-	actual := ClusterMembershipStatus(cmdOutput)
-
-	expected := model.ClusterMembershipStatus{
-		OracleClusterware:    true,
-		VeritasClusterServer: false,
-		SunCluster:           true,
-		HACMP:                false,
+	testCases := []struct {
+		output   string
+		expected model.ClusterMembershipStatus
+	}{
+		{
+			output: (testClusterMembershipStatusOutput),
+			expected: model.ClusterMembershipStatus{
+				OracleClusterware:    true,
+				VeritasClusterServer: false,
+				SunCluster:           true,
+				HACMP:                false,
+			},
+		},
+		{
+			output: testClusterMembershipStatusVeritas,
+			expected: model.ClusterMembershipStatus{
+				OracleClusterware:       false,
+				SunCluster:              false,
+				HACMP:                   false,
+				VeritasClusterServer:    true,
+				VeritasClusterHostnames: []string{"sdlsts101", "sdlsts102", "sdlsts103"},
+			},
+		},
 	}
 
-	assert.Equal(t, expected, actual)
+	for _, tc := range testCases {
+		actual := ClusterMembershipStatus([]byte(tc.output))
+		assert.Equal(t, tc.expected, actual)
+	}
 }
 
 func TestClusterMembershipStatusOutputShouldCrash(t *testing.T) {
