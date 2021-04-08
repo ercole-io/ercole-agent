@@ -2,13 +2,13 @@
     "Hostname": "default",
     "Environment": "TST",
     "Location": "Germany",
-    "DataserviceURL": "http://127.0.0.1:11111",
+    "DataserviceURL": "http://urlserver/data",
     "AgentUser": "user",
     "AgentPassword": "password",
     "Period": 24,
     "EnableServerValidation": false,
     "ForcePwshVersion": "0",
-    "ParallelizeRequests": true,
+    "ParallelizeRequests": false,
     "Verbose": false,
     "Features": {
         "OracleDatabase": {
