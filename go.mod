@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent/v2
 go 1.15
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0-20210408093141-5abeae66d9be
+	github.com/ercole-io/ercole/v2 v2.0.0-20210412140120-4da40b4eb822
 	github.com/golang/mock v1.5.0
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/go-version v1.2.1
