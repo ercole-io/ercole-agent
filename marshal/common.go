@@ -174,11 +174,11 @@ func ParseKeyValue(b []byte, sep string) map[string]string {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		splitted := strings.Split(line, sep)
-		key := strings.TrimSpace(splitted[0])
-		value := strings.TrimSpace(splitted[1])
+		splitted := strings.SplitN(line, sep, 2)
 
-		data[key] = value
+		if len(splitted) == 2 {
+			data[strings.TrimSpace(splitted[0])] = strings.TrimSpace(splitted[1])
+		}
 	}
 
 	return data

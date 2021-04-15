@@ -25,14 +25,17 @@ import (
 var testClusterMembershipStatusOutput string = `OracleClusterware: Y
 VeritasClusterServer: N
 VeritasClusterHostnames:
-SunCluster: Y`
+SunCluster: Y
+
+`
 
 var testClusterMembershipStatusVeritas string = `OracleClusterware: N
 VeritasClusterServer: Y
 VeritasClusterHostnames: 0 sdlsts101;1 sdlsts102;2 sdlsts103 ;
-SunCluster: N`
+SunCluster: N
+`
 
-func TestClusterMembershipStatusOutput(t *testing.T) {
+func TestClusterMembershipStatus_Success(t *testing.T) {
 	testCases := []struct {
 		output   string
 		expected model.ClusterMembershipStatus
@@ -64,8 +67,17 @@ func TestClusterMembershipStatusOutput(t *testing.T) {
 	}
 }
 
-func TestClusterMembershipStatusOutputShouldCrash(t *testing.T) {
+func TestClusterMembershipStatus_Empty(t *testing.T) {
 	cmdOutput := []byte("pippo")
+	actual := ClusterMembershipStatus(cmdOutput)
+	expected := model.ClusterMembershipStatus{
+		OracleClusterware:       false,
+		SunCluster:              false,
+		HACMP:                   false,
+		VeritasClusterServer:    false,
+		VeritasClusterHostnames: nil,
+		OtherInfo:               nil,
+	}
 
-	assert.Panics(t, func() { ClusterMembershipStatus(cmdOutput) })
+	assert.Equal(t, expected, actual)
 }
