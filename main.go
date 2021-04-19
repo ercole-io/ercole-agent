@@ -30,6 +30,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/scheduler"
 	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
 	"github.com/ercole-io/ercole/v2/model"
+	"golang.org/x/net/context"
 )
 
 var version = "latest"
@@ -86,15 +87,15 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	}
 
 	client := &http.Client{}
-
-	//Disable certificate validation if enableServerValidation is false
 	if !configuration.EnableServerValidation {
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 	}
 
-	req, err := http.NewRequest("POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
 	if err != nil {
 		log.Error("Error creating request: ", err)
 	}
@@ -102,20 +103,21 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
 	resp, err := client.Do(req)
-
-	sendResult := "FAILED"
-
 	if err != nil {
 		log.Error("Error sending data: ", err)
-	} else {
-		log.Info("Response status: ", resp.Status)
-		if resp.StatusCode == 200 {
-			sendResult = "SUCCESS"
-		}
-		defer resp.Body.Close()
+		log.Warn("Sending result: FAILED")
+		return
 	}
 
-	log.Info("Sending result: ", sendResult)
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 300 {
+		log.Info("Response status: ", resp.Status)
+		log.Info("Sending result: SUCCESS")
+	} else {
+		log.Warn("Response status: ", resp.Status)
+		log.Warn("Sending result: FAILED")
+	}
 }
 
 func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
