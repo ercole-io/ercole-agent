@@ -15,6 +15,12 @@
 
 package logger
 
+import (
+	"io"
+	"os"
+	"path/filepath"
+)
+
 // Logger interface for a logger implementation
 type Logger interface {
 	Debugf(format string, args ...interface{})
@@ -31,7 +37,8 @@ type Logger interface {
 	Fatal(args ...interface{})
 	Panic(args ...interface{})
 
-	SetLevel(Level)
+	setLevel(Level)
+	setOutput(output io.Writer)
 }
 
 // Level type
@@ -95,5 +102,30 @@ func getColorByLevel(level Level) int {
 		return red
 	default:
 		return blue
+	}
+}
+
+type LoggerOption func(Logger) error
+
+func LogDirectory(logDirectory string) LoggerOption {
+	return func(logger Logger) error {
+		path := filepath.Join(logDirectory, "ercole-agent.log")
+
+		f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+
+		logger.setOutput(f)
+
+		return nil
+	}
+}
+
+func LogLevel(level Level) LoggerOption {
+	return func(logger Logger) error {
+		logger.setLevel(level)
+
+		return nil
 	}
 }

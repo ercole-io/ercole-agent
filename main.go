@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -41,10 +42,23 @@ type program struct {
 }
 
 func (p *program) run() {
-	configuration := config.ReadConfig(p.log)
+	confLog, err := logger.NewLogger("CONFIG")
+	if err != nil {
+		log.Fatal("Can't initialize CONFIG logger: ", err)
+	}
+	configuration := config.ReadConfig(confLog)
 
+	opts := make([]logger.LoggerOption, 0)
 	if configuration.Verbose {
-		p.log.SetLevel(logger.DebugLevel)
+		opts = append(opts, logger.LogLevel(logger.DebugLevel))
+	}
+	if len(configuration.LogDirectory) > 0 {
+		opts = append(opts, logger.LogDirectory(configuration.LogDirectory))
+	}
+
+	p.log, err = logger.NewLogger("AGENT", opts...)
+	if err != nil {
+		log.Fatal("Can't initialize AGENT logger: ", err)
 	}
 
 	doBuildAndSend(configuration, p.log)
@@ -52,7 +66,7 @@ func (p *program) run() {
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
-	_, err := scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, func() {
+	_, err = scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, func() {
 		doBuildAndSend(configuration, p.log)
 	})
 	if err != nil {
@@ -142,8 +156,5 @@ func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
 }
 
 func main() {
-	log := logger.NewLogger("AGENT")
-	prg := &program{log}
-
-	serve(prg)
+	serve(new(program))
 }
