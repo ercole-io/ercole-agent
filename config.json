@@ -10,6 +10,7 @@
     "ForcePwshVersion": "0",
     "ParallelizeRequests": false,
     "Verbose": false,
+    "LogDirectory": "",
     "Features": {
         "OracleDatabase": {
             "Enabled": true,

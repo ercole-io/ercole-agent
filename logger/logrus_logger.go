@@ -18,6 +18,7 @@ package logger
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"sort"
@@ -32,12 +33,16 @@ type LogrusLogger struct {
 }
 
 // SetLevel to inner field log
-func (l *LogrusLogger) SetLevel(level Level) {
+func (l *LogrusLogger) setLevel(level Level) {
 	l.Logger.Level = logrus.Level(level)
 }
 
+func (l *LogrusLogger) setOutput(output io.Writer) {
+	l.Logger.SetOutput(output)
+}
+
 // NewLogger return a LogrusLogger initialized with ercole log standard
-func NewLogger(componentName string) Logger {
+func NewLogger(componentName string, options ...LoggerOption) (Logger, error) {
 	var newLogger LogrusLogger
 	newLogger.Logger = logrus.New()
 
@@ -48,7 +53,14 @@ func NewLogger(componentName string) Logger {
 	newLogger.SetReportCaller(true)
 	newLogger.SetOutput(os.Stdout)
 
-	return &newLogger
+	for _, option := range options {
+		err := option(&newLogger)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &newLogger, nil
 }
 
 // ercoleFormatter custom formatter for ercole that formats logs into text

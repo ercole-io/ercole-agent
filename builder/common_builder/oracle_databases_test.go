@@ -23,6 +23,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 //go:generate mockgen -source ../../fetcher/fetcher.go -destination=fake_fetcher_test.go -package=common
@@ -58,10 +59,13 @@ func TestGetUnlistedRunningOracleDBs2(t *testing.T) {
 		EXPECT().GetOracleDatabaseRunningDatabases().
 		Return([]string{"ERC002", "ERC001"})
 
+	log, err := logger.NewLogger("TEST")
+	require.Nil(t, err)
+
 	b := CommonBuilder{
 		fetcher:       fakeFetcher,
 		configuration: config.Configuration{},
-		log:           logger.NewBasicLogger("TEST"),
+		log:           log,
 	}
 
 	listedDBs := []agentmodel.OratabEntry{

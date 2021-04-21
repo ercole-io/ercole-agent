@@ -40,6 +40,7 @@ type Configuration struct {
 	Period                 int
 	Verbose                bool
 	ParallelizeRequests    bool
+	LogDirectory           string
 	Features               Features
 }
 
@@ -135,10 +136,6 @@ func ReadConfig(log logger.Logger) Configuration {
 		log.Fatal("Unable to parse configuration file: ", err)
 	}
 
-	if conf.Features.OracleDatabase.Oratab == "" {
-		conf.Features.OracleDatabase.Oratab = "/etc/oratab"
-	}
-
 	checkConfiguration(log, &conf)
 
 	return conf
@@ -151,28 +148,55 @@ func exists(name string) bool {
 }
 
 func checkConfiguration(log logger.Logger, config *Configuration) {
-	if config.Features.Virtualization.Hypervisors != nil {
-		hypervisorTypes := map[string]string{
-			"ovm":    model.TechnologyOracleVM,
-			"vmware": model.TechnologyVMWare,
-		}
+	checkLogDirectory(log, config)
 
-		for i := range config.Features.Virtualization.Hypervisors {
-			hv := &config.Features.Virtualization.Hypervisors[i]
+	if config.Features.OracleDatabase.Oratab == "" {
+		config.Features.OracleDatabase.Oratab = "/etc/oratab"
+	}
 
-			correctType, found := hypervisorTypes[hv.Type]
-			if !found {
-				log.Errorf("Hypervisor type not supported: %v", hv.Type)
-				log.Errorf("Hypervisor types supported are:")
-				for k, v := range hypervisorTypes {
-					log.Errorf("\t\"%v\" for %v", k, v)
-				}
-				log.Fatalf("Fix you configuration file")
+	checkFeatureVirtualization(log, config)
+}
+
+func checkLogDirectory(log logger.Logger, config *Configuration) {
+	path := config.LogDirectory
+	if path == "" {
+		return
+	}
+
+	isWritable, err := isDirectoryWritable(path)
+	if err != nil {
+		log.Fatal("LogDirectory is not valid: ", err)
+	}
+
+	if !isWritable {
+		log.Fatal("LogDirectory is not writable")
+	}
+}
+
+func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
+	if config.Features.Virtualization.Hypervisors == nil {
+		return
+	}
+
+	hypervisorTypes := map[string]string{
+		"ovm":    model.TechnologyOracleVM,
+		"vmware": model.TechnologyVMWare,
+	}
+
+	for i := range config.Features.Virtualization.Hypervisors {
+		hv := &config.Features.Virtualization.Hypervisors[i]
+
+		correctType, found := hypervisorTypes[hv.Type]
+		if !found {
+			log.Errorf("Hypervisor type not supported: %v", hv.Type)
+			log.Errorf("Hypervisor types supported are:")
+			for k, v := range hypervisorTypes {
+				log.Errorf("\t\"%v\" for %v", k, v)
 			}
-
-			hv.Type = correctType
+			log.Fatalf("Fix you configuration file")
 		}
 
+		hv.Type = correctType
 	}
 }
 
