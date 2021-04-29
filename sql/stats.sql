@@ -13,5 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set timing off
+
 exec dbms_feature_usage_internal.exec_db_usage_sampling(SYSDATE);
 exit

@@ -33,7 +33,7 @@ export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
 DB_VERSION=$(sqlplus -S / as sysdba << EOF
-set pages 0 feedback off
+set pages 0 feedback off timing off
 select version from v\$instance;
 exit
 EOF

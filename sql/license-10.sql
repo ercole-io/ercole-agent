@@ -13,7 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set feedback off pages 0 serverout on verify off lines 1234
+set feedback off pages 0 serverout on verify off lines 1234 timing off
 VARIABLE TUNING number;
 VARIABLE DIAGNOSTICS number;
 VARIABLE LABELSECURITY number;

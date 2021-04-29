@@ -13,11 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set lines 8000 pages 0 feedback off verify off
+set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
-
-column "Nome_Acronimo" for a8
-column "DB_Name" for a10
 
 select 
 	   (select host_name from v$instance) as Hostname,

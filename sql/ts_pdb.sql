@@ -13,7 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set lines 8000 pages 0 feedback off verify off
+set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 
 alter session set container=&1;

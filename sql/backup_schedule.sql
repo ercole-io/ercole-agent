@@ -13,7 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set feedback off
+set feedback off timing off
 
 VARIABLE RETENTION varchar2(200)
 VARIABLE BCK number;
