@@ -20,7 +20,7 @@ VARIABLE VERSION varchar2(100);
 VARIABLE EXTENDVERSION varchar2(100);
 VARIABLE EXIST number;
 
-set lines 8000 pages 0 feedback off verify off
+set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 alter session set NLS_DATE_FORMAT='YYYY-MM-DD';
 

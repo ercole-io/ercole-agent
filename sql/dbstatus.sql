@@ -13,6 +13,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set pages 0 feedback off
+set pages 0 feedback off timing off
 select status from v$instance;
 exit

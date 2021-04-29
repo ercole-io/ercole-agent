@@ -10,7 +10,7 @@
  -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SET lines 32767 pages 0 feedback OFF verify OFF
+SET lines 32767 pages 0 feedback OFF verify OFF timing off
 SET colsep "|||"
 
 SELECT NAME,

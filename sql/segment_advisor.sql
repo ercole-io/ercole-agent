@@ -22,7 +22,7 @@ col SEGMENT_NAME for a82
 col SEGMENT_TYPE like SEGMENT_OWNER
 col PARTITION_NAME like SEGMENT_OWNER
 
-set autoprint on
+set autoprint on timing off
 set lines 900 pages 0
 SET FEEDBACK OFF
 set colsep "|||"

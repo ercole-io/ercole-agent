@@ -39,7 +39,7 @@ if [ "$RUNNING" -eq "0" ]; then
 fi
 
 DB_STATUS=$(sqlplus -S / as sysdba << EOF
-set pages 0 feedback off
+set pages 0 feedback off timing off
 select status from v\$instance;
 exit
 EOF
