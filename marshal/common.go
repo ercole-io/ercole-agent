@@ -147,6 +147,21 @@ func TrimParseFloat64Pointer(s string, nils ...string) *float64 {
 	return &f
 }
 
+func TrimParseFloat64PointerSafeComma(s string, nils ...string) *float64 {
+	s = strings.TrimSpace(s)
+
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil
+		}
+	}
+
+	s = strings.Replace(s, ",", ".", 1)
+
+	f := TrimParseFloat64(s)
+	return &f
+}
+
 func TrimParseBool(s string) bool {
 	s = strings.TrimSpace(s)
 
