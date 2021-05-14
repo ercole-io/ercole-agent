@@ -68,10 +68,10 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			db.DatafileSize = marshal.TrimParseFloat64(iter())
 			db.Allocable = marshal.TrimParseFloat64(iter())
 
-			db.Elapsed = marshal.TrimParseFloat64Pointer(iter(), "N/A")
-			db.DBTime = marshal.TrimParseFloat64Pointer(iter(), "N/A")
-			db.DailyCPUUsage = marshal.TrimParseFloat64Pointer(iter(), "N/A")
-			db.Work = marshal.TrimParseFloat64Pointer(iter(), "N/A")
+			db.Elapsed = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
+			db.DBTime = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
+			db.DailyCPUUsage = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
+			db.Work = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
 
 			db.ASM = marshal.TrimParseBool(iter())
 			db.Dataguard = marshal.TrimParseBool(iter())
