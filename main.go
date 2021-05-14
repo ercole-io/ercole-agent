@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -31,6 +32,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/scheduler"
 	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
 	"github.com/ercole-io/ercole/v2/model"
+	ercole_utils "github.com/ercole-io/ercole/v2/utils"
 	"golang.org/x/net/context"
 )
 
@@ -129,9 +131,25 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 		log.Info("Response status: ", resp.Status)
 		log.Info("Sending result: SUCCESS")
 	} else {
-		log.Warn("Response status: ", resp.Status)
+		log.Warnf("Response status: %s", resp.Status)
+		logResponseBody(log, resp.Body)
 		log.Warn("Sending result: FAILED")
 	}
+}
+
+func logResponseBody(log logger.Logger, body io.ReadCloser) {
+	bytes, err := io.ReadAll(body)
+	if err != nil {
+		return
+	}
+
+	var errFE ercole_utils.ErrorResponseFE
+	err = json.Unmarshal(bytes, &errFE)
+	if err != nil {
+		return
+	}
+
+	log.Warnf("%s\n%s\n", errFE.Message, errFE.Error)
 }
 
 func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
