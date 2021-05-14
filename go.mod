@@ -1,6 +1,6 @@
 module github.com/ercole-io/ercole-agent/v2
 
-go 1.15
+go 1.16
 
 require (
 	github.com/ercole-io/ercole/v2 v2.0.0-20210412140120-4da40b4eb822
