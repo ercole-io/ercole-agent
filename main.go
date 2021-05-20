@@ -17,6 +17,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -33,7 +34,6 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
 	"github.com/ercole-io/ercole/v2/model"
 	ercole_utils "github.com/ercole-io/ercole/v2/utils"
-	"golang.org/x/net/context"
 )
 
 var version = "latest"
