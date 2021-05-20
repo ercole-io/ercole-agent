@@ -17,6 +17,7 @@ package common
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
@@ -91,6 +92,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			db := b.fetcher.GetOracleDatabaseMountedDb(entry)
 			database = &db
 
+			database.Version = checkVersion(database.Name, database.Version)
 			database.Tablespaces = []model.OracleDatabaseTablespace{}
 			database.Schemas = []model.OracleDatabaseSchema{}
 			database.Patches = []model.OracleDatabasePatch{}
@@ -181,6 +183,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	wg.Wait()
 
+	database.Version = checkVersion(database.Name, database.Version)
+
 	database.Services = []model.OracleDatabaseService{}
 
 	return &database
@@ -259,4 +263,16 @@ func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model
 	}
 
 	return licenses
+}
+
+func checkVersion(dbName, dbVersion string) string {
+	if strings.Contains(strings.ToUpper(dbVersion), "ENTERPRISE") {
+		return dbVersion
+	}
+
+	if dbName != "XE" {
+		return dbVersion
+	}
+
+	return "Express Edition"
 }
