@@ -226,40 +226,34 @@ func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model
 	licenses := make([]model.OracleDatabaseLicense, 0)
 	numLicenses := coreFactor * float64(cpuCores)
 
-	if dbEdition == "EXE" {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle EXE",
-			Count: numLicenses,
-		})
-	} else {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle EXE",
-			Count: 0,
-		})
+	editions := []struct {
+		name      string
+		dbEdition string
+	}{
+		{
+			name:      "Oracle EXE",
+			dbEdition: model.OracleDatabaseEditionExtreme,
+		},
+		{
+			name:      "Oracle ENT",
+			dbEdition: model.OracleDatabaseEditionEnterprise,
+		},
+		{
+			name:      "Oracle STD",
+			dbEdition: model.OracleDatabaseEditionStandard,
+		},
 	}
 
-	if dbEdition == "ENT" {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle ENT",
-			Count: numLicenses,
-		})
-	} else {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle ENT",
-			Count: 0,
-		})
-	}
+	for _, edition := range editions {
+		license := model.OracleDatabaseLicense{
+			Name: edition.name,
+		}
 
-	if dbEdition == "STD" {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle STD",
-			Count: numLicenses,
-		})
-	} else {
-		licenses = append(licenses, model.OracleDatabaseLicense{
-			Name:  "Oracle STD",
-			Count: 0,
-		})
+		if dbEdition == edition.dbEdition {
+			license.Count = numLicenses
+		}
+
+		licenses = append(licenses, license)
 	}
 
 	return licenses
