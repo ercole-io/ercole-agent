@@ -19,6 +19,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/fatih/color"
 )
 
 // Logger interface for a logger implementation
@@ -87,21 +89,16 @@ func (level Level) String() string {
 	return ""
 }
 
-func getColorByLevel(level Level) int {
-	const gray = 37
-	const yellow = 33
-	const red = 31
-	const blue = 36
-
+func getColorByLevel(level Level) color.Attribute {
 	switch level {
 	case DebugLevel, TraceLevel:
-		return gray
+		return color.FgWhite
 	case WarnLevel:
-		return yellow
+		return color.FgYellow
 	case ErrorLevel, FatalLevel, PanicLevel:
-		return red
+		return color.FgRed
 	default:
-		return blue
+		return color.FgCyan
 	}
 }
 
@@ -110,6 +107,7 @@ type LoggerOption func(Logger) error
 func LogDirectory(logDirectory string) LoggerOption {
 	return func(logger Logger) error {
 		path := filepath.Join(logDirectory, "ercole-agent.log")
+		logger.Infof("Logging on %s", path)
 
 		f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
