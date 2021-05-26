@@ -172,13 +172,8 @@ func checkLogDirectory(log logger.Logger, config *Configuration) {
 		return
 	}
 
-	isWritable, err := isDirectoryWritable(path)
-	if err != nil {
-		log.Fatal("LogDirectory is not valid: ", err)
-	}
-
-	if !isWritable {
-		log.Fatal("LogDirectory is not writable")
+	if err := checkDirectoryIsWritable(path); err != nil {
+		log.Fatalf("LogDirectory \"%s\" is not valid: %s", path, err)
 	}
 }
 
