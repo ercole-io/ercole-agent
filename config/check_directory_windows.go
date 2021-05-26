@@ -20,26 +20,20 @@ import (
 	"os"
 )
 
-func isDirectoryWritable(path string) (isWritable bool, err error) {
-	isWritable = false
+func checkDirectoryIsWritable(path string) (err error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		fmt.Println("Path doesn't exist")
-		return
+		return fmt.Errorf("Path doesn't exist: %w", err)
 	}
 
-	err = nil
 	if !info.IsDir() {
-		fmt.Println("Path isn't a directory")
-		return
+		return fmt.Errorf("Path isn't a directory")
 	}
 
 	// Check if the user bit is enabled in file permission
 	if info.Mode().Perm()&(1<<(uint(7))) == 0 {
-		fmt.Println("Write permission bit is not set on this file for user")
-		return
+		return fmt.Errorf("Write permission bit is not set on this file for user")
 	}
 
-	isWritable = true
-	return
+	return nil
 }

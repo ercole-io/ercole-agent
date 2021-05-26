@@ -20,32 +20,26 @@ package config
 import (
 	"fmt"
 	"os"
-	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
-func isDirectoryWritable(path string) (isWritable bool, err error) {
+func checkDirectoryIsWritable(path string) (err error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return false, fmt.Errorf("Path doesn't exist: %w", err)
+		return fmt.Errorf("Path doesn't exist: %w", err)
 	}
 
 	if !info.IsDir() {
-		return false, fmt.Errorf("Path isn't a directory")
+		return fmt.Errorf("Path isn't a directory")
 	}
 
-	// Check if the user bit is enabled in file permission
-	if info.Mode().Perm()&(1<<(uint(7))) == 0 {
-		return false, fmt.Errorf("Write permission bit is not set on this file for user")
+	if err := unix.Access(path, unix.W_OK); err != nil {
+		return fmt.Errorf("User has no write permission: %w", err)
+	}
+	if err := unix.Access(path, unix.X_OK); err != nil {
+		return fmt.Errorf("User has no execute permission: %w", err)
 	}
 
-	var stat syscall.Stat_t
-	if err = syscall.Stat(path, &stat); err != nil {
-		return false, fmt.Errorf("Unable to get stat: %w", err)
-	}
-
-	if uint32(os.Geteuid()) != stat.Uid {
-		return false, fmt.Errorf("User doesn't have permission to write to this directory")
-	}
-
-	return true, nil
+	return nil
 }

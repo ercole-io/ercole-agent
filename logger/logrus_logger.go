@@ -24,6 +24,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,32 +72,25 @@ type ercoleFormatter struct {
 
 // Format renders a single log entry
 func (f *ercoleFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	levelColor := getColorByLevel(Level(entry.Level))
+	scolored := color.New(getColorByLevel(Level(entry.Level))).SprintFunc()
+
 	levelText := strings.ToUpper(entry.Level.String())[0:4]
 	caller := getCaller(entry)
 	message := strings.TrimSuffix(entry.Message, "\n")
 
 	var logBuffer bytes.Buffer
 
-	if f.isColored {
-		logBuffer.WriteString(fmt.Sprintf("\x1b[%dm", levelColor))
-	}
-
 	logBuffer.WriteString(
-		fmt.Sprintf("[%s][%s][%s]",
-			entry.Time.Format("06-01-02 15:04:05"),
-			f.ComponentName,
-			levelText))
-
-	if f.isColored {
-		logBuffer.WriteString("\x1b[0m")
-	}
+		scolored(
+			fmt.Sprintf("[%s][%s][%s]",
+				entry.Time.Format("06-01-02 15:04:05"),
+				f.ComponentName,
+				levelText)))
 
 	logBuffer.WriteString(fmt.Sprintf("[%s] %-50s", caller, message))
 
 	for _, k := range getKeysInOrder(entry.Data) {
-		logBuffer.WriteString(
-			fmt.Sprintf("\x1b[%dm%s\x1b[0m=%v ", levelColor, k, entry.Data[k]))
+		logBuffer.WriteString(scolored(fmt.Sprintf("%s=%v ", k, entry.Data[k])))
 	}
 
 	return append(logBuffer.Bytes(), '\n'), nil
