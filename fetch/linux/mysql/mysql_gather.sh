@@ -49,7 +49,8 @@ if [ "$action" ==  "instance" ] ||
    [ "$action" ==  "table_schemas" ] || 
    [ "$action" ==  "segment_advisors" ] ||
    [ "$action" ==  "slave_hosts" ] ||
-   [ "$action" ==  "slave_status" ]; then
+   [ "$action" ==  "slave_status" ] ||
+   [ "$action" == "high_availability" ]; then
 	query="${path}${action}.sql"
 else 
         exit 1
