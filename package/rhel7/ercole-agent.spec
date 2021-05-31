@@ -132,6 +132,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.ts.sql
 
 /opt/ercole-agent/sql/mysql/databases.sql
+/opt/ercole-agent/sql/mysql/high_availability.sql
 /opt/ercole-agent/sql/mysql/instance.sql
 /opt/ercole-agent/sql/mysql/segment_advisors.sql
 /opt/ercole-agent/sql/mysql/slave_hosts.sql
