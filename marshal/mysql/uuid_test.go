@@ -16,6 +16,7 @@
 package mysql
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,16 +30,23 @@ func TestUUID(t *testing.T) {
 	testCases := []struct {
 		data string
 		uuid string
+		err  error
 	}{
-		{testUUIDData1, "a74c753e-7cfa-11eb-991a-566f86f30033"},
-		{testUUIDData2, ""},
+		{testUUIDData1, "a74c753e-7cfa-11eb-991a-566f86f30033", nil},
+		{testUUIDData2, "", errors.New("server-uuid not found")},
 	}
 
 	for _, tc := range testCases {
 		cmdOutput := []byte(tc.data)
 
-		uuid := UUID(cmdOutput)
+		uuid, err := UUID(cmdOutput)
 
 		assert.Equal(t, tc.uuid, uuid)
+
+		if tc.err == nil {
+			assert.Nil(t, err)
+		} else {
+			assert.EqualError(t, err, tc.err.Error())
+		}
 	}
 }

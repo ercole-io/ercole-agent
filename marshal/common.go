@@ -182,6 +182,7 @@ func parseKeyValueColonSeparated(b []byte) map[string]string {
 	return ParseKeyValue(b, ":")
 }
 
+// ParseKeyValue scan lines from b and put key values in map
 func ParseKeyValue(b []byte, sep string) map[string]string {
 	scanner := bufio.NewScanner(bytes.NewBuffer(b))
 

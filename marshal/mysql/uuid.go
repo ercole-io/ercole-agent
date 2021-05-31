@@ -16,10 +16,17 @@
 package mysql
 
 import (
+	"errors"
+
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 )
 
-func UUID(cmdOutput []byte) string {
+func UUID(cmdOutput []byte) (string, error) {
 	values := marshal.ParseKeyValue(cmdOutput, "=")
-	return values["server-uuid"]
+
+	if uuid, ok := values["server-uuid"]; ok {
+		return uuid, nil
+	}
+
+	return "", errors.New("server-uuid not found")
 }
