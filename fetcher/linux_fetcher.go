@@ -16,6 +16,7 @@
 package fetcher
 
 import (
+	"os"
 	"os/user"
 	"strconv"
 	"strings"
@@ -437,9 +438,18 @@ func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInst
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLUUID() string {
-	out := lf.execute("grep server-uuid /var/lib/mysql/auto.cnf")
+	file := "/var/lib/mysql/auto.cnf"
+	out, err := os.ReadFile(file)
+	if err != nil {
+		lf.log.Fatal("Can't get MySQL UUID from ", file, ": ", err)
+	}
 
-	return marshal_mysql.UUID(out)
+	uuid, err := marshal_mysql.UUID(out)
+	if err != nil {
+		lf.log.Fatal("Can't get MySQL UUID: ", err)
+	}
+
+	return uuid
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
