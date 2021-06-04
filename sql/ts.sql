@@ -17,6 +17,8 @@ set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 
 column "% USED" format 99990.00
+col "USED (MB)" for 9999999999.00
+col "TOTAL ALLOC (MB)" for 9999999999.00 
 
 select 
 	   (select host_name from v$instance) as Hostname,
