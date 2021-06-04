@@ -186,7 +186,7 @@ SELECT
   (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
    FROM v$parameter
    WHERE name='pga_aggregate_target') AS Pga_Target,
-  (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
+  (SELECT NVL(MIN(rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')),0)
    FROM v$parameter
    WHERE name='memory_target') AS Pga_Target,
   (SELECT rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',')
