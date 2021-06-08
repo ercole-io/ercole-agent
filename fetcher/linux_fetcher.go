@@ -123,7 +123,7 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 	scriptPath := config.GetBaseDir() + "/fetch/linux/" + fetcherName
 	args = append([]string{scriptPath}, args...)
 
-	lf.log.Infof("Fetching %v", scriptPath, strings.Join(args, " "))
+	lf.log.Infof("Fetching %s %s", scriptPath, strings.Join(args, " "))
 
 	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, "/usr/bin/pwsh", args...)
 
