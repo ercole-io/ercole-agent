@@ -107,7 +107,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host), host.CPUCores)
 		}
 	default:
-		b.log.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil
 	}
