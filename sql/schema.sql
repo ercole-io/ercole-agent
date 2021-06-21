@@ -16,12 +16,7 @@
 set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 
---column "TOTMB" format 9,999,990
---column "TBMB" format 9,999,990
---column "INDMB" format 9,999,990
---column "LOBMB" format 9,999,990
-column "Nome_Acronimo" for a8
-column "DB_Name" for a10
+column username for a50
 
 with 
 lista_users as
