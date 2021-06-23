@@ -76,6 +76,8 @@ SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}') / 1024 / 1
 
 CHECK_TYPE_SERVER_OVM_DMESG=$(dmesg | grep OVM | wc -l)
 CHECK_TYPE_SERVER_OVM_LOG=$(grep OVM /var/log/dmesg | wc -l)
+CHECK_TYPE_SERVER_KVM_DMESG=$(dmesg | grep -i kvm | wc -l)
+CHECK_TYPE_SERVER_KVM_LOG=$(grep -i  kvm /var/log/dmesg | wc -l)
 CHECK_TYPE_SERVER_VMWARE=$(dmesg | grep VMware | wc -l)
 CHECK_TYPE_SERVER_VMWARE_LOG=$(grep VMware /var/log/dmesg* | wc -l)
 CHECK_TYPE_SERVER_HYPERV=$(dmesg | grep HyperV | wc -l)
@@ -85,6 +87,9 @@ CHECK_TYPE_SERVER_HYPERVISOR=$(grep ^flags /proc/cpuinfo | grep hypervisor | wc 
 
 if [ "$CHECK_TYPE_SERVER_OVM_DMESG" -gt 0 ] || [ "$CHECK_TYPE_SERVER_OVM_LOG" -gt 0 ]; then
   HARDWARE_ABSTRACTION_TECHNOLOGY=OVM
+  VIRTUAL=Y
+elif [ $CHECK_TYPE_SERVER_KVM_DMESG -gt 0 ] || [ "$CHECK_TYPE_SERVER_KVM_LOG" -gt 0 ]; then
+  HARDWARE_ABSTRACTION_TECHNOLOGY=KVM
   VIRTUAL=Y
 elif [ $CHECK_TYPE_SERVER_VMWARE -gt 0 ] || [ "$CHECK_TYPE_SERVER_VMWARE_LOG" -gt 0 ]; then
   HARDWARE_ABSTRACTION_TECHNOLOGY=VMWARE
@@ -107,13 +112,13 @@ else
 fi
 
 echo -n "Hostname: $HOSTNAME
-CPUModel: $CPU_MODEL 
+CPUModel: $CPU_MODEL
 CPUFrequency: $CPU_FREQUENCY
 CPUSockets: $CPU_SOCKETS
 CPUCores: $CPU_CORES
 CPUThreads: $CPU_THREADS
 ThreadsPerCore: $THREADS_PER_CORE
-CoresPerSocket: $CORES_PER_SOCKET 
+CoresPerSocket: $CORES_PER_SOCKET
 HardwareAbstraction: $HARDWARE_ABSTRACTION
 HardwareAbstractionTechnology: $HARDWARE_ABSTRACTION_TECHNOLOGY
 Kernel: $KERNEL
