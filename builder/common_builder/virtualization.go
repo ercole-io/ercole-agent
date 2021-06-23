@@ -26,7 +26,9 @@ func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 	clustersChan := make(chan []model.ClusterInfo, countHypervisors)
 	vmsChan := make(chan map[string][]model.VMInfo, countHypervisors)
 
-	for _, hv := range b.configuration.Features.Virtualization.Hypervisors {
+	for i := range b.configuration.Features.Virtualization.Hypervisors {
+		hv := b.configuration.Features.Virtualization.Hypervisors[i]
+
 		utils.RunRoutine(b.configuration, func() {
 			clustersChan <- b.fetcher.GetClusters(hv)
 		})
