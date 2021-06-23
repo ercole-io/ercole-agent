@@ -73,7 +73,7 @@ EOF
 
 CPU_THREADS=$(grep processor /proc/cpuinfo | wc -l)
 
-if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' ]]; then
+if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' || "$TYPE" == 'KVM' ]]; then
   if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
     LICENSES=$(echo 0.25*$CPU_THREADS|bc)
     FACTOR=0.25
