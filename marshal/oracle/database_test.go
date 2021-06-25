@@ -30,14 +30,15 @@ const testDatabaseData4 string = `ERC18													|||4444444444|||PRIMARY  |||
 func TestDatabase_WithArchivelog(t *testing.T) {
 	cmdOutput := []byte(testDatabaseData1)
 
-	actual := Database(cmdOutput)
+	actual, errs := Database(cmdOutput)
+	assert.Nil(t, errs)
 
 	elapsed := (float64)(12660.45)
 	dbTime := (float64)(7.7)
 	dailyCPUUsage := (float64)(0)
 	work := (float64)(1)
 
-	expected := model.OracleDatabase{InstanceNumber: 1,
+	expected := &model.OracleDatabase{InstanceNumber: 1,
 		InstanceName: "ERC18",
 
 		Name:          "ERC18",
@@ -74,14 +75,15 @@ func TestDatabase_WithArchivelog(t *testing.T) {
 func TestDatabase_WithoutArchivelog(t *testing.T) {
 	cmdOutput := []byte(testDatabaseData2)
 
-	actual := Database(cmdOutput)
+	actual, errs := Database(cmdOutput)
+	assert.Nil(t, errs)
 
 	elapsed := (float64)(12660.45)
 	dbTime := (float64)(7.7)
 	dailyCPUUsage := (float64)(0)
 	work := (float64)(1)
 
-	expected := model.OracleDatabase{InstanceNumber: 1,
+	expected := &model.OracleDatabase{InstanceNumber: 1,
 		InstanceName: "ERC18",
 
 		Name:          "ERC18",
@@ -126,13 +128,14 @@ func TestDatabase_WrongArchivelog(t *testing.T) {
 func TestDatabase_WithoutDailyCPUUsage(t *testing.T) {
 	cmdOutput := []byte(testDatabaseData4)
 
-	actual := Database(cmdOutput)
+	actual, errs := Database(cmdOutput)
+	assert.Nil(t, errs)
 
 	elapsed := (float64)(12660.45)
 	dbTime := (float64)(7.7)
 	work := (float64)(1)
 
-	expected := model.OracleDatabase{InstanceNumber: 1,
+	expected := &model.OracleDatabase{InstanceNumber: 1,
 		InstanceName: "ERC18",
 
 		Name:          "ERC18",

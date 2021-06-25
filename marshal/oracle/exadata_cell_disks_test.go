@@ -30,7 +30,8 @@ fcax1sf2|||CD_02_fcax1sf3|||normal|||103|||54`
 func TestOracleExadataCellDisks(t *testing.T) {
 	cmdOutput := []byte(testOracleExadataCellDisksData)
 
-	actual := ExadataCellDisks(cmdOutput)
+	actual, errs := ExadataCellDisks(cmdOutput)
+	assert.Nil(t, errs)
 
 	expected := map[agentmodel.StorageServerName][]model.OracleExadataCellDisk{
 		agentmodel.StorageServerName("fcax1sf1"): {
@@ -63,7 +64,8 @@ func TestOracleExadataCellDisks(t *testing.T) {
 func TestEmptyOracleExadataCellDisks(t *testing.T) {
 	cmdOutput := []byte("")
 
-	actual := ExadataCellDisks(cmdOutput)
+	actual, errs := ExadataCellDisks(cmdOutput)
+	assert.Nil(t, errs)
 
 	expected := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 

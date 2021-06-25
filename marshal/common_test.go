@@ -16,12 +16,56 @@
 package marshal
 
 import (
+	//"fmt"
+
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTrimParseFloat64PointerWithComma(t *testing.T) {
+func TestTrimParseInt(t *testing.T) {
+	testCases := []struct {
+		s        string
+		expected int
+		expErr   error
+	}{
+		{
+			s:        "",
+			expected: 0,
+			expErr:   strconv.ErrSyntax,
+		},
+		{
+			s:        "N/A",
+			expected: 0,
+			expErr:   strconv.ErrSyntax,
+		},
+		{
+			s:        "42.42",
+			expected: 0,
+			expErr:   strconv.ErrSyntax,
+		},
+		{
+			s:        "42",
+			expected: 42,
+			expErr:   nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		actual, actErr := TrimParseInt(tc.s)
+		assert.Equal(t, tc.expected, actual)
+
+		if tc.expErr == nil {
+			assert.Nil(t, actErr)
+			continue
+		}
+
+		assert.ErrorIs(t, actErr, tc.expErr)
+	}
+}
+
+func TestTrimParseFloat64PointerSafeComma(t *testing.T) {
 	testCases := []struct {
 		s        string
 		nils     []string

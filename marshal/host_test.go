@@ -42,9 +42,9 @@ SwapTotal: 31`
 func TestHost(t *testing.T) {
 	cmdOutput := []byte(testHostData)
 
-	actual := Host(cmdOutput)
+	actual, errs := Host(cmdOutput)
 
-	expected := model.Host{
+	expected := &model.Host{
 		Hostname:                      "littletony",
 		CPUModel:                      "AMD Opteron(tm) Processor 6380",
 		CPUFrequency:                  "2500.000Mhz",
@@ -63,6 +63,6 @@ func TestHost(t *testing.T) {
 		SwapTotal:                     31,
 		OtherInfo:                     nil,
 	}
-
+	assert.Nil(t, errs)
 	assert.Equal(t, expected, actual)
 }

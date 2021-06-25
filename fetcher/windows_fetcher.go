@@ -17,7 +17,7 @@ package fetcher
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -29,6 +29,7 @@ import (
 	marshal_microsoft "github.com/ercole-io/ercole-agent/v2/marshal/microsoft"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole/v2/utils"
 )
 
 // WindowsFetcherImpl SpecializedFetcher implementation for windows
@@ -37,7 +38,7 @@ type WindowsFetcherImpl struct {
 	log           logger.Logger
 }
 
-const notImplementedWindows = "Not yet implemented for windows"
+var notImplementedWindows = errors.New("Not yet implemented for windows")
 
 // NewWindowsFetcherImpl constructor
 func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) *WindowsFetcherImpl {
@@ -98,13 +99,13 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, params ...string) []by
 // SetUser not implemented
 func (wf *WindowsFetcherImpl) SetUser(username string) error {
 	wf.log.Error(notImplementedWindows)
-	return fmt.Errorf(notImplementedWindows)
+	return utils.NewError(notImplementedWindows)
 }
 
 // SetUserAsCurrent set user used by fetcher to run commands as current process user
 func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
 	wf.log.Error(notImplementedWindows)
-	return fmt.Errorf(notImplementedWindows)
+	return utils.NewError(notImplementedWindows)
 }
 
 // GetClusters not implemented
@@ -118,21 +119,19 @@ func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) []model.ClusterI
 func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string][]model.VMInfo {
 	wf.log.Error(notImplementedWindows)
 
-	return make(map[string][]model.VMInfo, 0)
+	return nil
 }
 
 // GetOracleExadataComponents get
-func (wf *WindowsFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
+func (wf *WindowsFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, []error) {
 	wf.log.Error(notImplementedWindows)
-
-	return make([]model.OracleExadataComponent, 0)
+	return nil, []error{utils.NewError(notImplementedWindows)}
 }
 
 // GetOracleExadataCellDisks get
-func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
+func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, []error) {
 	wf.log.Error(notImplementedWindows)
-
-	return make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, 0)
+	return nil, []error{utils.NewError(notImplementedWindows)}
 }
 
 // GetClustersMembershipStatus get
@@ -147,7 +146,7 @@ func (wf *WindowsFetcherImpl) GetClustersMembershipStatus() model.ClusterMembers
 }
 
 // GetHost get
-func (wf *WindowsFetcherImpl) GetHost() model.Host {
+func (wf *WindowsFetcherImpl) GetHost() (*model.Host, []error) {
 	out := wf.execute("win.ps1", "-s", "host")
 	return marshal.Host(out)
 }
@@ -176,7 +175,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabE
 }
 
 // GetOracleDatabaseMountedDb get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error) {
 	out := wf.execute("win.ps1", "-s", "dbmounted", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Database(out)
 }
@@ -193,7 +192,7 @@ func (wf *WindowsFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntr
 }
 
 // GetOracleDatabaseOpenDb get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error) {
 	out := wf.execute("win.ps1", "-s", "db", entry.DBName, strconv.Itoa(wf.configuration.Features.OracleDatabase.AWR))
 	return marshal_oracle.Database(out)
 }
@@ -205,13 +204,13 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.Orat
 }
 
 // GetOracleDatabaseSchemas get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, []error) {
 	out := wf.execute("win.ps1", "-s", "schema", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Schemas(out)
 }
 
 // GetOracleDatabasePatches get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch {
+func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, []error) {
 	out := wf.execute("win.ps1", "-s", "patch", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.Patches(out)
 }
@@ -271,9 +270,9 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.O
 }
 
 // GetOracleDatabasePDBSchemas get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema {
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, []error) {
 	wf.log.Panic(notImplementedWindows)
-	return nil
+	return nil, []error{notImplementedWindows}
 }
 
 // GetMicrosoftSQLServerInstances get
@@ -336,9 +335,9 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) 
 	return marshal_microsoft.Features(out)
 }
 
-func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance {
+func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, []error) {
 	wf.log.Error(notImplementedWindows)
-	return nil
+	return nil, []error{notImplementedWindows}
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase {

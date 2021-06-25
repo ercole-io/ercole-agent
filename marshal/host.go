@@ -23,18 +23,31 @@ import (
 
 // Host returns a Host struct from the output of the host
 // fetcher command. Host fields output is in key: value format separated by a newline
-func Host(cmdOutput []byte) model.Host {
+func Host(cmdOutput []byte) (*model.Host, []error) {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var m model.Host
+	var errors []error
+	var err error
+
 	m.Hostname = strings.TrimSpace(data["Hostname"])
 	m.CPUModel = strings.TrimSpace(data["CPUModel"])
 	m.CPUFrequency = strings.TrimSpace(data["CPUFrequency"])
-	m.CPUSockets = TrimParseInt(data["CPUSockets"])
-	m.CPUCores = TrimParseInt(data["CPUCores"])
-	m.CPUThreads = TrimParseInt(data["CPUThreads"])
-	m.ThreadsPerCore = TrimParseInt(data["ThreadsPerCore"])
-	m.CoresPerSocket = TrimParseInt(data["CoresPerSocket"])
+	if m.CPUSockets, err = TrimParseInt(data["CPUSockets"]); err != nil {
+		errors = append(errors, err)
+	}
+	if m.CPUCores, err = TrimParseInt(data["CPUCores"]); err != nil {
+		errors = append(errors, err)
+	}
+	if m.CPUThreads, err = TrimParseInt(data["CPUThreads"]); err != nil {
+		errors = append(errors, err)
+	}
+	if m.ThreadsPerCore, err = TrimParseInt(data["ThreadsPerCore"]); err != nil {
+		errors = append(errors, err)
+	}
+	if m.CoresPerSocket, err = TrimParseInt(data["CoresPerSocket"]); err != nil {
+		errors = append(errors, err)
+	}
 	m.HardwareAbstraction = strings.TrimSpace(data["HardwareAbstraction"])
 	m.HardwareAbstractionTechnology = strings.TrimSpace(data["HardwareAbstractionTechnology"])
 	m.Kernel = strings.TrimSpace(data["Kernel"])
@@ -44,5 +57,9 @@ func Host(cmdOutput []byte) model.Host {
 	m.MemoryTotal = TrimParseFloat64(data["MemoryTotal"])
 	m.SwapTotal = TrimParseFloat64(data["SwapTotal"])
 
-	return m
+	if len(errors) > 0 {
+		return nil, errors
+	}
+
+	return &m, nil
 }

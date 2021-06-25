@@ -15,18 +15,24 @@
 
 package common
 
-import "github.com/ercole-io/ercole/v2/model"
+import (
+	"github.com/ercole-io/ercole/v2/model"
+)
 
-func (b *CommonBuilder) getMySQLFeature() *model.MySQLFeature {
+func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, []error) {
+	var errs []error
 	mysql := &model.MySQLFeature{
 		Instances: []model.MySQLInstance{},
 	}
 
 	for _, conf := range b.configuration.Features.MySQL.Instances {
-		instance := b.fetcher.GetMySQLInstance(conf)
-
-		if instance == nil {
-			b.log.Warnf("Can't get instance: %s\n", conf.Host)
+		instance, instErrs := b.fetcher.GetMySQLInstance(conf)
+		if len(instErrs) > 0 {
+			b.log.Errorf("Can't get instance: %s\n", conf.Host)
+			for _, e := range instErrs {
+				b.log.Errorf("- %s\n", e.Error())
+			}
+			errs = append(errs, instErrs...)
 			continue
 		}
 
@@ -43,5 +49,5 @@ func (b *CommonBuilder) getMySQLFeature() *model.MySQLFeature {
 		mysql.Instances = append(mysql.Instances, *instance)
 	}
 
-	return mysql
+	return mysql, errs
 }

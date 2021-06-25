@@ -28,7 +28,7 @@ type Fetcher interface {
 
 	// Operating system fetchers
 
-	GetHost() model.Host
+	GetHost() (*model.Host, []error)
 	GetFilesystems() []model.Filesystem
 	GetClustersMembershipStatus() model.ClusterMembershipStatus
 
@@ -42,13 +42,13 @@ type Fetcher interface {
 	GetOracleDatabaseOratabEntries() []agentmodel.OratabEntry
 	GetOracleDatabaseRunningDatabases() []string
 	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) string
-	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error)
 	GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string
 	RunOracleDatabaseStats(entry agentmodel.OratabEntry)
-	GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase
+	GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error)
 	GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
-	GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema
-	GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch
+	GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, []error)
+	GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, []error)
 	GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat
 	GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
 	GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
@@ -58,12 +58,12 @@ type Fetcher interface {
 	GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) bool
 	GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase
 	GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace
-	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema
+	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, []error)
 
 	// Oracle/Exadata fetchers
 
-	GetOracleExadataComponents() []model.OracleExadataComponent
-	GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk
+	GetOracleExadataComponents() ([]model.OracleExadataComponent, []error)
+	GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, []error)
 
 	// Microsoft/SQLServer fetchers
 
@@ -80,7 +80,7 @@ type Fetcher interface {
 
 	// MySQL fetchers
 
-	GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance
+	GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, []error)
 	GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase
 	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema
 	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor

@@ -116,7 +116,7 @@ func TestExadataComponent(t *testing.T) {
 	}
 
 	cmdOutput := []byte(testExadataComponentData)
-	actual := ExadataComponent(cmdOutput)
-
+	actual, errs := ExadataComponent(cmdOutput)
+	assert.Nil(t, errs)
 	assert.Equal(t, expected, actual)
 }

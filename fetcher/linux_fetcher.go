@@ -16,6 +16,7 @@
 package fetcher
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"strconv"
@@ -97,13 +98,13 @@ func (lf *LinuxFetcherImpl) execute(fetcherName string, args ...string) []byte {
 	lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
 
 	if len(stderr) > 0 {
-		format := "Fetcher [%s] exitCode: [%v] stderr: [%v]"
-		args := []interface{}{fetcherName, exitCode, strings.TrimSpace(string(stderr))}
+		msg := fmt.Sprintf("Fetcher [%s] exitCode: [%v] stderr: [%v]",
+			fetcherName, exitCode, strings.TrimSpace(string(stderr)))
 
 		if exitCode == 0 {
-			lf.log.Debugf(format, args...)
+			lf.log.Debugf(msg)
 		} else {
-			lf.log.Errorf(format, args...)
+			lf.log.Errorf(msg)
 		}
 	}
 
@@ -143,7 +144,7 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 }
 
 // GetHost get
-func (lf *LinuxFetcherImpl) GetHost() model.Host {
+func (lf *LinuxFetcherImpl) GetHost() (*model.Host, []error) {
 	out := lf.execute("host")
 	return marshal.Host(out)
 }
@@ -184,7 +185,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEnt
 }
 
 // GetOracleDatabaseMountedDb get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error) {
 	out := lf.execute("dbmounted", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Database(out)
 }
@@ -201,7 +202,7 @@ func (lf *LinuxFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry)
 }
 
 // GetOracleDatabaseOpenDb get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) model.OracleDatabase {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, []error) {
 	out := lf.execute("db", entry.DBName, entry.OracleHome, strconv.Itoa(lf.configuration.Features.OracleDatabase.AWR))
 	return marshal_oracle.Database(out)
 }
@@ -213,13 +214,13 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.Oratab
 }
 
 // GetOracleDatabaseSchemas get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) []model.OracleDatabaseSchema {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, []error) {
 	out := lf.execute("schema", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Schemas(out)
 }
 
 // GetOracleDatabasePatches get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePatch {
+func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, []error) {
 	out := lf.execute("patch", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.Patches(out)
 }
@@ -279,7 +280,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.Ora
 }
 
 // GetOracleDatabasePDBSchemas get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseSchema {
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, []error) {
 	out := lf.execute("schema_pdb", entry.DBName, entry.OracleHome, pdb)
 	return marshal_oracle.Schemas(out)
 }
@@ -333,13 +334,13 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[string]
 }
 
 // GetOracleExadataComponents get
-func (lf *LinuxFetcherImpl) GetOracleExadataComponents() []model.OracleExadataComponent {
+func (lf *LinuxFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, []error) {
 	out := lf.execute("exadata/info")
 	return marshal_oracle.ExadataComponent(out)
 }
 
 // GetOracleExadataCellDisks get
-func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() map[agentmodel.StorageServerName][]model.OracleExadataCellDisk {
+func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, []error) {
 	out := lf.execute("exadata/storage-status")
 	return marshal_oracle.ExadataCellDisks(out)
 }
@@ -407,9 +408,8 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []
 	return nil
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) *model.MySQLInstance {
+func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, []error) {
 	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "instance")
-
 	return marshal_mysql.Instance(out)
 }
 
