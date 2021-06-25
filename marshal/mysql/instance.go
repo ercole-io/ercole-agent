@@ -20,7 +20,7 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
-	"github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
@@ -41,7 +41,7 @@ func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
 		instance.CharsetSystem = strings.TrimSpace(scanner.Iter())
 		instance.PageSize = marshal.TrimParseFloat64(scanner.Iter())
 		if instance.ThreadsConcurrency, err = marshal.TrimParseInt(scanner.Iter()); err != nil {
-			errs = append(errs, utils.NewError(err))
+			errs = append(errs, ercutils.NewError(err))
 		}
 		instance.BufferPoolSize = marshal.TrimParseFloat64(scanner.Iter())
 		instance.LogBufferSize = marshal.TrimParseFloat64(scanner.Iter())

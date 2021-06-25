@@ -22,7 +22,7 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
-	"github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Schemas returns information about database tablespaces extracted
@@ -41,16 +41,16 @@ func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, []error) {
 		if len(splitted) == 8 {
 			schema.User = strings.TrimSpace(splitted[3])
 			if schema.Total, err = marshal.TrimParseInt(splitted[4]); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			if schema.Tables, err = marshal.TrimParseInt(splitted[5]); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			if schema.Indexes, err = marshal.TrimParseInt(splitted[6]); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			if schema.LOB, err = marshal.TrimParseInt(splitted[7]); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			schemas = append(schemas, *schema)
 		}
