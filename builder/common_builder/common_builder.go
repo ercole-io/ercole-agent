@@ -23,6 +23,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/fetcher"
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // CommonBuilder for Linux and Windows hosts
@@ -116,24 +117,36 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 }
 
-func (b *CommonBuilder) setOrResetFetcherUser(user string) {
+func (b *CommonBuilder) setOrResetFetcherUser(user string) error {
+	user = strings.TrimSpace(user)
+
 	if runtime.GOOS != "linux" {
-		if strings.TrimSpace(user) != "" {
-			b.log.Errorf("Can't set user [%s] for fetcher because it is not supported")
+		if user == "" {
+			return nil
 		}
 
-		return
+		err := ercutils.NewErrorf("Can't set user [%s] for fetcher because it is not supported", user)
+		b.log.Error(err)
+		return err
 	}
 
-	if strings.TrimSpace(user) == "" {
+	if user == "" {
 		if err := b.fetcher.SetUserAsCurrent(); err != nil {
-			b.log.Panicf("Can't set current user for fetchers, err: [%v]", user, err)
+			err := ercutils.NewErrorf("Can't set current user for fetchers, err: [%v]", err)
+			b.log.Error(err)
+			return err
 		}
-	} else {
-		if err := b.fetcher.SetUser(user); err != nil {
-			b.log.Panicf("Can't set user [%s] for fetchers, err: [%v]", user, err)
-		}
+
+		return nil
 	}
+
+	if err := b.fetcher.SetUser(user); err != nil {
+		err = ercutils.NewErrorf("Can't set user [%s] for fetchers, err: [%v]", user, err)
+		b.log.Error(err)
+		return err
+	}
+
+	return nil
 }
 
 func lazyInitOracleFeature(fs *model.Features) {

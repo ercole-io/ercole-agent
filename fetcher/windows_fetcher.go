@@ -29,7 +29,7 @@ import (
 	marshal_microsoft "github.com/ercole-io/ercole-agent/v2/marshal/microsoft"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
 	"github.com/ercole-io/ercole/v2/model"
-	"github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // WindowsFetcherImpl SpecializedFetcher implementation for windows
@@ -99,13 +99,13 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, params ...string) []by
 // SetUser not implemented
 func (wf *WindowsFetcherImpl) SetUser(username string) error {
 	wf.log.Error(notImplementedWindows)
-	return utils.NewError(notImplementedWindows)
+	return ercutils.NewError(notImplementedWindows)
 }
 
 // SetUserAsCurrent set user used by fetcher to run commands as current process user
 func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
 	wf.log.Error(notImplementedWindows)
-	return utils.NewError(notImplementedWindows)
+	return ercutils.NewError(notImplementedWindows)
 }
 
 // GetClusters not implemented
@@ -125,13 +125,13 @@ func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) map[strin
 // GetOracleExadataComponents get
 func (wf *WindowsFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, []error) {
 	wf.log.Error(notImplementedWindows)
-	return nil, []error{utils.NewError(notImplementedWindows)}
+	return nil, []error{ercutils.NewError(notImplementedWindows)}
 }
 
 // GetOracleExadataCellDisks get
 func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, []error) {
 	wf.log.Error(notImplementedWindows)
-	return nil, []error{utils.NewError(notImplementedWindows)}
+	return nil, []error{ercutils.NewError(notImplementedWindows)}
 }
 
 // GetClustersMembershipStatus get

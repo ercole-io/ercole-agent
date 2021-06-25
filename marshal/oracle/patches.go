@@ -23,7 +23,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 
 	"github.com/ercole-io/ercole/v2/model"
-	"github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Patches returns information about database tablespaces extracted
@@ -44,7 +44,7 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, []error) {
 			patchID := strings.TrimSpace(splitted[5])
 			if patchID != "" {
 				if patch.PatchID, err = marshal.TrimParseInt(patchID); err != nil {
-					errs = append(errs, utils.NewError(err))
+					errs = append(errs, ercutils.NewError(err))
 				}
 			}
 

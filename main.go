@@ -33,7 +33,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/scheduler"
 	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
 	"github.com/ercole-io/ercole/v2/model"
-	ercole_utils "github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 var version = "latest"
@@ -143,7 +143,7 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 		return
 	}
 
-	var errFE ercole_utils.ErrorResponseFE
+	var errFE ercutils.ErrorResponseFE
 	err = json.Unmarshal(bytes, &errFE)
 	if err != nil {
 		return

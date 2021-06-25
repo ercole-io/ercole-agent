@@ -23,7 +23,7 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
-	"github.com/ercole-io/ercole/v2/utils"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Database returns information about database extracted
@@ -45,7 +45,7 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
 			if db.InstanceNumber, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			db.InstanceName = strings.TrimSpace(iter())
 			db.Status = strings.TrimSpace(iter())
@@ -64,10 +64,10 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 			db.Charset = strings.TrimSpace(iter())
 			db.NCharset = strings.TrimSpace(iter())
 			if db.BlockSize, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			if db.CPUCount, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, utils.NewError(err))
+				errs = append(errs, ercutils.NewError(err))
 			}
 			db.SGATarget = marshal.TrimParseFloat64(iter())
 			db.PGATarget = marshal.TrimParseFloat64(iter())
