@@ -31,6 +31,11 @@ func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	for scanner.Scan() {
 		line := scanner.Text()
+
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+
 		splitted := strings.Split(line, ":")
 		if len(splitted) < 2 {
 			continue
