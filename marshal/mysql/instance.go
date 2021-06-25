@@ -20,33 +20,38 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole/v2/utils"
 )
 
-func Instance(cmdOutput []byte) (instance *model.MySQLInstance) {
+func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
 	scanner := marshal.NewCsvScanner(cmdOutput, 16)
+	var instance model.MySQLInstance
+	var errs []error
+	var err error
 
 	for scanner.SafeScan() {
-		instance := model.MySQLInstance{
-			Name:               strings.TrimSpace(scanner.Iter()),
-			Version:            strings.TrimSpace(scanner.Iter()),
-			Edition:            strings.TrimSpace(scanner.Iter()),
-			Platform:           strings.TrimSpace(scanner.Iter()),
-			Architecture:       strings.TrimSpace(scanner.Iter()),
-			Engine:             strings.TrimSpace(scanner.Iter()),
-			RedoLogEnabled:     strings.TrimSpace(scanner.Iter()),
-			CharsetServer:      strings.TrimSpace(scanner.Iter()),
-			CharsetSystem:      strings.TrimSpace(scanner.Iter()),
-			PageSize:           marshal.TrimParseFloat64(scanner.Iter()),
-			ThreadsConcurrency: marshal.TrimParseInt(scanner.Iter()),
-			BufferPoolSize:     marshal.TrimParseFloat64(scanner.Iter()),
-			LogBufferSize:      marshal.TrimParseFloat64(scanner.Iter()),
-			SortBufferSize:     marshal.TrimParseFloat64(scanner.Iter()),
-			ReadOnly:           marshal.TrimParseBool(scanner.Iter()),
-			LogBin:             marshal.TrimParseBool(scanner.Iter()),
+		instance.Name = strings.TrimSpace(scanner.Iter())
+		instance.Version = strings.TrimSpace(scanner.Iter())
+		instance.Edition = strings.TrimSpace(scanner.Iter())
+		instance.Platform = strings.TrimSpace(scanner.Iter())
+		instance.Architecture = strings.TrimSpace(scanner.Iter())
+		instance.Engine = strings.TrimSpace(scanner.Iter())
+		instance.RedoLogEnabled = strings.TrimSpace(scanner.Iter())
+		instance.CharsetServer = strings.TrimSpace(scanner.Iter())
+		instance.CharsetSystem = strings.TrimSpace(scanner.Iter())
+		instance.PageSize = marshal.TrimParseFloat64(scanner.Iter())
+		if instance.ThreadsConcurrency, err = marshal.TrimParseInt(scanner.Iter()); err != nil {
+			errs = append(errs, utils.NewError(err))
 		}
-
-		return &instance
+		instance.BufferPoolSize = marshal.TrimParseFloat64(scanner.Iter())
+		instance.LogBufferSize = marshal.TrimParseFloat64(scanner.Iter())
+		instance.SortBufferSize = marshal.TrimParseFloat64(scanner.Iter())
+		instance.ReadOnly = marshal.TrimParseBool(scanner.Iter())
+		instance.LogBin = marshal.TrimParseBool(scanner.Iter())
 	}
 
-	return nil
+	if len(errs) > 0 {
+		return nil, errs
+	}
+	return &instance, nil
 }

@@ -29,7 +29,9 @@ var testInstanceData = `mysql: [Warning] Using a password on the command line in
 func TestInstance(t *testing.T) {
 	cmdOutput := []byte(testInstanceData)
 
-	actual := Instance(cmdOutput)
+	actual, errs := Instance(cmdOutput)
+
+	assert.Nil(t, errs)
 
 	expected := &model.MySQLInstance{
 		Name:               "erclinmysql:3306",

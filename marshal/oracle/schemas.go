@@ -22,27 +22,43 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole/v2/utils"
 )
 
 // Schemas returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Schemas(cmdOutput []byte) []model.OracleDatabaseSchema {
+func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, []error) {
 	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var err error
+	var errs []error
 
 	for scanner.Scan() {
 		schema := new(model.OracleDatabaseSchema)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
+
 		if len(splitted) == 8 {
 			schema.User = strings.TrimSpace(splitted[3])
-			schema.Total = marshal.TrimParseInt(splitted[4])
-			schema.Tables = marshal.TrimParseInt(splitted[5])
-			schema.Indexes = marshal.TrimParseInt(splitted[6])
-			schema.LOB = marshal.TrimParseInt(splitted[7])
-
+			if schema.Total, err = marshal.TrimParseInt(splitted[4]); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
+			if schema.Tables, err = marshal.TrimParseInt(splitted[5]); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
+			if schema.Indexes, err = marshal.TrimParseInt(splitted[6]); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
+			if schema.LOB, err = marshal.TrimParseInt(splitted[7]); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
 			schemas = append(schemas, *schema)
 		}
 	}
-	return schemas
+
+	if len(errs) > 0 {
+		return nil, errs
+	}
+
+	return schemas, nil
 }

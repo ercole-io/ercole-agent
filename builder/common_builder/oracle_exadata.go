@@ -33,21 +33,32 @@ func (b *CommonBuilder) checksToRunExadata() {
 	}
 }
 
-func (b *CommonBuilder) getOracleExadataFeature() *model.OracleExadataFeature {
+func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, []error) {
 	oracleExadataFeature := new(model.OracleExadataFeature)
-	oracleExadataFeature.Components = b.getOracleExadataComponents()
+	var errs []error
+	oracleExadataFeature.Components, errs = b.getOracleExadataComponents()
+	if errs != nil {
+		return nil, errs
+	}
 
-	return oracleExadataFeature
+	return oracleExadataFeature, nil
 }
 
-func (b *CommonBuilder) getOracleExadataComponents() []model.OracleExadataComponent {
-	exadataDevices := b.fetcher.GetOracleExadataComponents()
-	exadataCellDisks := b.fetcher.GetOracleExadataCellDisks()
+func (b *CommonBuilder) getOracleExadataComponents() ([]model.OracleExadataComponent, []error) {
+	exadataDevices, errs := b.fetcher.GetOracleExadataComponents()
+	if errs != nil {
+		return nil, errs
+	}
+
+	exadataCellDisks, errs := b.fetcher.GetOracleExadataCellDisks()
+	if errs != nil {
+		return nil, errs
+	}
 
 	for i := range exadataDevices {
 		cellDisks := exadataCellDisks[agentmodel.StorageServerName(exadataDevices[i].Hostname)]
 		exadataDevices[i].CellDisks = &cellDisks
 	}
 
-	return exadataDevices
+	return exadataDevices, nil
 }

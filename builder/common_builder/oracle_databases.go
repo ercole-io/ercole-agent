@@ -17,6 +17,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -26,15 +27,16 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) *model.OracleDatabaseFeature {
+func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.OracleDatabaseFeature, []error) {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
 
 	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
 
-	oracleDatabaseFeature.Databases = b.getOracleDBs(oratabEntries, host)
+	var errs []error
+	oracleDatabaseFeature.Databases, errs = b.getOracleDBs(oratabEntries, host)
 
-	return oracleDatabaseFeature
+	return oracleDatabaseFeature, errs
 }
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
@@ -55,42 +57,60 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 	return unlistedRunningDBs
 }
 
-func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) []model.OracleDatabase {
-
-	databaseChannel := make(chan *model.OracleDatabase, len(oratabEntries))
+func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) ([]model.OracleDatabase, []error) {
+	databaseChan := make(chan *model.OracleDatabase, len(oratabEntries))
+	errsChan := make(chan []error)
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
-
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
+			database, errs := b.getOracleDB(entry, host)
+			if len(errs) > 0 {
+				errsChan <- errs
+				databaseChan <- nil
+				return
+			}
 
-			databaseChannel <- b.getOracleDB(entry, host)
+			databaseChan <- database
 		})
 	}
 
 	var databases = []model.OracleDatabase{}
 	for i := 0; i < len(oratabEntries); i++ {
-		db := (<-databaseChannel)
+		db := <-databaseChan
 		if db != nil {
 			databases = append(databases, *db)
 		}
 	}
 
-	return databases
+	var errs []error
+	for i := 0; i < len(errsChan); i++ {
+		err := <-errsChan
+		errs = append(errs, err...)
+	}
+
+	return databases, errs
 }
 
-func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) *model.OracleDatabase {
+func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, []error) {
 	dbStatus := b.fetcher.GetOracleDatabaseDbStatus(entry)
 	var database *model.OracleDatabase
+	var errs []error
 
 	switch dbStatus {
 	case "OPEN":
-		database = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
+		database, errs = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
+		if errs != nil {
+			return nil, errs
+		}
+
 	case "MOUNTED":
 		{
-			db := b.fetcher.GetOracleDatabaseMountedDb(entry)
-			database = &db
+			database, errs = b.fetcher.GetOracleDatabaseMountedDb(entry)
+			if errs != nil {
+				return nil, errs
+			}
 
 			database.Version = checkVersion(database.Name, database.Version)
 			database.Tablespaces = []model.OracleDatabaseTablespace{}
@@ -106,16 +126,22 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 
 			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host), host.CPUCores)
 		}
-	default:
-		b.log.Warnf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+
+	case "unreachable!":
+		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
-		return nil
+		return nil, nil
+	default:
+		err := fmt.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+			dbStatus, entry.DBName, entry.OracleHome)
+		b.log.Warn(err)
+		return nil, []error{err}
 	}
 
-	return database
+	return database, nil
 }
 
-func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) *model.OracleDatabase {
+func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) (*model.OracleDatabase, []error) {
 	stringDbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
 
 	dbVersion, err := version.NewVersion(stringDbVersion)
@@ -134,11 +160,18 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		cancelStatsCtx()
 	}
 
-	database := b.fetcher.GetOracleDatabaseOpenDb(entry)
+	database, errs := b.fetcher.GetOracleDatabaseOpenDb(entry)
+	if errs != nil {
+		return nil, errs
+	}
+
 	var wg sync.WaitGroup
+	errsChan := make(chan []error)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		b.setPDBs(&database, *dbVersion, entry)
+		if errs := b.setPDBs(database, *dbVersion, entry); errs != nil {
+			errsChan <- errs
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -146,11 +179,18 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas = b.fetcher.GetOracleDatabaseSchemas(entry)
+		database.Schemas, errs = b.fetcher.GetOracleDatabaseSchemas(entry)
+		if errs != nil {
+			errsChan <- errs
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
+		database.Patches, errs = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
+		if errs != nil {
+			errsChan <- errs
+			return
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -183,43 +223,67 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	wg.Wait()
 
+	if len(errsChan) > 0 {
+		for len(errsChan) > 0 {
+			errs = append(errs, <-errsChan...)
+		}
+		return nil, errs
+	}
+
 	database.Version = checkVersion(database.Name, database.Version)
 
 	database.Services = []model.OracleDatabaseService{}
 
-	return &database
+	return database, nil
 }
 
-func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) {
+func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) []error {
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 
 	v2, _ := version.NewVersion("11.2.0.4.0")
 	if dbVersion.LessThan(v2) {
 		database.IsCDB = false
-		return
+		return nil
 	}
 
 	database.IsCDB = b.fetcher.GetOracleDatabaseCheckPDB(entry)
-
-	if database.IsCDB {
-		database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
-
-		var wg sync.WaitGroup
-
-		for i := range database.PDBs {
-			var pdb *model.OracleDatabasePluggableDatabase = &database.PDBs[i]
-
-			utils.RunRoutineInGroup(b.configuration, func() {
-				pdb.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name)
-			}, &wg)
-
-			utils.RunRoutineInGroup(b.configuration, func() {
-				pdb.Schemas = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
-			}, &wg)
-		}
-
-		wg.Wait()
+	if !database.IsCDB {
+		return nil
 	}
+
+	database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
+
+	var wg sync.WaitGroup
+	errsChan := make(chan []error)
+
+	for i := range database.PDBs {
+		pdb := &database.PDBs[i]
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			pdb.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name)
+		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			var errs []error
+			pdb.Schemas, errs = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
+			if errs != nil {
+				errsChan <- errs
+				return
+			}
+		}, &wg)
+	}
+
+	wg.Wait()
+
+	if len(errsChan) > 0 {
+		var errs []error
+		for len(errsChan) > 0 {
+			errs = append(errs, <-errsChan...)
+		}
+		return errs
+	}
+
+	return nil
 }
 
 func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model.OracleDatabaseLicense {

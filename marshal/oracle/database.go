@@ -23,12 +23,15 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole/v2/utils"
 )
 
 // Database returns information about database extracted
 // from the db fetcher command output.
-func Database(cmdOutput []byte) model.OracleDatabase {
+func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 	var db model.OracleDatabase
+	var errs []error
+	var err error
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
@@ -41,7 +44,9 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			db.DbID = marshal.TrimParseUint(iter())
 			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
-			db.InstanceNumber = marshal.TrimParseInt(iter())
+			if db.InstanceNumber, err = marshal.TrimParseInt(iter()); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
 			db.InstanceName = strings.TrimSpace(iter())
 			db.Status = strings.TrimSpace(iter())
 			db.Version = strings.TrimSpace(iter())
@@ -58,8 +63,12 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 
 			db.Charset = strings.TrimSpace(iter())
 			db.NCharset = strings.TrimSpace(iter())
-			db.BlockSize = marshal.TrimParseInt(iter())
-			db.CPUCount = marshal.TrimParseInt(iter())
+			if db.BlockSize, err = marshal.TrimParseInt(iter()); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
+			if db.CPUCount, err = marshal.TrimParseInt(iter()); err != nil {
+				errs = append(errs, utils.NewError(err))
+			}
 			db.SGATarget = marshal.TrimParseFloat64(iter())
 			db.PGATarget = marshal.TrimParseFloat64(iter())
 			db.MemoryTarget = marshal.TrimParseFloat64(iter())
@@ -81,5 +90,8 @@ func Database(cmdOutput []byte) model.OracleDatabase {
 			}
 		}
 	}
-	return db
+	if len(errs) > 0 {
+		return nil, errs
+	}
+	return &db, nil
 }

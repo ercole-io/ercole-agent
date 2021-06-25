@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -79,26 +80,26 @@ func parseInt(s string) int {
 	return i
 }
 
-func TrimParseInt(s string) int {
+func TrimParseInt(s string) (int, error) {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.Atoi(s)
 	if err != nil {
-		panic(err)
+		return 0, fmt.Errorf("Can't parse value \"%s\" as int; err: %w", s, err)
 	}
 
-	return val
+	return val, nil
 }
 
-func TrimParseIntPointer(s string, nils ...string) *int {
+func TrimParseIntPointer(s string, nils ...string) (*int, error) {
 	for _, aNil := range nils {
 		if s == aNil {
-			return nil
+			return nil, nil
 		}
 	}
 
-	i := TrimParseInt(s)
-	return &i
+	i, err := TrimParseInt(s)
+	return &i, err
 }
 
 func TrimParseInt64(s string) int64 {

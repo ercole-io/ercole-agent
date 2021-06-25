@@ -21,14 +21,18 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
+
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/ercole-io/ercole/v2/utils"
 )
 
 // Patches returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
+func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, []error) {
 	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var errs []error
+	var err error
 
 	for scanner.Scan() {
 		patch := new(model.OracleDatabasePatch)
@@ -39,7 +43,9 @@ func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
 
 			patchID := strings.TrimSpace(splitted[5])
 			if patchID != "" {
-				patch.PatchID = marshal.TrimParseInt(patchID)
+				if patch.PatchID, err = marshal.TrimParseInt(patchID); err != nil {
+					errs = append(errs, utils.NewError(err))
+				}
 			}
 
 			patch.Action = strings.TrimSpace(splitted[6])
@@ -49,5 +55,10 @@ func Patches(cmdOutput []byte) []model.OracleDatabasePatch {
 			patches = append(patches, *patch)
 		}
 	}
-	return patches
+
+	if len(errs) > 0 {
+		return nil, errs
+	}
+
+	return patches, nil
 }

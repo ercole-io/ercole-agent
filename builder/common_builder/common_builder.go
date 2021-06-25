@@ -59,8 +59,12 @@ func NewCommonBuilder(configuration config.Configuration, log logger.Logger) Com
 
 // Run fill hostData
 func (b *CommonBuilder) Run(hostData *model.HostData) {
-	// build data about host info
-	hostData.Info = b.fetcher.GetHost()
+	if host, errs := b.fetcher.GetHost(); len(errs) > 0 {
+		hostData.AddErrors(errs...)
+	} else {
+		hostData.Info = *host
+	}
+
 	hostData.Filesystems = b.fetcher.GetFilesystems()
 	hostData.Hostname = hostData.Info.Hostname
 	if b.configuration.Hostname != "default" {
@@ -68,12 +72,15 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
 
+	var errs []error
+
 	if b.configuration.Features.OracleDatabase.Enabled {
 		b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
 		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
-
 		lazyInitOracleFeature(&hostData.Features)
-		hostData.Features.Oracle.Database = b.getOracleDatabaseFeature(hostData.Info)
+
+		hostData.Features.Oracle.Database, errs = b.getOracleDatabaseFeature(hostData.Info)
+		hostData.AddErrors(errs...)
 	}
 
 	if b.configuration.Features.OracleExadata.Enabled {
@@ -82,7 +89,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		b.checksToRunExadata()
 
 		lazyInitOracleFeature(&hostData.Features)
-		hostData.Features.Oracle.Exadata = b.getOracleExadataFeature()
+		hostData.Features.Oracle.Exadata, errs = b.getOracleExadataFeature()
+		hostData.AddErrors(errs...)
 	}
 
 	if b.configuration.Features.MicrosoftSQLServer.Enabled {
@@ -103,8 +111,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	if b.configuration.Features.MySQL.Enabled {
 		b.log.Debugf("MySQL mode enabled")
 		b.setOrResetFetcherUser(b.configuration.Features.MySQL.FetcherUser)
-
-		hostData.Features.MySQL = b.getMySQLFeature()
+		hostData.Features.MySQL, errs = b.getMySQLFeature()
+		hostData.AddErrors(errs...)
 	}
 }
 
