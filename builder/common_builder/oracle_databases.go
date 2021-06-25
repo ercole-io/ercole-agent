@@ -24,6 +24,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/hashicorp/go-version"
 )
 
@@ -146,7 +147,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	dbVersion, err := version.NewVersion(stringDbVersion)
 	if err != nil {
-		panic(err)
+		err = ercutils.NewErrorf("Can't parse db version [%s]: %w", stringDbVersion, err)
+		b.log.Error(err)
+		return nil, []error{err}
 	}
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
