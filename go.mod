@@ -8,6 +8,7 @@ require (
 	github.com/fatih/color v1.12.0
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/golang/mock v1.5.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-version v1.3.0
 	github.com/kardianos/service v1.2.0
 	github.com/klauspost/compress v1.13.1 // indirect

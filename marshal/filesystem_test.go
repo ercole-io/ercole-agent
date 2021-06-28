@@ -29,7 +29,7 @@ var testFilesystemsData string = ` /dev/nvme0n1p7 ext4       256981444 172784996
 func TestFilesystems(t *testing.T) {
 	cmdOutput := []byte(testFilesystemsData)
 
-	actual := Filesystems(cmdOutput)
+	actual, err := Filesystems(cmdOutput)
 
 	expected := []model.Filesystem{
 		{
@@ -51,4 +51,5 @@ func TestFilesystems(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }
