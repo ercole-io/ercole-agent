@@ -73,48 +73,100 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	}
 	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
 
+	b.runOracleDatabase(hostData)
+
+	b.runOracleExadata(hostData)
+
+	b.runMicrosoftSQLServer(hostData)
+
+	b.runVirtualization(hostData)
+
+	b.runMySQL(hostData)
+}
+
+func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
+	if !b.configuration.Features.OracleDatabase.Enabled {
+		return
+	}
+
+	b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
+	if err := b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser); err != nil {
+		hostData.AddErrors(err)
+		return
+	}
+
+	lazyInitOracleFeature(&hostData.Features)
+
 	var errs []error
+	hostData.Features.Oracle.Database, errs = b.getOracleDatabaseFeature(hostData.Info)
+	hostData.AddErrors(errs...)
+}
 
-	if b.configuration.Features.OracleDatabase.Enabled {
-		b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
-		b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser)
-		lazyInitOracleFeature(&hostData.Features)
-
-		hostData.Features.Oracle.Database, errs = b.getOracleDatabaseFeature(hostData.Info)
-		hostData.AddErrors(errs...)
+func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
+	if !b.configuration.Features.OracleExadata.Enabled {
+		return
 	}
 
-	if b.configuration.Features.OracleExadata.Enabled {
-		b.log.Debugf("Oracle/Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
-		b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser)
-		b.checksToRunExadata()
-
-		lazyInitOracleFeature(&hostData.Features)
-		hostData.Features.Oracle.Exadata, errs = b.getOracleExadataFeature()
-		hostData.AddErrors(errs...)
+	b.log.Debugf("Oracle/Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
+	if err := b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser); err != nil {
+		hostData.AddErrors(err)
+		return
 	}
 
-	if b.configuration.Features.MicrosoftSQLServer.Enabled {
-		b.log.Debugf("Microsoft/SQLServer mode enabled (user='%s')", b.configuration.Features.MicrosoftSQLServer.FetcherUser)
-		b.setOrResetFetcherUser(b.configuration.Features.MicrosoftSQLServer.FetcherUser)
-
-		lazyInitMicrosoftFeature(&hostData.Features)
-		hostData.Features.Microsoft.SQLServer = b.getMicrosoftSQLServerFeature()
+	if err := b.checksToRunExadata(); err != nil {
+		hostData.AddErrors(err)
+		return
 	}
 
-	if b.configuration.Features.Virtualization.Enabled {
-		b.log.Debugf("Virtualization mode enabled (user='%s')", b.configuration.Features.Virtualization.FetcherUser)
-		b.setOrResetFetcherUser(b.configuration.Features.Virtualization.FetcherUser)
+	lazyInitOracleFeature(&hostData.Features)
+	var errs []error
+	hostData.Features.Oracle.Exadata, errs = b.getOracleExadataFeature()
+	hostData.AddErrors(errs...)
+}
 
-		hostData.Clusters = b.getClustersInfos()
+func (b *CommonBuilder) runMicrosoftSQLServer(hostData *model.HostData) {
+	if !b.configuration.Features.MicrosoftSQLServer.Enabled {
+		return
 	}
 
-	if b.configuration.Features.MySQL.Enabled {
-		b.log.Debugf("MySQL mode enabled")
-		b.setOrResetFetcherUser(b.configuration.Features.MySQL.FetcherUser)
-		hostData.Features.MySQL, errs = b.getMySQLFeature()
-		hostData.AddErrors(errs...)
+	b.log.Debugf("Microsoft/SQLServer mode enabled (user='%s')", b.configuration.Features.MicrosoftSQLServer.FetcherUser)
+	if err := b.setOrResetFetcherUser(b.configuration.Features.MicrosoftSQLServer.FetcherUser); err != nil {
+		hostData.AddErrors(err)
+		return
 	}
+
+	lazyInitMicrosoftFeature(&hostData.Features)
+	hostData.Features.Microsoft.SQLServer = b.getMicrosoftSQLServerFeature()
+}
+
+func (b *CommonBuilder) runVirtualization(hostData *model.HostData) {
+	if !b.configuration.Features.Virtualization.Enabled {
+		return
+	}
+
+	b.log.Debugf("Virtualization mode enabled (user='%s')", b.configuration.Features.Virtualization.FetcherUser)
+	if err := b.setOrResetFetcherUser(b.configuration.Features.Virtualization.FetcherUser); err != nil {
+		hostData.AddErrors(err)
+		return
+	}
+
+	hostData.Clusters = b.getClustersInfos()
+}
+
+func (b *CommonBuilder) runMySQL(hostData *model.HostData) {
+	if !b.configuration.Features.MySQL.Enabled {
+		return
+	}
+
+	b.log.Debugf("MySQL mode enabled")
+	if err := b.setOrResetFetcherUser(b.configuration.Features.MySQL.FetcherUser); err != nil {
+		hostData.AddErrors(err)
+		return
+	}
+
+	var errs []error
+	hostData.Features.MySQL, errs = b.getMySQLFeature()
+	hostData.AddErrors(errs...)
 }
 
 func (b *CommonBuilder) setOrResetFetcherUser(user string) error {

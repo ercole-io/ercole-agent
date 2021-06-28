@@ -21,16 +21,23 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
-func (b *CommonBuilder) checksToRunExadata() {
+func (b *CommonBuilder) checksToRunExadata() error {
 	if runtime.GOOS != "linux" {
-		b.log.Panicf("Can't run exadata mode if os is different from linux, current os: [%v]", runtime.GOOS)
+		err := ercutils.NewErrorf("Can't run exadata mode if os is different from linux, current os: [%v]", runtime.GOOS)
+		b.log.Error(err)
+		return err
 	}
 
 	if !utils.IsRunnigAsRootInLinux() {
-		b.log.Panicf("You must be root to run in exadata mode")
+		err := ercutils.NewErrorf("You must be root to run in exadata mode")
+		b.log.Error(err)
+		return err
 	}
+
+	return nil
 }
 
 func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, []error) {
