@@ -23,13 +23,16 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/hashicorp/go-multierror"
 )
 
 // DatabaseFeatureUsageStat returns information about database features2 extracted
 // from the opt fetcher command output.
-func DatabaseFeatureUsageStat(cmdOutput []byte) []model.OracleDatabaseFeatureUsageStat {
+func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUsageStat, error) {
 	featuresUsageStats := []model.OracleDatabaseFeatureUsageStat{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var merr error
+	var err error
 
 	for scanner.Scan() {
 		stats := new(model.OracleDatabaseFeatureUsageStat)
@@ -39,7 +42,9 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) []model.OracleDatabaseFeatureUsa
 		if len(splitted) == 7 {
 			stats.Product = strings.TrimSpace(splitted[0])
 			stats.Feature = strings.TrimSpace(splitted[1])
-			stats.DetectedUsages = marshal.TrimParseInt64(splitted[2])
+			if stats.DetectedUsages, err = marshal.TrimParseInt64(splitted[2]); err != nil {
+				merr = multierror.Append(merr, err)
+			}
 			stats.CurrentlyUsed = marshal.TrimParseBool(splitted[3])
 
 			var err error
@@ -58,5 +63,9 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) []model.OracleDatabaseFeatureUsa
 			featuresUsageStats = append(featuresUsageStats, *stats)
 		}
 	}
-	return featuresUsageStats
+
+	if merr != nil {
+		return nil, merr
+	}
+	return featuresUsageStats, nil
 }

@@ -152,7 +152,7 @@ func (wf *WindowsFetcherImpl) GetHost() (*model.Host, []error) {
 }
 
 // GetFilesystems get
-func (wf *WindowsFetcherImpl) GetFilesystems() []model.Filesystem {
+func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	out := wf.execute("win.ps1", "-s", "filesystem")
 	return marshal.Filesystems(out)
 }
@@ -216,7 +216,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEn
 }
 
 // GetOracleDatabaseFeatureUsageStat get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error) {
 	out := wf.execute("win.ps1", "-s", "opt", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.DatabaseFeatureUsageStat(out)
 }

@@ -102,15 +102,15 @@ func TrimParseIntPointer(s string, nils ...string) (*int, error) {
 	return &i, err
 }
 
-func TrimParseInt64(s string) int64 {
+func TrimParseInt64(s string) (int64, error) {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		panic(err)
+		return 0, fmt.Errorf("Can't parse value \"%s\" as int64; err: %w", s, err)
 	}
 
-	return val
+	return val, nil
 }
 
 func TrimParseUint(s string) uint {

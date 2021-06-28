@@ -150,7 +150,7 @@ func (lf *LinuxFetcherImpl) GetHost() (*model.Host, []error) {
 }
 
 // GetFilesystems get
-func (lf *LinuxFetcherImpl) GetFilesystems() []model.Filesystem {
+func (lf *LinuxFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	out := lf.execute("filesystem")
 	return marshal.Filesystems(out)
 }
@@ -226,7 +226,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntr
 }
 
 // GetOracleDatabaseFeatureUsageStat get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error) {
 	out := lf.execute("opt", entry.DBName, dbVersion, entry.OracleHome)
 	return marshal_oracle.DatabaseFeatureUsageStat(out)
 }

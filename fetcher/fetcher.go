@@ -29,7 +29,7 @@ type Fetcher interface {
 	// Operating system fetchers
 
 	GetHost() (*model.Host, []error)
-	GetFilesystems() []model.Filesystem
+	GetFilesystems() ([]model.Filesystem, error)
 	GetClustersMembershipStatus() model.ClusterMembershipStatus
 
 	// Virtualization fetcher
@@ -49,7 +49,7 @@ type Fetcher interface {
 	GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
 	GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, []error)
 	GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, []error)
-	GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabaseFeatureUsageStat
+	GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error)
 	GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
 	GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
 	GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor

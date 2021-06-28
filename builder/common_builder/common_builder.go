@@ -66,7 +66,11 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.Info = *host
 	}
 
-	hostData.Filesystems = b.fetcher.GetFilesystems()
+	var err error
+	if hostData.Filesystems, err = b.fetcher.GetFilesystems(); err != nil {
+		hostData.AddErrors(err)
+	}
+
 	hostData.Hostname = hostData.Info.Hostname
 	if b.configuration.Hostname != "default" {
 		hostData.Hostname = b.configuration.Hostname

@@ -21,16 +21,19 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Filesystems returns a list of Filesystem entries extracted
 // from the filesystem fetcher command output.
 // Filesystem output is a list of filesystem entries with positional attribute columns
 // separated by one or more spaces
-func Filesystems(cmdOutput []byte) []model.Filesystem {
+func Filesystems(cmdOutput []byte) ([]model.Filesystem, error) {
 	filesystems := []model.Filesystem{}
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var merr error
+	var err error
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -40,13 +43,25 @@ func Filesystems(cmdOutput []byte) []model.Filesystem {
 
 		fs.Filesystem = strings.TrimSpace(iter())
 		fs.Type = strings.TrimSpace(iter())
-		fs.Size = TrimParseInt64(iter())
-		fs.UsedSpace = TrimParseInt64(iter())
-		fs.AvailableSpace = TrimParseInt64(iter())
+		if fs.Size, err = TrimParseInt64(iter()); err != nil {
+			merr = multierror.Append(merr, err)
+		}
+
+		if fs.UsedSpace, err = TrimParseInt64(iter()); err != nil {
+			merr = multierror.Append(merr, err)
+		}
+
+		if fs.AvailableSpace, err = TrimParseInt64(iter()); err != nil {
+			merr = multierror.Append(merr, err)
+		}
+
 		iter() // throw away used space percentage
 		fs.MountedOn = strings.TrimSpace(iter())
 		filesystems = append(filesystems, fs)
 	}
 
-	return filesystems
+	if merr != nil {
+		return nil, merr
+	}
+	return filesystems, nil
 }

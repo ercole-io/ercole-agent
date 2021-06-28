@@ -199,7 +199,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.FeatureUsageStats = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, stringDbVersion)
+		if database.FeatureUsageStats, err = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, stringDbVersion); err != nil {
+			errsChan <- []error{err}
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
