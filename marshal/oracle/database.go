@@ -42,7 +42,9 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 			iter := marshal.NewIter(splitted)
 
 			db.Name = strings.TrimSpace(iter())
-			db.DbID = marshal.TrimParseUint(iter())
+			if db.DbID, err = marshal.TrimParseUint(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
 			if db.InstanceNumber, err = marshal.TrimParseInt(iter()); err != nil {
