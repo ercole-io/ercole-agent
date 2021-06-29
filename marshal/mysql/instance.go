@@ -21,12 +21,13 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
-func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
+func Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 	scanner := marshal.NewCsvScanner(cmdOutput, 16)
 	var instance model.MySQLInstance
-	var errs []error
+	var merr error
 	var err error
 
 	for scanner.SafeScan() {
@@ -41,7 +42,7 @@ func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
 		instance.CharsetSystem = strings.TrimSpace(scanner.Iter())
 		instance.PageSize = marshal.TrimParseFloat64(scanner.Iter())
 		if instance.ThreadsConcurrency, err = marshal.TrimParseInt(scanner.Iter()); err != nil {
-			errs = append(errs, ercutils.NewError(err))
+			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
 		instance.BufferPoolSize = marshal.TrimParseFloat64(scanner.Iter())
 		instance.LogBufferSize = marshal.TrimParseFloat64(scanner.Iter())
@@ -50,8 +51,8 @@ func Instance(cmdOutput []byte) (*model.MySQLInstance, []error) {
 		instance.LogBin = marshal.TrimParseBool(scanner.Iter())
 	}
 
-	if len(errs) > 0 {
-		return nil, errs
+	if merr != nil {
+		return nil, merr
 	}
 	return &instance, nil
 }

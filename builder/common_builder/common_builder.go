@@ -60,8 +60,8 @@ func NewCommonBuilder(configuration config.Configuration, log logger.Logger) Com
 
 // Run fill hostData
 func (b *CommonBuilder) Run(hostData *model.HostData) {
-	if host, errs := b.fetcher.GetHost(); len(errs) > 0 {
-		hostData.AddErrors(errs...)
+	if host, err := b.fetcher.GetHost(); err != nil {
+		hostData.AddErrors(err)
 	} else {
 		hostData.Info = *host
 	}
@@ -101,9 +101,9 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 
 	lazyInitOracleFeature(&hostData.Features)
 
-	var errs []error
-	hostData.Features.Oracle.Database, errs = b.getOracleDatabaseFeature(hostData.Info)
-	hostData.AddErrors(errs...)
+	var err error
+	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info)
+	hostData.AddErrors(err)
 }
 
 func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
@@ -123,9 +123,9 @@ func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
 	}
 
 	lazyInitOracleFeature(&hostData.Features)
-	var errs []error
-	hostData.Features.Oracle.Exadata, errs = b.getOracleExadataFeature()
-	hostData.AddErrors(errs...)
+	var err error
+	hostData.Features.Oracle.Exadata, err = b.getOracleExadataFeature()
+	hostData.AddErrors(err)
 }
 
 func (b *CommonBuilder) runMicrosoftSQLServer(hostData *model.HostData) {
@@ -168,9 +168,9 @@ func (b *CommonBuilder) runMySQL(hostData *model.HostData) {
 		return
 	}
 
-	var errs []error
-	hostData.Features.MySQL, errs = b.getMySQLFeature()
-	hostData.AddErrors(errs...)
+	var err error
+	hostData.Features.MySQL, err = b.getMySQLFeature()
+	hostData.AddErrors(err)
 }
 
 func (b *CommonBuilder) setOrResetFetcherUser(user string) error {

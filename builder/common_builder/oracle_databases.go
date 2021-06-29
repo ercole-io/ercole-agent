@@ -25,19 +25,22 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-version"
 )
 
-func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.OracleDatabaseFeature, []error) {
+func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.OracleDatabaseFeature, error) {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
 
 	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
 
-	var errs []error
-	oracleDatabaseFeature.Databases, errs = b.getOracleDBs(oratabEntries, host)
+	var err error
+	if oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host); err != nil {
+		return nil, err
+	}
 
-	return oracleDatabaseFeature, errs
+	return oracleDatabaseFeature, nil
 }
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
@@ -58,17 +61,18 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 	return unlistedRunningDBs
 }
 
-func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) ([]model.OracleDatabase, []error) {
+func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) ([]model.OracleDatabase, error) {
 	databaseChan := make(chan *model.OracleDatabase, len(oratabEntries))
-	errsChan := make(chan []error)
+	errChan := make(chan error)
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
-			database, errs := b.getOracleDB(entry, host)
-			if len(errs) > 0 {
-				errsChan <- errs
+			database, err := b.getOracleDB(entry, host)
+			if err != nil {
+				b.log.Errorf("Can't get Oracle db: %s\n Errors: %s\n", entry, err)
+				errChan <- err
 				databaseChan <- nil
 				return
 			}
@@ -85,32 +89,34 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 		}
 	}
 
-	var errs []error
-	for i := 0; i < len(errsChan); i++ {
-		err := <-errsChan
-		errs = append(errs, err...)
+	if len(errChan) > 0 {
+		var merr error
+		for len(errChan) > 0 {
+			merr = multierror.Append(merr, <-errChan)
+		}
+		return nil, merr
 	}
 
-	return databases, errs
+	return databases, nil
 }
 
-func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, []error) {
+func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
 	dbStatus := b.fetcher.GetOracleDatabaseDbStatus(entry)
 	var database *model.OracleDatabase
-	var errs []error
+	var err error
 
 	switch dbStatus {
 	case "OPEN":
-		database, errs = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
-		if errs != nil {
-			return nil, errs
+		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
+		if err != nil {
+			return nil, err
 		}
 
 	case "MOUNTED":
 		{
-			database, errs = b.fetcher.GetOracleDatabaseMountedDb(entry)
-			if errs != nil {
-				return nil, errs
+			database, err = b.fetcher.GetOracleDatabaseMountedDb(entry)
+			if err != nil {
+				return nil, err
 			}
 
 			database.Version = checkVersion(database.Name, database.Version)
@@ -136,20 +142,20 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		err := fmt.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		b.log.Warn(err)
-		return nil, []error{err}
+		return nil, err
 	}
 
 	return database, nil
 }
 
-func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) (*model.OracleDatabase, []error) {
+func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) (*model.OracleDatabase, error) {
 	stringDbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
 
 	dbVersion, err := version.NewVersion(stringDbVersion)
 	if err != nil {
 		err = ercutils.NewErrorf("Can't parse db version [%s]: %w", stringDbVersion, err)
 		b.log.Error(err)
-		return nil, []error{err}
+		return nil, err
 	}
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
@@ -163,17 +169,17 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		cancelStatsCtx()
 	}
 
-	database, errs := b.fetcher.GetOracleDatabaseOpenDb(entry)
-	if errs != nil {
-		return nil, errs
+	database, err := b.fetcher.GetOracleDatabaseOpenDb(entry)
+	if err != nil {
+		return nil, err
 	}
 
 	var wg sync.WaitGroup
-	errsChan := make(chan []error)
+	errChan := make(chan error)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		if errs := b.setPDBs(database, *dbVersion, entry); errs != nil {
-			errsChan <- errs
+		if err := b.setPDBs(database, *dbVersion, entry); err != nil {
+			errChan <- err
 		}
 	}, &wg)
 
@@ -182,16 +188,16 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas, errs = b.fetcher.GetOracleDatabaseSchemas(entry)
-		if errs != nil {
-			errsChan <- errs
+		database.Schemas, err = b.fetcher.GetOracleDatabaseSchemas(entry)
+		if err != nil {
+			errChan <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Patches, errs = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
-		if errs != nil {
-			errsChan <- errs
+		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
+		if err != nil {
+			errChan <- err
 			return
 		}
 	}, &wg)
@@ -200,7 +206,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		<-statsCtx.Done()
 
 		if database.FeatureUsageStats, err = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, stringDbVersion); err != nil {
-			errsChan <- []error{err}
+			errChan <- err
 		}
 	}, &wg)
 
@@ -228,11 +234,12 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	wg.Wait()
 
-	if len(errsChan) > 0 {
-		for len(errsChan) > 0 {
-			errs = append(errs, <-errsChan...)
+	if len(errChan) > 0 {
+		var merr error
+		for len(errChan) > 0 {
+			merr = multierror.Append(merr, <-errChan)
 		}
-		return nil, errs
+		return nil, merr
 	}
 
 	database.Version = checkVersion(database.Name, database.Version)
@@ -242,7 +249,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	return database, nil
 }
 
-func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) []error {
+func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) error {
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 
 	v2, _ := version.NewVersion("11.2.0.4.0")
@@ -259,7 +266,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
 
 	var wg sync.WaitGroup
-	errsChan := make(chan []error)
+	errChan := make(chan error)
 
 	for i := range database.PDBs {
 		pdb := &database.PDBs[i]
@@ -269,10 +276,10 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		}, &wg)
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			var errs []error
-			pdb.Schemas, errs = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
-			if errs != nil {
-				errsChan <- errs
+			var err error
+			pdb.Schemas, err = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
+			if err != nil {
+				errChan <- err
 				return
 			}
 		}, &wg)
@@ -280,12 +287,12 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	wg.Wait()
 
-	if len(errsChan) > 0 {
-		var errs []error
-		for len(errsChan) > 0 {
-			errs = append(errs, <-errsChan...)
+	if len(errChan) > 0 {
+		var merr error
+		for len(errChan) > 0 {
+			merr = multierror.Append(merr, <-errChan)
 		}
-		return errs
+		return merr
 	}
 
 	return nil

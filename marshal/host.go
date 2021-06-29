@@ -19,34 +19,36 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Host returns a Host struct from the output of the host
 // fetcher command. Host fields output is in key: value format separated by a newline
-func Host(cmdOutput []byte) (*model.Host, []error) {
+func Host(cmdOutput []byte) (*model.Host, error) {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var m model.Host
-	var errors []error
+	var merr error
 	var err error
 
 	m.Hostname = strings.TrimSpace(data["Hostname"])
 	m.CPUModel = strings.TrimSpace(data["CPUModel"])
 	m.CPUFrequency = strings.TrimSpace(data["CPUFrequency"])
 	if m.CPUSockets, err = TrimParseInt(data["CPUSockets"]); err != nil {
-		errors = append(errors, err)
+		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 	if m.CPUCores, err = TrimParseInt(data["CPUCores"]); err != nil {
-		errors = append(errors, err)
+		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 	if m.CPUThreads, err = TrimParseInt(data["CPUThreads"]); err != nil {
-		errors = append(errors, err)
+		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 	if m.ThreadsPerCore, err = TrimParseInt(data["ThreadsPerCore"]); err != nil {
-		errors = append(errors, err)
+		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 	if m.CoresPerSocket, err = TrimParseInt(data["CoresPerSocket"]); err != nil {
-		errors = append(errors, err)
+		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 	m.HardwareAbstraction = strings.TrimSpace(data["HardwareAbstraction"])
 	m.HardwareAbstractionTechnology = strings.TrimSpace(data["HardwareAbstractionTechnology"])
@@ -57,9 +59,8 @@ func Host(cmdOutput []byte) (*model.Host, []error) {
 	m.MemoryTotal = TrimParseFloat64(data["MemoryTotal"])
 	m.SwapTotal = TrimParseFloat64(data["SwapTotal"])
 
-	if len(errors) > 0 {
-		return nil, errors
+	if merr != nil {
+		return nil, merr
 	}
-
 	return &m, nil
 }

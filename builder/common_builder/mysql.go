@@ -17,22 +17,22 @@ package common
 
 import (
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
-func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, []error) {
-	var errs []error
+func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
+	var merr error
+
 	mysql := &model.MySQLFeature{
 		Instances: []model.MySQLInstance{},
 	}
 
 	for _, conf := range b.configuration.Features.MySQL.Instances {
-		instance, instErrs := b.fetcher.GetMySQLInstance(conf)
-		if len(instErrs) > 0 {
-			b.log.Errorf("Can't get instance: %s\n", conf.Host)
-			for _, e := range instErrs {
-				b.log.Errorf("- %s\n", e.Error())
-			}
-			errs = append(errs, instErrs...)
+		instance, err := b.fetcher.GetMySQLInstance(conf)
+		if err != nil {
+			b.log.Errorf("Can't get MySQL instance: %s\n Errors: %s\n", conf.Host, err)
+			merr = multierror.Append(merr, ercutils.NewError(err))
 			continue
 		}
 
@@ -49,5 +49,8 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, []error) {
 		mysql.Instances = append(mysql.Instances, *instance)
 	}
 
-	return mysql, errs
+	if merr != nil {
+		return nil, merr
+	}
+	return mysql, nil
 }
