@@ -113,15 +113,15 @@ func TrimParseInt64(s string) (int64, error) {
 	return val, nil
 }
 
-func TrimParseUint(s string) uint {
+func TrimParseUint(s string) (uint, error) {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
-	return uint(val)
+	return uint(val), nil
 }
 
 func TrimParseFloat64(s string) float64 {
