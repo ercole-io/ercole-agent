@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
@@ -28,10 +29,10 @@ import (
 
 // Patches returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, []error) {
+func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var errs []error
+	var merr error
 	var err error
 
 	for scanner.Scan() {
@@ -44,7 +45,7 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, []error) {
 			patchID := strings.TrimSpace(splitted[5])
 			if patchID != "" {
 				if patch.PatchID, err = marshal.TrimParseInt(patchID); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
 
@@ -56,9 +57,8 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, []error) {
 		}
 	}
 
-	if len(errs) > 0 {
-		return nil, errs
+	if merr != nil {
+		return nil, merr
 	}
-
 	return patches, nil
 }

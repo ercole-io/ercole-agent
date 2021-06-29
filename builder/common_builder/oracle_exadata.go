@@ -40,26 +40,26 @@ func (b *CommonBuilder) checksToRunExadata() error {
 	return nil
 }
 
-func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, []error) {
+func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, error) {
 	oracleExadataFeature := new(model.OracleExadataFeature)
-	var errs []error
-	oracleExadataFeature.Components, errs = b.getOracleExadataComponents()
-	if errs != nil {
-		return nil, errs
+	var err error
+	oracleExadataFeature.Components, err = b.getOracleExadataComponents()
+	if err != nil {
+		return nil, err
 	}
 
 	return oracleExadataFeature, nil
 }
 
-func (b *CommonBuilder) getOracleExadataComponents() ([]model.OracleExadataComponent, []error) {
-	exadataDevices, errs := b.fetcher.GetOracleExadataComponents()
-	if errs != nil {
-		return nil, errs
+func (b *CommonBuilder) getOracleExadataComponents() ([]model.OracleExadataComponent, error) {
+	exadataDevices, err := b.fetcher.GetOracleExadataComponents()
+	if err != nil {
+		return nil, err
 	}
 
-	exadataCellDisks, errs := b.fetcher.GetOracleExadataCellDisks()
-	if errs != nil {
-		return nil, errs
+	exadataCellDisks, err := b.fetcher.GetOracleExadataCellDisks()
+	if err != nil {
+		return nil, err
 	}
 
 	for i := range exadataDevices {

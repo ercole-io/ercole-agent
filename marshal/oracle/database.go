@@ -24,13 +24,14 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Database returns information about database extracted
 // from the db fetcher command output.
-func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
+func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 	var db model.OracleDatabase
-	var errs []error
+	var merr error
 	var err error
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
@@ -45,7 +46,7 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
 			if db.InstanceNumber, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, ercutils.NewError(err))
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 			db.InstanceName = strings.TrimSpace(iter())
 			db.Status = strings.TrimSpace(iter())
@@ -64,10 +65,10 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 			db.Charset = strings.TrimSpace(iter())
 			db.NCharset = strings.TrimSpace(iter())
 			if db.BlockSize, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, ercutils.NewError(err))
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 			if db.CPUCount, err = marshal.TrimParseInt(iter()); err != nil {
-				errs = append(errs, ercutils.NewError(err))
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 			db.SGATarget = marshal.TrimParseFloat64(iter())
 			db.PGATarget = marshal.TrimParseFloat64(iter())
@@ -90,8 +91,9 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, []error) {
 			}
 		}
 	}
-	if len(errs) > 0 {
-		return nil, errs
+
+	if merr != nil {
+		return nil, merr
 	}
 	return &db, nil
 }

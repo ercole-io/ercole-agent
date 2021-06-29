@@ -23,13 +23,14 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // ExadataComponent returns information about devices extracted from exadata-info command.
-func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, []error) {
+func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) {
 	devices := []model.OracleExadataComponent{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var errs []error
+	var merr error
 	var err error
 
 	for scanner.Scan() {
@@ -47,24 +48,24 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, []error
 			cpuEnabled := strings.Split(splitted[4], "/")
 			if len(cpuEnabled) == 2 {
 				if device.RunningCPUCount, err = marshal.TrimParseIntPointer(cpuEnabled[0], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 				if device.TotalCPUCount, err = marshal.TrimParseIntPointer(cpuEnabled[1], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
 			if device.Memory, err = marshal.TrimParseIntPointer(splitted[5], "-"); err != nil {
-				errs = append(errs, ercutils.NewError(err))
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 			device.Status = marshal.TrimParseStringPointer(splitted[6], "-")
 
 			powerCount := strings.Split(splitted[7], "/")
 			if len(powerCount) == 2 {
 				if device.RunningPowerSupply, err = marshal.TrimParseIntPointer(powerCount[0], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 				if device.TotalPowerSupply, _ = marshal.TrimParseIntPointer(powerCount[1], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
 
@@ -73,10 +74,10 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, []error
 			fanCount := strings.Split(splitted[9], "/")
 			if len(fanCount) == 2 {
 				if device.RunningFanCount, err = marshal.TrimParseIntPointer(fanCount[0], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 				if device.TotalFanCount, err = marshal.TrimParseIntPointer(fanCount[1], "-"); err != nil {
-					errs = append(errs, ercutils.NewError(err))
+					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
 
@@ -93,9 +94,8 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, []error
 		}
 	}
 
-	if len(errs) > 0 {
-		return nil, errs
+	if merr != nil {
+		return nil, merr
 	}
-
-	return devices, errs
+	return devices, nil
 }
