@@ -22,13 +22,16 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Tablespaces returns information about database tablespaces extracted
 // from the tablespaces fetcher command output.
-func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
+func Tablespaces(cmdOutput []byte) ([]model.OracleDatabaseTablespace, error) {
 	tablespaces := []model.OracleDatabaseTablespace{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var merr, err error
 
 	for scanner.Scan() {
 		tablespace := new(model.OracleDatabaseTablespace)
@@ -36,14 +39,26 @@ func Tablespaces(cmdOutput []byte) []model.OracleDatabaseTablespace {
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
 			tablespace.Name = strings.TrimSpace(splitted[3])
-			tablespace.MaxSize = marshal.TrimParseFloat64(splitted[4])
-			tablespace.Total = marshal.TrimParseFloat64(splitted[5])
-			tablespace.Used = marshal.TrimParseFloat64(splitted[6])
-			tablespace.UsedPerc = marshal.TrimParseFloat64(splitted[7])
+			if tablespace.MaxSize, err = marshal.TrimParseFloat64(splitted[4]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if tablespace.Total, err = marshal.TrimParseFloat64(splitted[5]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if tablespace.Used, err = marshal.TrimParseFloat64(splitted[6]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if tablespace.UsedPerc, err = marshal.TrimParseFloat64(splitted[7]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			tablespace.Status = strings.TrimSpace(splitted[8])
 
 			tablespaces = append(tablespaces, *tablespace)
 		}
 	}
-	return tablespaces
+
+	if merr != nil {
+		return nil, merr
+	}
+	return tablespaces, nil
 }

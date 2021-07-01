@@ -46,18 +46,18 @@ type Fetcher interface {
 	GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) string
 	RunOracleDatabaseStats(entry agentmodel.OratabEntry)
 	GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error)
-	GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace
+	GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) ([]model.OracleDatabaseTablespace, error)
 	GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, error)
 	GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, error)
 	GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error)
-	GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense
-	GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm
-	GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor
+	GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) ([]model.OracleDatabaseLicense, error)
+	GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) ([]model.OracleDatabaseAddm, error)
+	GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSegmentAdvisor, error)
 	GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) []model.OracleDatabasePSU
 	GetOracleDatabaseBackups(entry agentmodel.OratabEntry) []model.OracleDatabaseBackup
 	GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) bool
 	GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase
-	GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace
+	GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error)
 	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error)
 
 	// Oracle/Exadata fetchers
@@ -68,22 +68,22 @@ type Fetcher interface {
 	// Microsoft/SQLServer fetchers
 
 	GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel
-	GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance)
+	GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error
 	GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance)
 	GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance)
-	GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase
-	GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel
+	GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error)
+	GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error)
 	GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel
 	GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel
 	GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch
-	GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature
+	GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error)
 
 	// MySQL fetchers
 
 	GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error)
 	GetMySQLDatabases(connection config.MySQLInstanceConnection) []model.MySQLDatabase
-	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema
-	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor
+	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error)
+	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error)
 	GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool
 	GetMySQLUUID() string
 	GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string)

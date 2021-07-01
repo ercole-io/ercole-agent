@@ -18,7 +18,6 @@ package oracle
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
@@ -31,8 +30,7 @@ import (
 // from the db fetcher command output.
 func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 	var db model.OracleDatabase
-	var merr error
-	var err error
+	var merr, err error
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
@@ -61,7 +59,7 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 			} else if archivelog == "NOARCHIVELOG" {
 				db.Archivelog = false
 			} else {
-				panic(fmt.Sprintf("Invalid archivelog value: %s", archivelog))
+				merr = multierror.Append(merr, ercutils.NewErrorf("Invalid archivelog value: %s", archivelog))
 			}
 
 			db.Charset = strings.TrimSpace(iter())
@@ -72,18 +70,39 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 			if db.CPUCount, err = marshal.TrimParseInt(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
-			db.SGATarget = marshal.TrimParseFloat64(iter())
-			db.PGATarget = marshal.TrimParseFloat64(iter())
-			db.MemoryTarget = marshal.TrimParseFloat64(iter())
-			db.SGAMaxSize = marshal.TrimParseFloat64(iter())
-			db.SegmentsSize = marshal.TrimParseFloat64(iter())
-			db.DatafileSize = marshal.TrimParseFloat64(iter())
-			db.Allocable = marshal.TrimParseFloat64(iter())
-
-			db.Elapsed = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
-			db.DBTime = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
-			db.DailyCPUUsage = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
-			db.Work = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A")
+			if db.SGATarget, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.PGATarget, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.MemoryTarget, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.SGAMaxSize, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.SegmentsSize, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.DatafileSize, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.Allocable, err = marshal.TrimParseFloat64(iter()); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.Elapsed, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.DBTime, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.DailyCPUUsage, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+			if db.Work, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 
 			db.ASM = marshal.TrimParseBool(iter())
 			db.Dataguard = marshal.TrimParseBool(iter())

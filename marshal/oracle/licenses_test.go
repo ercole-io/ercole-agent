@@ -36,7 +36,8 @@ func TestLicenses(t *testing.T) {
 		{Name: "Partitioning", Count: 0},
 	}
 
-	actual := Licenses([]byte(testLicensesData))
+	actual, err := Licenses([]byte(testLicensesData))
 
 	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }

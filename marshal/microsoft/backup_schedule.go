@@ -19,16 +19,16 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // BackupSchedule marshals -action backup_schedule output
-func BackupSchedule(cmdOutput []byte) []agentmodel.DbBackupsModel {
+func BackupSchedule(cmdOutput []byte) ([]agentmodel.DbBackupsModel, error) {
 	var rawOut []agentmodel.DbBackupsModel
 
-	err := json.Unmarshal(cmdOutput, &rawOut)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &rawOut); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
-	return rawOut
+	return rawOut, nil
 }

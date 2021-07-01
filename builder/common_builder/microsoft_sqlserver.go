@@ -20,20 +20,37 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
-func (b *CommonBuilder) getMicrosoftSQLServerFeature() *model.MicrosoftSQLServerFeature {
+func (b *CommonBuilder) getMicrosoftSQLServerFeature() (*model.MicrosoftSQLServerFeature, error) {
 	instances := b.fetcher.GetMicrosoftSQLServerInstances()
 
-	return &model.MicrosoftSQLServerFeature{
-		Instances: b.getMicrosoftSQLServerInstances(instances),
-		Features:  b.getMicrosoftSQLServerProductFeatures(instances[0].ConnString),
-		Patches:   b.fetcher.GetMicrosoftSQLServerInstancePatches(instances[0].ConnString),
+	sqlServer := model.MicrosoftSQLServerFeature{
+		Patches: b.fetcher.GetMicrosoftSQLServerInstancePatches(instances[0].ConnString),
 	}
+
+	var merr, err error
+	sqlServer.Instances, err = b.getMicrosoftSQLServerInstances(instances)
+	if err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
+
+	sqlServer.Features, err = b.fetcher.GetMicrosoftSQLServerProductFeatures(instances[0].ConnString)
+	if err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
+
+	if merr != nil {
+		return nil, merr
+	}
+	return &sqlServer, nil
 }
 
-func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel.ListInstanceOutputModel) []model.MicrosoftSQLServerInstance {
+func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel.ListInstanceOutputModel) ([]model.MicrosoftSQLServerInstance, error) {
 	instances := make([]model.MicrosoftSQLServerInstance, len(instanceList))
+	var merr, err error
 
 	for i, v := range instanceList {
 		instances[i].Name = v.Name
@@ -47,7 +64,9 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 			b.fetcher.GetMicrosoftSQLServerInstanceEdition(v.ConnString, &instances[i])
 			b.fetcher.GetMicrosoftSQLServerInstanceLicensingInfo(v.ConnString, &instances[i])
 
-			instances[i].Databases = b.fetcher.GetMicrosoftSQLServerInstanceDatabase(v.ConnString)
+			if instances[i].Databases, err = b.fetcher.GetMicrosoftSQLServerInstanceDatabase(v.ConnString); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			instances[i].CollationName = instances[i].Databases[0].CollationName
 			dbsMap := make(map[string]*model.MicrosoftSQLServerDatabase)
 
@@ -58,7 +77,10 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 				dbsMap[db.Name] = &instances[i].Databases[j]
 			}
 
-			backupSchedules := b.fetcher.GetMicrosoftSQLServerInstanceDatabaseBackups(v.ConnString)
+			backupSchedules, err := b.fetcher.GetMicrosoftSQLServerInstanceDatabaseBackups(v.ConnString)
+			if err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			for _, v := range backupSchedules {
 				dbsMap[v.DatabaseName].Backups = make([]model.MicrosoftSQLServerDatabaseBackup, len(v.Data))
 				for i, b := range v.Data {
@@ -95,9 +117,8 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances(instanceList []agentmodel
 		}
 	}
 
-	return instances
-}
-
-func (b *CommonBuilder) getMicrosoftSQLServerProductFeatures(connString string) []model.MicrosoftSQLServerProductFeature {
-	return b.fetcher.GetMicrosoftSQLServerProductFeatures(connString)
+	if merr != nil {
+		return nil, merr
+	}
+	return instances, nil
 }

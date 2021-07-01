@@ -43,8 +43,12 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 		instance.IsSlave, instance.MasterUUID = b.fetcher.GetMySQLSlaveStatus(conf)
 
 		instance.Databases = b.fetcher.GetMySQLDatabases(conf)
-		instance.TableSchemas = b.fetcher.GetMySQLTableSchemas(conf)
-		instance.SegmentAdvisors = b.fetcher.GetMySQLSegmentAdvisors(conf)
+		if instance.TableSchemas, err = b.fetcher.GetMySQLTableSchemas(conf); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+		}
+		if instance.SegmentAdvisors, err = b.fetcher.GetMySQLSegmentAdvisors(conf); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+		}
 
 		mysql.Instances = append(mysql.Instances, *instance)
 	}

@@ -22,12 +22,15 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Licenses returns a list of licenses from the output of the licenses
 // fetcher command.
-func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
+func Licenses(cmdOutput []byte) ([]model.OracleDatabaseLicense, error) {
 	var licenses []model.OracleDatabaseLicense
+	var merr, err error
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	for scanner.Scan() {
@@ -43,12 +46,17 @@ func Licenses(cmdOutput []byte) []model.OracleDatabaseLicense {
 			license.Name = key
 
 			if strings.TrimSpace(value) != "" {
-				license.Count = marshal.TrimParseFloat64(value)
+				if license.Count, err = marshal.TrimParseFloat64(value); err != nil {
+					merr = multierror.Append(merr, ercutils.NewError(err))
+				}
 			}
 
 			licenses = append(licenses, *license)
 		}
 	}
 
-	return licenses
+	if merr != nil {
+		return nil, merr
+	}
+	return licenses, nil
 }

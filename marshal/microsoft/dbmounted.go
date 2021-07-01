@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // DbMounted marshals -action dbmounted output
-func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
+func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) error {
 	var out struct {
 		Data struct {
 			ServerName string `json:"servername"`
@@ -34,9 +35,8 @@ func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &out)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &out); err != nil {
+		return ercutils.NewError(err)
 	}
 
 	inst.ServerName = out.Data.ServerName
@@ -45,4 +45,6 @@ func DbMounted(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 	inst.CollationName = out.Data.CollationName
 	inst.Databases = []model.MicrosoftSQLServerDatabase{}
 	inst.DatabaseID = out.Data.DatabaseID
+
+	return nil
 }

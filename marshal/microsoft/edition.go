@@ -19,20 +19,22 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Edition marshals -action edition output
-func Edition(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
+func Edition(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) error {
 	var out struct {
 		Data struct {
 			Edition string `json:"edition"`
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &out)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &out); err != nil {
+		return ercutils.NewError(err)
 	}
 
 	inst.Edition = out.Data.Edition
+
+	return nil
 }

@@ -34,7 +34,7 @@ var testTableSchemasData = `mysql: [Warning] Using a password on the command lin
 func TestTableSchemas(t *testing.T) {
 	cmdOutput := []byte(testTableSchemasData)
 
-	actual := TableSchemas(cmdOutput)
+	actual, err := TableSchemas(cmdOutput)
 
 	expected := []model.MySQLTableSchema{
 		{
@@ -70,4 +70,5 @@ func TestTableSchemas(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }

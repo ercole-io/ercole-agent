@@ -32,8 +32,7 @@ func Filesystems(cmdOutput []byte) ([]model.Filesystem, error) {
 	filesystems := []model.Filesystem{}
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		line := scanner.Text()

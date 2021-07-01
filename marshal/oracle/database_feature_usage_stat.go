@@ -23,6 +23,7 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -31,8 +32,7 @@ import (
 func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUsageStat, error) {
 	featuresUsageStats := []model.OracleDatabaseFeatureUsageStat{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		stats := new(model.OracleDatabaseFeatureUsageStat)
@@ -50,12 +50,12 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUs
 			var err error
 			stats.FirstUsageDate, err = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[4]))
 			if err != nil {
-				panic(err)
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
 			stats.LastUsageDate, _ = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[5]))
 			if err != nil {
-				panic(err)
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
 			stats.ExtraFeatureInfo = strings.TrimSpace(splitted[6])

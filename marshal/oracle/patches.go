@@ -32,8 +32,7 @@ import (
 func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		patch := new(model.OracleDatabasePatch)

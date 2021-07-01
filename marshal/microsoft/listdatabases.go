@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // ListDatabases marshals -action db output
-func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
+func ListDatabases(cmdOutput []byte) ([]model.MicrosoftSQLServerDatabase, error) {
 	var rawOut []struct {
 		Data struct {
 			DatabaseID      int     `json:"database_id"`
@@ -41,9 +42,8 @@ func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &rawOut)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &rawOut); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
 	out := make([]model.MicrosoftSQLServerDatabase, len(rawOut))
@@ -65,5 +65,5 @@ func ListDatabases(cmdOutput []byte) []model.MicrosoftSQLServerDatabase {
 		out[i].Alloc = v.Data.Alloc
 	}
 
-	return out
+	return out, nil
 }
