@@ -38,7 +38,8 @@ func TestSegmentAdvisor(t *testing.T) {
 	}
 
 	cmdOutput := []byte(testSegmentAdvisorData)
-	actual := SegmentAdvisor(cmdOutput)
+	actual, err := SegmentAdvisor(cmdOutput)
 
 	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }

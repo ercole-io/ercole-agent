@@ -67,36 +67,54 @@ func TestTrimParseInt(t *testing.T) {
 
 func TestTrimParseFloat64PointerSafeComma(t *testing.T) {
 	testCases := []struct {
-		s        string
-		nils     []string
-		expected *float64
+		s           string
+		nils        []string
+		expected    *float64
+		expectedErr error
 	}{
 		{
-			s:        "N/A",
-			nils:     []string{"N/A"},
-			expected: nil,
+			s:           "N/A",
+			nils:        []string{"N/A"},
+			expected:    nil,
+			expectedErr: nil,
 		},
 		{
-			s:        "42",
-			nils:     []string{"N/A"},
-			expected: getPointerToFloat(42),
+			s:           "42",
+			nils:        []string{"N/A"},
+			expected:    getPointerToFloat(42),
+			expectedErr: nil,
 		},
 		{
-			s:        "42.42",
-			nils:     []string{"N/A"},
-			expected: getPointerToFloat(42.42),
+			s:           "42.42",
+			nils:        []string{"N/A"},
+			expected:    getPointerToFloat(42.42),
+			expectedErr: nil,
 		},
 		{
-			s:        "42,42",
-			nils:     []string{"N/A"},
-			expected: getPointerToFloat(42.42),
+			s:           "42,42",
+			nils:        []string{"N/A"},
+			expected:    getPointerToFloat(42.42),
+			expectedErr: nil,
+		},
+		{
+			s:           "42!42",
+			nils:        []string{"N/A"},
+			expected:    nil,
+			expectedErr: &strconv.NumError{},
 		},
 	}
 
 	for _, tc := range testCases {
-		v := TrimParseFloat64PointerSafeComma(tc.s, tc.nils...)
+		v, err := TrimParseFloat64PointerSafeComma(tc.s, tc.nils...)
 
 		assert.Equal(t, tc.expected, v)
+
+		if tc.expectedErr == nil {
+			assert.Nil(t, err)
+			continue
+		}
+
+		assert.ErrorAs(t, err, &tc.expectedErr)
 	}
 }
 

@@ -184,7 +184,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Tablespaces = b.fetcher.GetOracleDatabaseTablespaces(entry)
+		if database.Tablespaces, err = b.fetcher.GetOracleDatabaseTablespaces(entry); err != nil {
+			errChan <- err
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -213,15 +215,21 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		database.Licenses = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology)
+		if database.Licenses, err = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology); err != nil {
+			errChan <- err
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.ADDMs = b.fetcher.GetOracleDatabaseADDMs(entry)
+		if database.ADDMs, err = b.fetcher.GetOracleDatabaseADDMs(entry); err != nil {
+			errChan <- err
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.SegmentAdvisors = b.fetcher.GetOracleDatabaseSegmentAdvisors(entry)
+		if database.SegmentAdvisors, err = b.fetcher.GetOracleDatabaseSegmentAdvisors(entry); err != nil {
+			errChan <- err
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
@@ -267,16 +275,18 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	var wg sync.WaitGroup
 	errChan := make(chan error)
+	var err error
 
 	for i := range database.PDBs {
 		pdb := &database.PDBs[i]
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			pdb.Tablespaces = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name)
+			if pdb.Tablespaces, err = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name); err != nil {
+				errChan <- err
+			}
 		}, &wg)
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			var err error
 			pdb.Schemas, err = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
 			if err != nil {
 				errChan <- err

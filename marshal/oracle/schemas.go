@@ -31,8 +31,7 @@ import (
 func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		schema := new(model.OracleDatabaseSchema)

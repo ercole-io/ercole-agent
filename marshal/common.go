@@ -124,43 +124,51 @@ func TrimParseUint(s string) (uint, error) {
 	return uint(val), nil
 }
 
-func TrimParseFloat64(s string) float64 {
+func TrimParseFloat64(s string) (float64, error) {
 	s = strings.TrimSpace(s)
 
 	val, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
-	return val
+	return val, nil
 }
 
-func TrimParseFloat64Pointer(s string, nils ...string) *float64 {
+func TrimParseFloat64Pointer(s string, nils ...string) (*float64, error) {
 	s = strings.TrimSpace(s)
 
 	for _, aNil := range nils {
 		if s == aNil {
-			return nil
+			return nil, nil
 		}
 	}
 
-	f := TrimParseFloat64(s)
-	return &f
+	f, err := TrimParseFloat64(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return &f, nil
 }
 
-func TrimParseFloat64PointerSafeComma(s string, nils ...string) *float64 {
+func TrimParseFloat64PointerSafeComma(s string, nils ...string) (*float64, error) {
 	s = strings.TrimSpace(s)
 
 	for _, aNil := range nils {
 		if s == aNil {
-			return nil
+			return nil, nil
 		}
 	}
 
 	s = strings.Replace(s, ",", ".", 1)
 
-	f := TrimParseFloat64(s)
-	return &f
+	f, err := TrimParseFloat64(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return &f, nil
 }
 
 func TrimParseBool(s string) bool {

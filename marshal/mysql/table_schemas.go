@@ -20,22 +20,29 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
-func TableSchemas(cmdOutput []byte) []model.MySQLTableSchema {
+func TableSchemas(cmdOutput []byte) ([]model.MySQLTableSchema, error) {
 	tableSchemas := make([]model.MySQLTableSchema, 0)
 
 	scanner := marshal.NewCsvScanner(cmdOutput, 3)
+	var merr, err error
 
 	for scanner.SafeScan() {
-		tableSchema := model.MySQLTableSchema{
-			Name:       strings.TrimSpace(scanner.Iter()),
-			Engine:     strings.TrimSpace(scanner.Iter()),
-			Allocation: marshal.TrimParseFloat64(scanner.Iter()),
+		var tableSchema model.MySQLTableSchema
+		tableSchema.Name = strings.TrimSpace(scanner.Iter())
+		tableSchema.Engine = strings.TrimSpace(scanner.Iter())
+		if tableSchema.Allocation, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
 
 		tableSchemas = append(tableSchemas, tableSchema)
 	}
 
-	return tableSchemas
+	if merr != nil {
+		return nil, merr
+	}
+	return tableSchemas, nil
 }

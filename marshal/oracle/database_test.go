@@ -120,9 +120,9 @@ func TestDatabase_WithoutArchivelog(t *testing.T) {
 func TestDatabase_WrongArchivelog(t *testing.T) {
 	cmdOutput := []byte(testDatabaseData3)
 
-	assert.Panics(t, func() {
-		Database(cmdOutput)
-	})
+	db, err := Database(cmdOutput)
+	assert.Nil(t, db)
+	assert.Error(t, err)
 }
 
 func TestDatabase_WithoutDailyCPUUsage(t *testing.T) {

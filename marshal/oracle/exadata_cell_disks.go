@@ -32,8 +32,7 @@ import (
 func ExadataCellDisks(cmdOutput []byte) (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
 	cellDisks := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		cellDisk := new(model.OracleExadataCellDisk)

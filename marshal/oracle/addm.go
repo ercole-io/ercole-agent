@@ -22,12 +22,15 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Addms marshaller
-func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
+func Addms(cmdOutput []byte) ([]model.OracleDatabaseAddm, error) {
 	addms := []model.OracleDatabaseAddm{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var merr, err error
 
 	for scanner.Scan() {
 		addm := new(model.OracleDatabaseAddm)
@@ -37,10 +40,16 @@ func Addms(cmdOutput []byte) []model.OracleDatabaseAddm {
 			addm.Finding = strings.TrimSpace(splitted[2])
 			addm.Recommendation = strings.TrimSpace(splitted[3])
 			addm.Action = strings.TrimSpace(splitted[4])
-			addm.Benefit = marshal.TrimParseFloat64(splitted[5])
+			if addm.Benefit, err = marshal.TrimParseFloat64(splitted[5]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 
 			addms = append(addms, *addm)
 		}
 	}
-	return addms
+
+	if merr != nil {
+		return nil, merr
+	}
+	return addms, nil
 }

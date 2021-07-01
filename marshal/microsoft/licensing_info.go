@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // LicensingInfo marshals -action licensinginfo output
-func LicensingInfo(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
+func LicensingInfo(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) error {
 	var out struct {
 		Data struct {
 			ProductVersion string
@@ -32,13 +33,14 @@ func LicensingInfo(cmdOutput []byte, inst *model.MicrosoftSQLServerInstance) {
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &out)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &out); err != nil {
+		return ercutils.NewError(err)
 	}
 
 	inst.Version = out.Data.ProductVersion
 	inst.EditionType = out.Data.EditionType
 	inst.ProductCode = out.Data.ProductCode
 	inst.LicensingInfo = out.Data.LicensingInfo
+
+	return nil
 }

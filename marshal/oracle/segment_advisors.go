@@ -22,12 +22,15 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // SegmentAdvisor returns informations about SegmentAdvisor parsed from fetcher command output.
-func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
+func SegmentAdvisor(cmdOutput []byte) ([]model.OracleDatabaseSegmentAdvisor, error) {
 	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+	var merr, err error
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -41,11 +44,16 @@ func SegmentAdvisor(cmdOutput []byte) []model.OracleDatabaseSegmentAdvisor {
 			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
 			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
 			segmentadvisor.PartitionName = strings.TrimSpace(splitted[5])
-			segmentadvisor.Reclaimable = marshal.TrimParseFloat64(splitted[6])
+			if segmentadvisor.Reclaimable, err = marshal.TrimParseFloat64(splitted[6]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			segmentadvisor.Recommendation = strings.TrimSpace(splitted[7])
 			segmentadvisors = append(segmentadvisors, *segmentadvisor)
 		}
 	}
 
-	return segmentadvisors
+	if merr != nil {
+		return nil, merr
+	}
+	return segmentadvisors, nil
 }

@@ -29,8 +29,7 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var m model.Host
-	var merr error
-	var err error
+	var merr, err error
 
 	m.Hostname = strings.TrimSpace(data["Hostname"])
 	m.CPUModel = strings.TrimSpace(data["CPUModel"])
@@ -56,8 +55,12 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 	m.KernelVersion = strings.TrimSpace(data["KernelVersion"])
 	m.OS = strings.TrimSpace(data["OS"])
 	m.OSVersion = strings.TrimSpace(data["OSVersion"])
-	m.MemoryTotal = TrimParseFloat64(data["MemoryTotal"])
-	m.SwapTotal = TrimParseFloat64(data["SwapTotal"])
+	if m.MemoryTotal, err = TrimParseFloat64(data["MemoryTotal"]); err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
+	if m.SwapTotal, err = TrimParseFloat64(data["SwapTotal"]); err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
 
 	if merr != nil {
 		return nil, merr

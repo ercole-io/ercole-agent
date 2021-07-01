@@ -20,26 +20,40 @@ import (
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
-func SegmentAdvisors(cmdOutput []byte) []model.MySQLSegmentAdvisor {
+func SegmentAdvisors(cmdOutput []byte) ([]model.MySQLSegmentAdvisor, error) {
 	segmentAdvs := make([]model.MySQLSegmentAdvisor, 0)
 
 	scanner := marshal.NewCsvScanner(cmdOutput, 7)
 
+	var merr, err error
+
 	for scanner.SafeScan() {
-		segmentAdv := model.MySQLSegmentAdvisor{
-			TableSchema: strings.TrimSpace(scanner.Iter()),
-			TableName:   strings.TrimSpace(scanner.Iter()),
-			Engine:      strings.TrimSpace(scanner.Iter()),
-			Allocation:  marshal.TrimParseFloat64(scanner.Iter()),
-			Data:        marshal.TrimParseFloat64(scanner.Iter()),
-			Index:       marshal.TrimParseFloat64(scanner.Iter()),
-			Free:        marshal.TrimParseFloat64(scanner.Iter()),
+		var segmentAdv model.MySQLSegmentAdvisor
+		segmentAdv.TableSchema = strings.TrimSpace(scanner.Iter())
+		segmentAdv.TableName = strings.TrimSpace(scanner.Iter())
+		segmentAdv.Engine = strings.TrimSpace(scanner.Iter())
+		if segmentAdv.Allocation, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+		}
+		if segmentAdv.Data, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+		}
+		if segmentAdv.Index, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+		}
+		if segmentAdv.Free, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
 
 		segmentAdvs = append(segmentAdvs, segmentAdv)
 	}
 
-	return segmentAdvs
+	if merr != nil {
+		return nil, merr
+	}
+	return segmentAdvs, nil
 }

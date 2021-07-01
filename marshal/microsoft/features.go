@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Features marshals -action features output
-func Features(cmdOutput []byte) []model.MicrosoftSQLServerProductFeature {
+func Features(cmdOutput []byte) ([]model.MicrosoftSQLServerProductFeature, error) {
 	var rawOut struct {
 		Data []struct {
 			Product    string
@@ -35,9 +36,8 @@ func Features(cmdOutput []byte) []model.MicrosoftSQLServerProductFeature {
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &rawOut)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &rawOut); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
 	out := make([]model.MicrosoftSQLServerProductFeature, len(rawOut.Data))
@@ -52,5 +52,5 @@ func Features(cmdOutput []byte) []model.MicrosoftSQLServerProductFeature {
 		out[i].Configured = v.Clustered == "Yes"
 	}
 
-	return out
+	return out, nil
 }

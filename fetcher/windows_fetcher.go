@@ -198,7 +198,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEnt
 }
 
 // GetOracleDatabaseTablespaces get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) ([]model.OracleDatabaseTablespace, error) {
 	out := wf.execute("win.ps1", "-s", "tablespace", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Tablespaces(out)
 }
@@ -222,19 +222,19 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel
 }
 
 // GetOracleDatabaseLicenses get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) ([]model.OracleDatabaseLicense, error) {
 	out := wf.execute("win.ps1", "-s", "license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
 	return marshal_oracle.Licenses(out)
 }
 
 // GetOracleDatabaseADDMs get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) ([]model.OracleDatabaseAddm, error) {
 	out := wf.execute("win.ps1", "-s", "addm", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Addms(out)
 }
 
 // GetOracleDatabaseSegmentAdvisors get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSegmentAdvisor, error) {
 	out := wf.execute("win.ps1", "-s", "segmentadvisor", entry.DBName, entry.OracleHome)
 	return marshal_oracle.SegmentAdvisor(out)
 }
@@ -259,19 +259,19 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabE
 
 // GetOracleDatabasePDBs get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) []model.OracleDatabasePluggableDatabase {
-	wf.log.Panic(notImplementedWindows)
+	wf.log.Error(notImplementedWindows)
 	return nil
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace {
-	wf.log.Panic(notImplementedWindows)
-	return nil
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
 }
 
 // GetOracleDatabasePDBSchemas get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error) {
-	wf.log.Panic(notImplementedWindows)
+	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
@@ -282,9 +282,9 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.List
 }
 
 // GetMicrosoftSQLServerInstanceInfo get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "dbmounted", "-instance", conn)
-	marshal_microsoft.DbMounted(out, inst)
+	return marshal_microsoft.DbMounted(out, inst)
 }
 
 // GetMicrosoftSQLServerInstanceEdition get
@@ -300,13 +300,13 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn st
 }
 
 // GetMicrosoftSQLServerInstanceDatabase get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "db", "-instance", conn)
 	return marshal_microsoft.ListDatabases(out)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseBackups get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "backup_schedule", "-instance", conn)
 	return marshal_microsoft.BackupSchedule(out)
 }
@@ -330,7 +330,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) 
 }
 
 // GetMicrosoftSQLServerProductFeatures get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "sqlFeatures", "-instance", conn)
 	return marshal_microsoft.Features(out)
 }
@@ -345,14 +345,14 @@ func (wf *WindowsFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceC
 	return nil
 }
 
-func (wf *WindowsFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema {
+func (wf *WindowsFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error) {
 	wf.log.Error(notImplementedWindows)
-	return nil
+	return nil, ercutils.NewError(notImplementedWindows)
 }
 
-func (wf *WindowsFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor {
+func (wf *WindowsFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error) {
 	wf.log.Error(notImplementedWindows)
-	return nil
+	return nil, ercutils.NewError(notImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) bool {

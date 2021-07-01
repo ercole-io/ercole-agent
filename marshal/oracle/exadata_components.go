@@ -30,8 +30,7 @@ import (
 func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) {
 	devices := []model.OracleExadataComponent{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
-	var merr error
-	var err error
+	var merr, err error
 
 	for scanner.Scan() {
 		device := new(model.OracleExadataComponent)
@@ -83,7 +82,9 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 
 			device.FanStatus = marshal.TrimParseStringPointer(splitted[10], "-")
 
-			device.TempActual = marshal.TrimParseFloat64Pointer(splitted[11], "-")
+			if device.TempActual, err = marshal.TrimParseFloat64Pointer(splitted[11], "-"); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 			device.TempStatus = marshal.TrimParseStringPointer(splitted[12], "-")
 			device.CellsrvServiceStatus = marshal.TrimParseStringPointer(splitted[13], "-")
 			device.MsServiceStatus = marshal.TrimParseStringPointer(splitted[14], "-")

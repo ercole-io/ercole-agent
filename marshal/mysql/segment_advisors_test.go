@@ -31,7 +31,7 @@ var testSegmentAdvisorsData = `mysql: [Warning] Using a password on the command 
 func TestSegmentAdvisors(t *testing.T) {
 	cmdOutput := []byte(testSegmentAdvisorsData)
 
-	actual := SegmentAdvisors(cmdOutput)
+	actual, err := SegmentAdvisors(cmdOutput)
 
 	expected := []model.MySQLSegmentAdvisor{
 		{
@@ -64,4 +64,5 @@ func TestSegmentAdvisors(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }

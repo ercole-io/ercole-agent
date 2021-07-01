@@ -16,6 +16,7 @@
 package fetcher
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -29,6 +30,7 @@ import (
 	marshal_mysql "github.com/ercole-io/ercole-agent/v2/marshal/mysql"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // LinuxFetcherImpl fetcher implementation for linux
@@ -38,7 +40,7 @@ type LinuxFetcherImpl struct {
 	fetcherUser   *User
 }
 
-const notImplementedLinux = "Not yet implemented for GNU/Linux"
+var notImplementedLinux = errors.New("Not yet implemented for GNU/Linux")
 
 // NewLinuxFetcherImpl constructor
 func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) *LinuxFetcherImpl {
@@ -208,7 +210,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry
 }
 
 // GetOracleDatabaseTablespaces get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) []model.OracleDatabaseTablespace {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) ([]model.OracleDatabaseTablespace, error) {
 	out := lf.execute("tablespace", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Tablespaces(out)
 }
@@ -232,19 +234,19 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.O
 }
 
 // GetOracleDatabaseLicenses get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) []model.OracleDatabaseLicense {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) ([]model.OracleDatabaseLicense, error) {
 	out := lf.execute("license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
 	return marshal_oracle.Licenses(out)
 }
 
 // GetOracleDatabaseADDMs get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) []model.OracleDatabaseAddm {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) ([]model.OracleDatabaseAddm, error) {
 	out := lf.execute("addm", entry.DBName, entry.OracleHome)
 	return marshal_oracle.Addms(out)
 }
 
 // GetOracleDatabaseSegmentAdvisors get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) []model.OracleDatabaseSegmentAdvisor {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSegmentAdvisor, error) {
 	out := lf.execute("segmentadvisor", entry.DBName, entry.OracleHome)
 	return marshal_oracle.SegmentAdvisor(out)
 }
@@ -274,7 +276,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) 
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) []model.OracleDatabaseTablespace {
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
 	out := lf.execute("tablespace_pdb", entry.DBName, entry.OracleHome, pdb)
 	return marshal_oracle.Tablespaces(out)
 }
@@ -358,8 +360,9 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.ListIn
 }
 
 // GetMicrosoftSQLServerInstanceInfo get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
 	lf.log.Error(notImplementedLinux)
+	return ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceEdition get
@@ -373,15 +376,15 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn stri
 }
 
 // GetMicrosoftSQLServerInstanceDatabase get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) []model.MicrosoftSQLServerDatabase {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseBackups get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) []agentmodel.DbBackupsModel {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseSchemas get
@@ -403,9 +406,9 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []
 }
 
 // GetMicrosoftSQLServerProductFeatures get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) []model.MicrosoftSQLServerProductFeature {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
@@ -419,13 +422,13 @@ func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceCon
 	return marshal_mysql.Databases(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) []model.MySQLTableSchema {
+func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error) {
 	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "table_schemas")
 
 	return marshal_mysql.TableSchemas(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) []model.MySQLSegmentAdvisor {
+func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error) {
 	out := lf.execute("mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "segment_advisors")
 
 	return marshal_mysql.SegmentAdvisors(out)
