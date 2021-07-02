@@ -354,9 +354,9 @@ func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() model.ClusterMembershi
 }
 
 // GetMicrosoftSQLServerInstances get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceInfo get
@@ -388,21 +388,21 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn st
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseSchemas get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) ([]agentmodel.DbSchemasModel, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseTablespaces get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) ([]agentmodel.DbTablespacesModel, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstancePatches get
-func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch {
+func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) ([]model.MicrosoftSQLServerPatch, error) {
 	lf.log.Error(notImplementedLinux)
-	return nil
+	return nil, ercutils.NewError(notImplementedLinux)
 }
 
 // GetMicrosoftSQLServerProductFeatures get

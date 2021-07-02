@@ -67,15 +67,15 @@ type Fetcher interface {
 
 	// Microsoft/SQLServer fetchers
 
-	GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel
+	GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error)
 	GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error
 	GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance)
 	GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance)
 	GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error)
 	GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error)
-	GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel
-	GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel
-	GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch
+	GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) ([]agentmodel.DbSchemasModel, error)
+	GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) ([]agentmodel.DbTablespacesModel, error)
+	GetMicrosoftSQLServerInstancePatches(conn string) ([]model.MicrosoftSQLServerPatch, error)
 	GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error)
 
 	// MySQL fetchers

@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Patches marshals -action patches output
-func Patches(cmdOutput []byte) []model.MicrosoftSQLServerPatch {
+func Patches(cmdOutput []byte) ([]model.MicrosoftSQLServerPatch, error) {
 	var rawOut struct {
 		Data []struct {
 			DisplayName    string
@@ -31,9 +32,8 @@ func Patches(cmdOutput []byte) []model.MicrosoftSQLServerPatch {
 		} `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &rawOut)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &rawOut); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
 	out := make([]model.MicrosoftSQLServerPatch, len(rawOut.Data))
@@ -44,5 +44,5 @@ func Patches(cmdOutput []byte) []model.MicrosoftSQLServerPatch {
 		out[i].InstallDate = v.InstallDate
 	}
 
-	return out
+	return out, nil
 }

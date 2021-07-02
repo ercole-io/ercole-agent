@@ -276,7 +276,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.Orata
 }
 
 // GetMicrosoftSQLServerInstances get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() []agentmodel.ListInstanceOutputModel {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel , error){
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
 	return marshal_microsoft.ListInstances(out)
 }
@@ -312,19 +312,19 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn 
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseSchemas get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) []agentmodel.DbSchemasModel {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) ([]agentmodel.DbSchemasModel, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "schema", "-instance", conn)
 	return marshal_microsoft.Schemas(out)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseTablespaces get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) []agentmodel.DbTablespacesModel {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) ([]agentmodel.DbTablespacesModel, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "ts", "-instance", conn)
 	return marshal_microsoft.Tablespaces(out)
 }
 
 // GetMicrosoftSQLServerInstancePatches get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) []model.MicrosoftSQLServerPatch {
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) ([]model.MicrosoftSQLServerPatch, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "patches", "-instance", conn)
 	return marshal_microsoft.Patches(out)
 }
