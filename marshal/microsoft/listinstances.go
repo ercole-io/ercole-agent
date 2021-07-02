@@ -19,18 +19,18 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // ListInstances marshals -action listInstances output
-func ListInstances(cmdOutput []byte) []agentmodel.ListInstanceOutputModel {
+func ListInstances(cmdOutput []byte) ([]agentmodel.ListInstanceOutputModel, error) {
 	var out struct {
 		Data []agentmodel.ListInstanceOutputModel `json:"data"`
 	}
 
-	err := json.Unmarshal(cmdOutput, &out)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &out); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
-	return out.Data
+	return out.Data, nil
 }

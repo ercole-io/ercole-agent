@@ -19,16 +19,16 @@ import (
 	"encoding/json"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // Tablespaces marshals -action ts output
-func Tablespaces(cmdOutput []byte) []agentmodel.DbTablespacesModel {
+func Tablespaces(cmdOutput []byte) ([]agentmodel.DbTablespacesModel, error) {
 	var rawOut []agentmodel.DbTablespacesModel
 
-	err := json.Unmarshal(cmdOutput, &rawOut)
-	if err != nil {
-		panic(err)
+	if err := json.Unmarshal(cmdOutput, &rawOut); err != nil {
+		return nil, ercutils.NewError(err)
 	}
 
-	return rawOut
+	return rawOut, nil
 }
