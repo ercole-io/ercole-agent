@@ -151,10 +151,7 @@ func checkConfiguration(log logger.Logger, config *Configuration) {
 	checkPeriod(log, config)
 	checkLogDirectory(log, config)
 
-	if config.Features.OracleDatabase.Oratab == "" {
-		config.Features.OracleDatabase.Oratab = "/etc/oratab"
-	}
-
+	checkFeatureOracleDatabase(log, config)
 	checkFeatureVirtualization(log, config)
 }
 
@@ -174,6 +171,21 @@ func checkLogDirectory(log logger.Logger, config *Configuration) {
 
 	if err := checkDirectoryIsWritable(path); err != nil {
 		log.Fatalf("LogDirectory \"%s\" is not valid: %s", path, err)
+	}
+}
+
+func checkFeatureOracleDatabase(log logger.Logger, config *Configuration) {
+	if !config.Features.OracleDatabase.Enabled {
+		return
+	}
+
+	if config.Features.OracleDatabase.Oratab == "" {
+		config.Features.OracleDatabase.Oratab = "/etc/oratab"
+	}
+
+	_, err := ioutil.ReadFile(config.Features.OracleDatabase.Oratab)
+	if err != nil {
+		log.Fatalf("Oracle Database: oratab file \"%s\" can't be opened: %s", config.Features.OracleDatabase.Oratab, err)
 	}
 }
 
