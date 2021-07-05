@@ -276,7 +276,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.Orata
 }
 
 // GetMicrosoftSQLServerInstances get
-func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel , error){
+func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error) {
 	out := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
 	return marshal_microsoft.ListInstances(out)
 }
@@ -360,9 +360,9 @@ func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLIn
 	return false
 }
 
-func (wf *WindowsFetcherImpl) GetMySQLUUID() string {
+func (wf *WindowsFetcherImpl) GetMySQLUUID() (string, error) {
 	wf.log.Error(notImplementedWindows)
-	return ""
+	return "", ercutils.NewError(notImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {

@@ -38,7 +38,12 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 
 		instance.HighAvailability = b.fetcher.GetMySQLHighAvailability(conf)
 
-		instance.UUID = b.fetcher.GetMySQLUUID()
+		instance.UUID, err = b.fetcher.GetMySQLUUID()
+		if err != nil {
+			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
+		}
+
 		instance.IsMaster, instance.SlaveUUIDs = b.fetcher.GetMySQLSlaveHosts(conf)
 		instance.IsSlave, instance.MasterUUID = b.fetcher.GetMySQLSlaveStatus(conf)
 

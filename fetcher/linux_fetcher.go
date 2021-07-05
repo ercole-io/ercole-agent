@@ -440,19 +440,23 @@ func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInst
 	return marshal_mysql.HighAvailability(out)
 }
 
-func (lf *LinuxFetcherImpl) GetMySQLUUID() string {
+func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 	file := "/var/lib/mysql/auto.cnf"
 	out, err := os.ReadFile(file)
 	if err != nil {
-		lf.log.Fatal("Can't get MySQL UUID from ", file, ": ", err)
+		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
+		lf.log.Error(err)
+		return "", ercutils.NewError(err)
 	}
 
 	uuid, err := marshal_mysql.UUID(out)
 	if err != nil {
-		lf.log.Fatal("Can't get MySQL UUID: ", err)
+		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
+		lf.log.Error(err)
+		return "", ercutils.NewError(err)
 	}
 
-	return uuid
+	return uuid, nil
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string) {
