@@ -36,11 +36,9 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.Oracle
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
 
 	var err error
-	if oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host); err != nil {
-		return nil, err
-	}
+	oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host)
 
-	return oracleDatabaseFeature, nil
+	return oracleDatabaseFeature, err
 }
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
@@ -63,7 +61,7 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 
 func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) ([]model.OracleDatabase, error) {
 	databaseChan := make(chan *model.OracleDatabase, len(oratabEntries))
-	errChan := make(chan error)
+	errChan := make(chan error, len(oratabEntries))
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
@@ -89,15 +87,12 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 		}
 	}
 
-	if len(errChan) > 0 {
-		var merr error
-		for len(errChan) > 0 {
-			merr = multierror.Append(merr, <-errChan)
-		}
-		return nil, merr
+	var merr error
+	for len(errChan) > 0 {
+		merr = multierror.Append(merr, <-errChan)
 	}
 
-	return databases, nil
+	return databases, merr
 }
 
 func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
