@@ -179,6 +179,10 @@ func checkFeatureOracleDatabase(log logger.Logger, config *Configuration) {
 		return
 	}
 
+	if runtime.GOOS == "windows" {
+		return
+	}
+
 	if config.Features.OracleDatabase.Oratab == "" {
 		config.Features.OracleDatabase.Oratab = "/etc/oratab"
 	}
