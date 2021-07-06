@@ -61,6 +61,7 @@ func NewCommonBuilder(configuration config.Configuration, log logger.Logger) Com
 // Run fill hostData
 func (b *CommonBuilder) Run(hostData *model.HostData) {
 	if host, err := b.fetcher.GetHost(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	} else {
 		hostData.Info = *host
@@ -68,6 +69,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	var err error
 	if hostData.Filesystems, err = b.fetcher.GetFilesystems(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 
@@ -95,6 +97,7 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 
 	b.log.Debugf("Oracle/Database mode enabled (user='%s')", b.configuration.Features.OracleDatabase.FetcherUser)
 	if err := b.setOrResetFetcherUser(b.configuration.Features.OracleDatabase.FetcherUser); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
@@ -103,6 +106,7 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 
 	var err error
 	if hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
@@ -114,11 +118,13 @@ func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
 
 	b.log.Debugf("Oracle/Exadata mode enabled (user='%s')", b.configuration.Features.OracleExadata.FetcherUser)
 	if err := b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
 
 	if err := b.checksToRunExadata(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
@@ -126,6 +132,7 @@ func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
 	lazyInitOracleFeature(&hostData.Features)
 	var err error
 	if hostData.Features.Oracle.Exadata, err = b.getOracleExadataFeature(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
@@ -137,6 +144,7 @@ func (b *CommonBuilder) runMicrosoftSQLServer(hostData *model.HostData) {
 
 	b.log.Debugf("Microsoft/SQLServer mode enabled (user='%s')", b.configuration.Features.MicrosoftSQLServer.FetcherUser)
 	if err := b.setOrResetFetcherUser(b.configuration.Features.MicrosoftSQLServer.FetcherUser); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
@@ -144,6 +152,7 @@ func (b *CommonBuilder) runMicrosoftSQLServer(hostData *model.HostData) {
 	lazyInitMicrosoftFeature(&hostData.Features)
 	var err error
 	if hostData.Features.Microsoft.SQLServer, err = b.getMicrosoftSQLServerFeature(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
@@ -155,6 +164,7 @@ func (b *CommonBuilder) runVirtualization(hostData *model.HostData) {
 
 	b.log.Debugf("Virtualization mode enabled (user='%s')", b.configuration.Features.Virtualization.FetcherUser)
 	if err := b.setOrResetFetcherUser(b.configuration.Features.Virtualization.FetcherUser); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
@@ -169,12 +179,14 @@ func (b *CommonBuilder) runMySQL(hostData *model.HostData) {
 
 	b.log.Debugf("MySQL mode enabled")
 	if err := b.setOrResetFetcherUser(b.configuration.Features.MySQL.FetcherUser); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 		return
 	}
 
 	var err error
 	if hostData.Features.MySQL, err = b.getMySQLFeature(); err != nil {
+		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
