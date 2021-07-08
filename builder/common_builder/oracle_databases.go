@@ -136,7 +136,6 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 	default:
 		err := fmt.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
-		b.log.Warn(err)
 		return nil, err
 	}
 

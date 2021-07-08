@@ -106,7 +106,6 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 
 	var err error
 	if hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info); err != nil {
-		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
@@ -132,7 +131,6 @@ func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
 	lazyInitOracleFeature(&hostData.Features)
 	var err error
 	if hostData.Features.Oracle.Exadata, err = b.getOracleExadataFeature(); err != nil {
-		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }
@@ -152,7 +150,6 @@ func (b *CommonBuilder) runMicrosoftSQLServer(hostData *model.HostData) {
 	lazyInitMicrosoftFeature(&hostData.Features)
 	var err error
 	if hostData.Features.Microsoft.SQLServer, err = b.getMicrosoftSQLServerFeature(); err != nil {
-		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
 }

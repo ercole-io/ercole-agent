@@ -29,16 +29,19 @@ func (b *CommonBuilder) getMicrosoftSQLServerFeature() (*model.MicrosoftSQLServe
 
 	sqlServer.Instances, connString, err = b.getMicrosoftSQLServerInstances()
 	if err != nil {
+		b.log.Error(err)
 		merr = multierror.Append(merr, err)
 	}
 
 	if len(sqlServer.Instances) > 0 {
 		sqlServer.Features, err = b.fetcher.GetMicrosoftSQLServerProductFeatures(connString)
 		if err != nil {
+			b.log.Error(err)
 			merr = multierror.Append(merr, err)
 		}
 
 		if sqlServer.Patches, err = b.fetcher.GetMicrosoftSQLServerInstancePatches(connString); err != nil {
+			b.log.Error(err)
 			merr = multierror.Append(merr, err)
 		}
 	}

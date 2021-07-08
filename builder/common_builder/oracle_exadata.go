@@ -45,6 +45,7 @@ func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, 
 	var err error
 	oracleExadataFeature.Components, err = b.getOracleExadataComponents()
 	if err != nil {
+		b.log.Error(err)
 		return nil, err
 	}
 
