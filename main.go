@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -109,7 +110,8 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	timeout := 15
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
 	if err != nil {
@@ -120,7 +122,12 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error("Error sending data: ", err)
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.Errorf("Error sending data: unable to reach ercole server in %d seconds", timeout)
+		} else {
+			log.Error("Error sending data: ", err)
+		}
+
 		log.Warn("Sending result: FAILED")
 		return
 	}
