@@ -53,7 +53,7 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUs
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			stats.LastUsageDate, _ = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[5]))
+			stats.LastUsageDate, err = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[5]))
 			if err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}

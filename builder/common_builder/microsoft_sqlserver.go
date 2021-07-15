@@ -72,9 +72,17 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances() ([]model.MicrosoftSQLSe
 
 		instance.Platform = "Windows"
 
-		b.fetcher.GetMicrosoftSQLServerInstanceInfo(out.ConnString, &instance)
-		b.fetcher.GetMicrosoftSQLServerInstanceEdition(out.ConnString, &instance)
-		b.fetcher.GetMicrosoftSQLServerInstanceLicensingInfo(out.ConnString, &instance)
+		if err := b.fetcher.GetMicrosoftSQLServerInstanceInfo(out.ConnString, &instance); err != nil {
+			instanceErr = multierror.Append(instanceErr, err)
+		}
+
+		if err := b.fetcher.GetMicrosoftSQLServerInstanceEdition(out.ConnString, &instance); err != nil {
+			instanceErr = multierror.Append(instanceErr, err)
+		}
+
+		if err := b.fetcher.GetMicrosoftSQLServerInstanceLicensingInfo(out.ConnString, &instance); err != nil {
+			instanceErr = multierror.Append(instanceErr, err)
+		}
 
 		if instance.Databases, err = b.fetcher.GetMicrosoftSQLServerInstanceDatabase(out.ConnString); err != nil {
 			instanceErr = multierror.Append(instanceErr, err)

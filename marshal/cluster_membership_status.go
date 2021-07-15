@@ -22,7 +22,7 @@ import (
 )
 
 // ClusterMembershipStatus returns this struct filled from the output of the script
-func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
+func ClusterMembershipStatus(cmdOutput []byte) *model.ClusterMembershipStatus {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var clusterMembershipStatus model.ClusterMembershipStatus
@@ -46,5 +46,5 @@ func ClusterMembershipStatus(cmdOutput []byte) model.ClusterMembershipStatus {
 		clusterMembershipStatus.VeritasClusterHostnames = hostnames
 	}
 
-	return clusterMembershipStatus
+	return &clusterMembershipStatus
 }
