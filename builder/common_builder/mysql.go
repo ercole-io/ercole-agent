@@ -31,35 +31,55 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 	for _, conf := range b.configuration.Features.MySQL.Instances {
 		instance, err := b.fetcher.GetMySQLInstance(conf)
 		if err != nil {
-			b.log.Errorf("Can't get MySQL instance: %s\n Errors: %s\n", conf.Host, err)
+			b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
 			merr = multierror.Append(merr, ercutils.NewError(err))
 			continue
 		}
 
-		instance.HighAvailability = b.fetcher.GetMySQLHighAvailability(conf)
-
-		instance.UUID, err = b.fetcher.GetMySQLUUID()
-		if err != nil {
+		if instance.HighAvailability, err = b.fetcher.GetMySQLHighAvailability(conf); err != nil {
+			b.log.Errorf("Can't get MySQL HighAvailability: %s", conf.Host)
 			merr = multierror.Append(merr, ercutils.NewError(err))
 			continue
 		}
 
-		instance.IsMaster, instance.SlaveUUIDs = b.fetcher.GetMySQLSlaveHosts(conf)
-		instance.IsSlave, instance.MasterUUID = b.fetcher.GetMySQLSlaveStatus(conf)
+		if instance.UUID, err = b.fetcher.GetMySQLUUID(); err != nil {
+			b.log.Errorf("Can't get MySQL UUID: %s", conf.Host)
+			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
+		}
 
-		instance.Databases = b.fetcher.GetMySQLDatabases(conf)
+		if instance.IsMaster, instance.SlaveUUIDs, err = b.fetcher.GetMySQLSlaveHosts(conf); err != nil {
+			b.log.Errorf("Can't get MySQL slave hosts: %s", conf.Host)
+			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
+		}
+
+		if instance.IsSlave, instance.MasterUUID, err = b.fetcher.GetMySQLSlaveStatus(conf); err != nil {
+			b.log.Errorf("Can't get MySQL slave status: %s", conf.Host)
+			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
+		}
+
+		if instance.Databases, err = b.fetcher.GetMySQLDatabases(conf); err != nil {
+			b.log.Errorf("Can't get MySQL databases: %s", conf.Host)
+			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
+		}
+
 		if instance.TableSchemas, err = b.fetcher.GetMySQLTableSchemas(conf); err != nil {
+			b.log.Errorf("Can't get MySQL table schemas: %s", conf.Host)
 			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
 		}
+
 		if instance.SegmentAdvisors, err = b.fetcher.GetMySQLSegmentAdvisors(conf); err != nil {
+			b.log.Errorf("Can't get MySQL segment advisors: %s", conf.Host)
 			merr = multierror.Append(merr, ercutils.NewError(err))
+			continue
 		}
 
 		mysql.Instances = append(mysql.Instances, *instance)
 	}
 
-	if merr != nil {
-		return nil, merr
-	}
-	return mysql, nil
+	return mysql, merr
 }

@@ -2,7 +2,7 @@
     "Hostname": "default",
     "Environment": "TST",
     "Location": "Germany",
-    "DataserviceURL": "http://urlserver/data",
+    "DataserviceURL": "http://localhost:11111",
     "AgentUser": "user",
     "AgentPassword": "password",
     "Period": 24,
@@ -13,7 +13,7 @@
     "LogDirectory": "",
     "Features": {
         "OracleDatabase": {
-            "Enabled": true,
+            "Enabled": false,
             "Oratab": "/etc/oratab",
             "Forcestats": true,
             "AWR": 30

@@ -33,7 +33,7 @@ func TestGetUnlistedRunningOracleDBs(t *testing.T) {
 	fakeFetcher := NewMockFetcher(ctrl)
 	fakeFetcher.
 		EXPECT().GetOracleDatabaseRunningDatabases().
-		Return([]string{"pippo", "topolino", "pluto"})
+		Return([]string{"pippo", "topolino", "pluto"}, nil)
 
 	b := CommonBuilder{
 		fetcher:       fakeFetcher,
@@ -57,7 +57,7 @@ func TestGetUnlistedRunningOracleDBs2(t *testing.T) {
 	fakeFetcher := NewMockFetcher(ctrl)
 	fakeFetcher.
 		EXPECT().GetOracleDatabaseRunningDatabases().
-		Return([]string{"ERC002", "ERC001"})
+		Return([]string{"ERC002", "ERC001"}, nil)
 
 	log, err := logger.NewLogger("TEST")
 	require.Nil(t, err)

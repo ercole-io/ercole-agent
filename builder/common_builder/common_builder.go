@@ -63,12 +63,14 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	if host, err := b.fetcher.GetHost(); err != nil {
 		b.log.Error(err)
 		hostData.AddErrors(err)
+		return
 	} else {
 		hostData.Info = *host
 	}
 
 	var err error
 	if hostData.Filesystems, err = b.fetcher.GetFilesystems(); err != nil {
+		hostData.Filesystems = []model.Filesystem{}
 		b.log.Error(err)
 		hostData.AddErrors(err)
 	}
@@ -77,7 +79,13 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	if b.configuration.Hostname != "default" {
 		hostData.Hostname = b.configuration.Hostname
 	}
-	hostData.ClusterMembershipStatus = b.fetcher.GetClustersMembershipStatus()
+	if cms, err := b.fetcher.GetClustersMembershipStatus(); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+		return
+	} else {
+		hostData.ClusterMembershipStatus = *cms
+	}
 
 	b.runOracleDatabase(hostData)
 
@@ -166,7 +174,10 @@ func (b *CommonBuilder) runVirtualization(hostData *model.HostData) {
 		return
 	}
 
-	hostData.Clusters = b.getClustersInfos()
+	var err error
+	hostData.Clusters, err = b.getClustersInfos()
+	b.log.Error(err)
+	hostData.AddErrors(err)
 }
 
 func (b *CommonBuilder) runMySQL(hostData *model.HostData) {

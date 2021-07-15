@@ -17,7 +17,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 
@@ -32,17 +31,25 @@ import (
 func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.OracleDatabaseFeature, error) {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
 
-	oratabEntries := b.fetcher.GetOracleDatabaseOratabEntries()
+	oratabEntries, err := b.fetcher.GetOracleDatabaseOratabEntries()
+	if err != nil {
+		b.log.Errorf("Can't get oratab entries")
+		return nil, err
+	}
+
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
 
-	var err error
 	oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host)
 
 	return oracleDatabaseFeature, err
 }
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
-	runningDBs := b.fetcher.GetOracleDatabaseRunningDatabases()
+	runningDBs, err := b.fetcher.GetOracleDatabaseRunningDatabases()
+	if err != nil {
+		b.log.Errorf("Can't get running Oracle databases")
+		return []string{}
+	}
 
 	oratabEntriesNames := make(map[string]bool, len(oratabEntries))
 	for _, db := range oratabEntries {
@@ -96,21 +103,23 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 }
 
 func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
-	dbStatus := b.fetcher.GetOracleDatabaseDbStatus(entry)
+	dbStatus, err := b.fetcher.GetOracleDatabaseDbStatus(entry)
+	if err != nil {
+		b.log.Errorf("Oracle db [%s]: can't get db status, failed", entry.DBName)
+		return nil, err
+	}
+
 	var database *model.OracleDatabase
-	var err error
 
 	switch dbStatus {
 	case "OPEN":
 		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
-		if err != nil {
-			return nil, err
-		}
 
 	case "MOUNTED":
 		{
 			database, err = b.fetcher.GetOracleDatabaseMountedDb(entry)
 			if err != nil {
+				b.log.Errorf("Oracle db [%s]: can't get mounted db, failed", entry.DBName)
 				return nil, err
 			}
 
@@ -134,16 +143,20 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil, nil
 	default:
-		err := fmt.Errorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
+		err := ercutils.NewErrorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil, err
 	}
 
-	return database, nil
+	return database, err
 }
 
 func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) (*model.OracleDatabase, error) {
-	stringDbVersion := b.fetcher.GetOracleDatabaseDbVersion(entry)
+	stringDbVersion, err := b.fetcher.GetOracleDatabaseDbVersion(entry)
+	if err != nil {
+		b.log.Errorf("Oracle db [%s]: can't get db version, failed", entry.DBName)
+		return nil, err
+	}
 
 	dbVersion, err := version.NewVersion(stringDbVersion)
 	if err != nil {
@@ -152,10 +165,13 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		return nil, err
 	}
 
+	blockingErrs := make(chan error)    // database errs are serious, must not be returned
+	nonBlockingErrs := make(chan error) // database errs, but not blocking ones
+
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
-			b.fetcher.RunOracleDatabaseStats(entry)
+			blockingErrs <- b.fetcher.RunOracleDatabaseStats(entry)
 
 			cancelStatsCtx()
 		})
@@ -165,35 +181,40 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	database, err := b.fetcher.GetOracleDatabaseOpenDb(entry)
 	if err != nil {
+		b.log.Errorf("Oracle db [%s]: can't get open db, failed", entry.DBName)
 		return nil, err
 	}
 
 	var wg sync.WaitGroup
-	errChan := make(chan error)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		if err := b.setPDBs(database, *dbVersion, entry); err != nil {
-			errChan <- err
+			nonBlockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		if database.Tablespaces, err = b.fetcher.GetOracleDatabaseTablespaces(entry); err != nil {
-			errChan <- err
+			database.Tablespaces = []model.OracleDatabaseTablespace{}
+			b.log.Warnf("Oracle db [%s]: can't get tablespaces", entry.DBName)
+			nonBlockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Schemas, err = b.fetcher.GetOracleDatabaseSchemas(entry)
-		if err != nil {
-			errChan <- err
+		if database.Schemas, err = b.fetcher.GetOracleDatabaseSchemas(entry); err != nil {
+			database.Schemas = []model.OracleDatabaseSchema{}
+			b.log.Warnf("Oracle db [%s]: can't get schemas", entry.DBName)
+			nonBlockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
 		if err != nil {
-			errChan <- err
+			database.Patches = []model.OracleDatabasePatch{}
+			b.log.Warnf("Oracle db [%s]: can't get patches", entry.DBName)
+			nonBlockingErrs <- err
 			return
 		}
 	}, &wg)
@@ -202,7 +223,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		<-statsCtx.Done()
 
 		if database.FeatureUsageStats, err = b.fetcher.GetOracleDatabaseFeatureUsageStat(entry, stringDbVersion); err != nil {
-			errChan <- err
+			b.log.Errorf("Oracle db [%s]: can't get feature usage stat", entry.DBName)
+			blockingErrs <- err
 		}
 	}, &wg)
 
@@ -210,37 +232,54 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		<-statsCtx.Done()
 
 		if database.Licenses, err = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology); err != nil {
-			errChan <- err
+			b.log.Errorf("Oracle db [%s]: can't get licenses, failed", entry.DBName)
+			blockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		if database.ADDMs, err = b.fetcher.GetOracleDatabaseADDMs(entry); err != nil {
-			errChan <- err
+			database.ADDMs = []model.OracleDatabaseAddm{}
+			b.log.Errorf("Oracle db [%s]: can't get ADDMs, failed", entry.DBName)
+			nonBlockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		if database.SegmentAdvisors, err = b.fetcher.GetOracleDatabaseSegmentAdvisors(entry); err != nil {
-			errChan <- err
+			database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
+			b.log.Warnf("Oracle db [%s]: can't get segment advisors", entry.DBName)
+			nonBlockingErrs <- err
 		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.PSUs = b.fetcher.GetOracleDatabasePSUs(entry, stringDbVersion)
+		if database.PSUs, err = b.fetcher.GetOracleDatabasePSUs(entry, stringDbVersion); err != nil {
+			b.log.Errorf("Oracle db [%s]: can't get PSUs, failed", entry.DBName)
+			blockingErrs <- err
+		}
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		database.Backups = b.fetcher.GetOracleDatabaseBackups(entry)
+		if database.Backups, err = b.fetcher.GetOracleDatabaseBackups(entry); err != nil {
+			database.Backups = []model.OracleDatabaseBackup{}
+			b.log.Warnf("Oracle db [%s]: can't get backups", entry.DBName)
+			nonBlockingErrs <- err
+		}
 	}, &wg)
 
 	wg.Wait()
 
-	if len(errChan) > 0 {
-		var merr error
-		for len(errChan) > 0 {
-			merr = multierror.Append(merr, <-errChan)
+	var merr error
+	for len(nonBlockingErrs) > 0 {
+		merr = multierror.Append(merr, <-nonBlockingErrs)
+	}
+
+	if len(blockingErrs) > 0 {
+		for len(blockingErrs) > 0 {
+			merr = multierror.Append(merr, <-blockingErrs)
 		}
+
 		return nil, merr
 	}
 
@@ -248,7 +287,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	database.Services = []model.OracleDatabaseService{}
 
-	return database, nil
+	return database, merr
 }
 
 func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) error {
@@ -260,31 +299,40 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		return nil
 	}
 
-	database.IsCDB = b.fetcher.GetOracleDatabaseCheckPDB(entry)
+	var err error
+
+	if database.IsCDB, err = b.fetcher.GetOracleDatabaseCheckPDB(entry); err != nil {
+		database.IsCDB = false
+		b.log.Warnf("Oracle db [%s]: can't check PDB", entry.DBName)
+		return err
+	}
+
 	if !database.IsCDB {
 		return nil
 	}
 
-	database.PDBs = b.fetcher.GetOracleDatabasePDBs(entry)
+	if database.PDBs, err = b.fetcher.GetOracleDatabasePDBs(entry); err != nil {
+		b.log.Warnf("Oracle db [%s]: can't get PDBs", entry.DBName)
+		return err
+	}
 
 	var wg sync.WaitGroup
 	errChan := make(chan error)
-	var err error
 
 	for i := range database.PDBs {
 		pdb := &database.PDBs[i]
 
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.Tablespaces, err = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] tablespaces", entry.DBName, pdb.Name)
 				errChan <- err
 			}
 		}, &wg)
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			pdb.Schemas, err = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name)
-			if err != nil {
+			if pdb.Schemas, err = b.fetcher.GetOracleDatabasePDBSchemas(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] schemas", entry.DBName, pdb.Name)
 				errChan <- err
-				return
 			}
 		}, &wg)
 	}

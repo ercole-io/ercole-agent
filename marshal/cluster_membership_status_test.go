@@ -63,7 +63,7 @@ func TestClusterMembershipStatus_Success(t *testing.T) {
 
 	for _, tc := range testCases {
 		actual := ClusterMembershipStatus([]byte(tc.output))
-		assert.Equal(t, tc.expected, actual)
+		assert.Equal(t, tc.expected, *actual)
 	}
 }
 
@@ -79,5 +79,5 @@ func TestClusterMembershipStatus_Empty(t *testing.T) {
 		OtherInfo:               nil,
 	}
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, *actual)
 }

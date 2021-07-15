@@ -18,36 +18,59 @@ package common
 import (
 	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
+	"github.com/hashicorp/go-multierror"
 )
 
-func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
+func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 	countHypervisors := len(b.configuration.Features.Virtualization.Hypervisors)
 
 	clustersChan := make(chan []model.ClusterInfo, countHypervisors)
 	vmsChan := make(chan map[string][]model.VMInfo, countHypervisors)
+	errsChan := make(chan error)
 
 	for i := range b.configuration.Features.Virtualization.Hypervisors {
 		hv := b.configuration.Features.Virtualization.Hypervisors[i]
 
 		utils.RunRoutine(b.configuration, func() {
-			clustersChan <- b.fetcher.GetClusters(hv)
+			clusters, err := b.fetcher.GetClusters(hv)
+			if err != nil {
+				errsChan <- err
+				clustersChan <- nil
+				return
+			}
+
+			clustersChan <- clusters
 		})
 
 		utils.RunRoutine(b.configuration, func() {
-			vmsChan <- b.fetcher.GetVirtualMachines(hv)
+			vms, err := b.fetcher.GetVirtualMachines(hv)
+			if err != nil {
+				errsChan <- err
+				vmsChan <- nil
+				return
+			}
+
+			vmsChan <- vms
 		})
 	}
 
 	clusters := make([]model.ClusterInfo, 0)
 	for i := 0; i < countHypervisors; i++ {
-		clusters = append(clusters, (<-clustersChan)...)
+		c := <-clustersChan
+		if c == nil {
+			continue
+		}
+		clusters = append(clusters, c...)
 	}
 
 	allVMs := make(map[string][]model.VMInfo)
 	for i := 0; i < countHypervisors; i++ {
-		vmsMap := <-vmsChan
+		vmsPerCluster := <-vmsChan
+		if vmsPerCluster == nil {
+			continue
+		}
 
-		for clusterName, vms := range vmsMap {
+		for clusterName, vms := range vmsPerCluster {
 			thisClusterVMs := allVMs[clusterName]
 			thisClusterVMs = append(thisClusterVMs, vms...)
 
@@ -57,7 +80,12 @@ func (b *CommonBuilder) getClustersInfos() []model.ClusterInfo {
 
 	clusters = setVMsInClusterInfo(clusters, allVMs)
 
-	return clusters
+	var merr error
+	for len(errsChan) > 0 {
+		merr = multierror.Append(merr, <-errsChan)
+	}
+
+	return clusters, merr
 }
 
 func setVMsInClusterInfo(clusters []model.ClusterInfo, clusterMap map[string][]model.VMInfo) []model.ClusterInfo {
