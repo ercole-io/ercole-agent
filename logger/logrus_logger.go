@@ -72,7 +72,16 @@ type ercoleFormatter struct {
 
 // Format renders a single log entry
 func (f *ercoleFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	scolored := color.New(getColorByLevel(Level(entry.Level))).SprintFunc()
+	var scolored func(format string, a ...interface{}) string
+	if f.isColored {
+		colorSprintFunc := color.New(getColorByLevel(Level(entry.Level))).SprintFunc()
+		scolored = func(format string, a ...interface{}) string {
+			a = append([]interface{}{format}, a...)
+			return colorSprintFunc(a...)
+		}
+	} else {
+		scolored = fmt.Sprintf
+	}
 
 	levelText := strings.ToUpper(entry.Level.String())[0:4]
 	caller := getCaller(entry)
