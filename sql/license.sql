@@ -328,7 +328,8 @@ case
           else 
 		  to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
       end	
-       else ''||';'
+       else
+       to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
 end
 as a from TAB where product is not null order by a desc;
 spool off

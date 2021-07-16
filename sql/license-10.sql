@@ -133,177 +133,91 @@ end;
 /
 
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'WebLogicServer ManagementPack EnterpriseEdition;'||:WEBLOGICSERVER||';' 
-else 'WebLogicServer ManagementPack EnterpriseEdition;;' 
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Tuning Pack;'||:TUNING||';' 
-else 'Tuning Pack;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Spatial and Graph;'||:SPATIAL||';' 
-else 'Spatial and Graph;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Secure Backup;'||:SECURE ||';' 
-else 'Secure Backup;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Real Application Testing;'||:TESTING ||';' 
-else 'Real Application Testing;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Real Application Clusters;'||:RAC ||';' 
-else 'Real Application Clusters;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Real Application Clusters One Node;'||:ONE ||';' 
-else 'Real Application Clusters One Node;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'RAC or RAC One Node;'||:RAC2||';' 
-else 'RAC or RAC One Node;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Provisioning and Patch Automation Pack;'||:PATCH1 ||';' 
-else 'Provisioning and Patch Automation Pack;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Provisioning and Patch Automation Pack for Database;'||:PATCH2 ||';' 
-else 'Provisioning and Patch Automation Pack for Database;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Pillar Storage;'||:PILLAR ||';' 
-else 'Pillar Storage;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Partitioning;'||:PARTITIONING ||';' 
-else 'Partitioning;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'OLAP;'||:OLAP ||';' 
-else 'OLAP;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Multitenant;'||:MULTITENANT ||';' 
-else 'Multitenant;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Label Security;'||:LABELSECURITY ||';' 
-else 'Label Security;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'HW;'||:HW ||';' 
-else 'HW;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Golden Gate;'||:GOLDEN ||';' 
-else 'Golden Gate;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Exadata;'||:EXADATA ||';' 
-else 'Exadata;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Diagnostics Pack;'||:DIAGNOSTICS ||';' 
-else 'Diagnostics Pack;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Database Vault;'||:VAULT ||';' 
-else 'Database Vault;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Database In-Memory;'||:MEMORY ||';' 
-else 'Database In-Memory;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Database Gateway;'||:GATEWAY ||';' 
-else 'Database Gateway;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Data Masking Pack;'||:MASKING ||';' 
-else 'Data Masking Pack;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Configuration Management Pack for Oracle Database;'||:CONFIGURATION ||';' 
-else 'Configuration Management Pack for Oracle Database;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Change Management Pack;'||:MANAGEMENT||';' 
-else 'Change Management Pack;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Advanced Security;'||:SECURITY ||';' 
-else 'Advanced Security;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Advanced Compression;'||:COMPRESSION ||';' 
-else 'Advanced Compression;;'
-end
 from dual;
 select 
-case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
 'Advanced Analytics;'||:ANALYTICS||';' 
-else 'Advanced Analytics;;'
-end
 from dual;
-select case when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' then
+select
 'Active Data Guard;'||:GUARD||';' 
-else 'Active Data Guard;;'
-end
 from dual;
 
 
