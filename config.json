@@ -13,7 +13,7 @@
     "LogDirectory": "",
     "Features": {
         "OracleDatabase": {
-            "Enabled": false,
+            "Enabled": true,
             "Oratab": "/etc/oratab",
             "Forcestats": true,
             "AWR": 30
