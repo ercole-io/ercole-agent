@@ -135,7 +135,13 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			database.Services = []model.OracleDatabaseService{}
 			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
-			database.Licenses = computeLicenses(database.Edition(), database.CoreFactor(host), host.CPUCores)
+			coreFactor, err := database.CoreFactor(host)
+			if err != nil {
+				b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
+				return nil, err
+			}
+
+			database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
 		}
 
 	case "unreachable!":
