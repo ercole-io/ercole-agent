@@ -135,19 +135,24 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 			database.Services = []model.OracleDatabaseService{}
 			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
-			coreFactor, err := database.CoreFactor(host)
-			if err != nil {
-				b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
-				return nil, err
-			}
+			if database.Edition() != model.OracleDatabaseEditionExpress {
+				coreFactor, err := database.CoreFactor(host)
+				if err != nil {
+					b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
+					return nil, err
+				}
 
-			database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
+				database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
+			} else {
+				database.Licenses = make([]model.OracleDatabaseLicense, 0)
+			}
 		}
 
 	case "unreachable!":
 		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil, nil
+
 	default:
 		err := ercutils.NewErrorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
