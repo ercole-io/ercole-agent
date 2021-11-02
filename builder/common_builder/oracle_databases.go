@@ -171,8 +171,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		return nil, err
 	}
 
-	blockingErrs := make(chan error)    // database errs are serious, must not be returned
-	nonBlockingErrs := make(chan error) // database errs, but not blocking ones
+	blockingErrs := make(chan error, 4)    // database errs are serious, must not be returned
+	nonBlockingErrs := make(chan error, 7) // database errs, but not blocking ones
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
