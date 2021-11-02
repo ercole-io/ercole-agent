@@ -116,37 +116,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
 
 	case "MOUNTED":
-		{
-			database, err = b.fetcher.GetOracleDatabaseMountedDb(entry)
-			if err != nil {
-				b.log.Errorf("Oracle db [%s]: can't get mounted db, failed", entry.DBName)
-				return nil, err
-			}
-
-			database.Version = checkVersion(database.Name, database.Version)
-			database.Tablespaces = []model.OracleDatabaseTablespace{}
-			database.Schemas = []model.OracleDatabaseSchema{}
-			database.Patches = []model.OracleDatabasePatch{}
-			database.ADDMs = []model.OracleDatabaseAddm{}
-			database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
-			database.PSUs = []model.OracleDatabasePSU{}
-			database.Backups = []model.OracleDatabaseBackup{}
-			database.PDBs = []model.OracleDatabasePluggableDatabase{}
-			database.Services = []model.OracleDatabaseService{}
-			database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
-
-			if database.Edition() != model.OracleDatabaseEditionExpress {
-				coreFactor, err := database.CoreFactor(host)
-				if err != nil {
-					b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
-					return nil, err
-				}
-
-				database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
-			} else {
-				database.Licenses = make([]model.OracleDatabaseLicense, 0)
-			}
-		}
+		database, err = b.getMountedDatabase(entry, host)
 
 	case "unreachable!":
 		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -361,6 +331,39 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	}
 
 	return nil
+}
+
+func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
+	database, err := b.fetcher.GetOracleDatabaseMountedDb(entry)
+	if err != nil {
+		b.log.Errorf("Oracle db [%s]: can't get mounted db, failed", entry.DBName)
+		return nil, err
+	}
+
+	database.Version = checkVersion(database.Name, database.Version)
+	database.Tablespaces = []model.OracleDatabaseTablespace{}
+	database.Schemas = []model.OracleDatabaseSchema{}
+	database.Patches = []model.OracleDatabasePatch{}
+	database.ADDMs = []model.OracleDatabaseAddm{}
+	database.SegmentAdvisors = []model.OracleDatabaseSegmentAdvisor{}
+	database.PSUs = []model.OracleDatabasePSU{}
+	database.Backups = []model.OracleDatabaseBackup{}
+	database.PDBs = []model.OracleDatabasePluggableDatabase{}
+	database.Services = []model.OracleDatabaseService{}
+	database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
+
+	database.Licenses = make([]model.OracleDatabaseLicense, 0)
+	if database.Edition() != model.OracleDatabaseEditionExpress {
+		coreFactor, err := database.CoreFactor(host)
+		if err != nil {
+			b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
+			return nil, err
+		}
+
+		database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
+	}
+
+	return database, nil
 }
 
 func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model.OracleDatabaseLicense {
