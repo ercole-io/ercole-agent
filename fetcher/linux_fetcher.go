@@ -601,3 +601,16 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceC
 	isSlave, masterUUID := marshal_mysql.SlaveStatus(out)
 	return isSlave, masterUUID, nil
 }
+
+func (lf *LinuxFetcherImpl) GetCloudMembership() (string, error) {
+	out, err := lf.execute("cloud_membership_aws")
+	if err != nil {
+		return "", ercutils.NewError(err)
+	}
+
+	if isAws := marshal.TrimParseBool(string(out)); isAws {
+		return model.CloudMembershipAws, nil
+	}
+
+	return model.CloudMembershipNone, nil
+}

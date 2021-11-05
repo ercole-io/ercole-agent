@@ -496,3 +496,7 @@ func (wf *WindowsFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanc
 	wf.log.Error(notImplementedWindows)
 	return false, nil, ercutils.NewError(notImplementedWindows)
 }
+
+func (wf *WindowsFetcherImpl) GetCloudMembership() (string, error) {
+	return model.CloudMembershipUnknown, nil
+}

@@ -88,6 +88,10 @@ type Fetcher interface {
 	GetMySQLUUID() (string, error)
 	GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string, error)
 	GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string, error)
+
+	// Cloud
+
+	GetCloudMembership() (string, error)
 }
 
 // User struct

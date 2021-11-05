@@ -96,6 +96,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	b.runVirtualization(hostData)
 
 	b.runMySQL(hostData)
+
+	b.runCloud(hostData)
 }
 
 func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
@@ -241,4 +243,20 @@ func lazyInitMicrosoftFeature(fs *model.Features) {
 	if fs.Microsoft == nil {
 		fs.Microsoft = new(model.MicrosoftFeature)
 	}
+}
+
+func (b *CommonBuilder) runCloud(hostData *model.HostData) {
+	hostData.Cloud = model.Cloud{
+		Membership: model.CloudMembershipUnknown,
+	}
+
+	membership, err := b.fetcher.GetCloudMembership()
+	if err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+
+		return
+	}
+
+	hostData.Cloud.Membership = membership
 }
