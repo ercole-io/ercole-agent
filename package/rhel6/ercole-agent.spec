@@ -55,6 +55,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/addm.sh
 /opt/ercole-agent/fetch/linux/backup.sh
 /opt/ercole-agent/fetch/linux/checkpdb.sh
+/opt/ercole-agent/fetch/linux/cloud_membership_aws.sh
 /opt/ercole-agent/fetch/linux/cluster_membership_status.sh
 /opt/ercole-agent/fetch/linux/db.sh
 /opt/ercole-agent/fetch/linux/dbmounted.sh

@@ -105,6 +105,8 @@ github.com/ercole-io/ercole/v2 v2.0.0-20210625061119-219dd88380b7 h1:odO7T85HoLa
 github.com/ercole-io/ercole/v2 v2.0.0-20210625061119-219dd88380b7/go.mod h1:T4OO/FiwfwlzADXSsULY+/l9MBSr0GqNbgpVoIIxvlY=
 github.com/ercole-io/ercole/v2 v2.0.0-20211014102616-244f6369d7f7 h1:Bo7UYiFKBw9vJZTsfaw7E8QeDT78XOtrfgb6xvSYcDk=
 github.com/ercole-io/ercole/v2 v2.0.0-20211014102616-244f6369d7f7/go.mod h1:IuK2nJEO6lEkIvzNDyH5LHSm7qGOlW1+J62y+iT+HTI=
+github.com/ercole-io/ercole/v2 v2.0.0-20211105133246-e95bc0c392ae h1:kZtOKiRtsvj102RUAQQeryHLaKhl0BopfhLyqSt2tOo=
+github.com/ercole-io/ercole/v2 v2.0.0-20211105133246-e95bc0c392ae/go.mod h1:IuK2nJEO6lEkIvzNDyH5LHSm7qGOlW1+J62y+iT+HTI=
 github.com/etcd-io/etcd v3.3.17+incompatible/go.mod h1:cdZ77EstHBwVtD6iTgzgvogwcjo9m4iOqoijouPJ4bs=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.12.0 h1:mRhaKNwANqRgUBGKmnI5ZxEk7QXmjQeCcuYFMX2bfcc=
