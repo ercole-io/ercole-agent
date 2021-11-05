@@ -252,15 +252,17 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	wg.Wait()
+	close(blockingErrs)
+	close(nonBlockingErrs)
 
 	var merr error
-	for len(nonBlockingErrs) > 0 {
-		merr = multierror.Append(merr, <-nonBlockingErrs)
+	for err := range nonBlockingErrs {
+		merr = multierror.Append(merr, err)
 	}
 
 	if len(blockingErrs) > 0 {
-		for len(blockingErrs) > 0 {
-			merr = multierror.Append(merr, <-blockingErrs)
+		for err := range blockingErrs {
+			merr = multierror.Append(merr, err)
 		}
 
 		return nil, merr
