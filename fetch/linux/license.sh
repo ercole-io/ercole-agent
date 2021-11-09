@@ -21,50 +21,52 @@ TYPE=$3
 HOME=$4
 
 if [ -z "$SID" ]; then
-  >&2 echo "Missing SID parameter"
-  exit 1
+    echo >&2 "Missing SID parameter"
+    exit 1
 fi
 
 if [ -z "$TYPE" ]; then
-  >&2 echo "Missing type parameter"
-  exit 1
+    echo >&2 "Missing type parameter"
+    exit 1
 fi
 
 if [ -z "$DBV" ]; then
-  >&2 echo "Missing DBV parameter"
-  exit 1
+    echo >&2 "Missing DBV parameter"
+    exit 1
 fi
 
 if [ -z "$HOME" ]; then
-  >&2 echo "Missing ORACLE_HOME parameter"
-  exit 1
+    echo >&2 "Missing ORACLE_HOME parameter"
+    exit 1
 fi
-
 
 LINUX_FETCHERS_DIR=$(dirname "$0")
 FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
-export ORAENV_ASK=NO 
+export ORAENV_ASK=NO
 export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-DB_VERSION=$(sqlplus -S / as sysdba << EOF
+DB_VERSION=$(
+    sqlplus -S / as sysdba <<EOF
 set pages 0 feedback off timing off
 select (case when UPPER(banner) like '%EXTREME%' then 'EXE' when UPPER(banner) like '%ENTERPRISE%' then 'ENT' else 'STD' end) as versione from v\$version where rownum=1;
 exit
 EOF
 )
 
-DB_NAME=$(sqlplus -S / as sysdba << EOF
+DB_NAME=$(
+    sqlplus -S / as sysdba <<EOF
 set pages 0 feedback off timing off
 select name from v\$database;
 exit
 EOF
 )
 
-DB_ONE=x$(sqlplus -S / as sysdba << EOF
+DB_ONE=x$(
+    sqlplus -S / as sysdba <<EOF
 set pages 0 feedback off timing off
 HOST srvctl config database -d $DB_NAME |grep -o One
 exit
@@ -74,43 +76,41 @@ EOF
 CPU_THREADS=$(grep processor /proc/cpuinfo | wc -l)
 
 if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' || "$TYPE" == 'KVM' ]]; then
-  if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-    LICENSES=$(echo 0.25*$CPU_THREADS|bc)
-    FACTOR=0.25
-  elif [[ $DB_VERSION == 'STD' ]]; then
-    LICENSES=0
-    FACTOR=0
-  fi
+    if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
+        LICENSES=$(echo 0.25*$CPU_THREADS | bc)
+        FACTOR=0.25
+    elif [[ $DB_VERSION == 'STD' ]]; then
+        LICENSES=0
+        FACTOR=0
+    fi
 elif [ $TYPE == 'PH' ]; then
-  if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-    LICENSES=$(echo 0.25*$CPU_THREADS|bc)
-    FACTOR=0.25
-  elif [[ $DB_VERSION == 'STD' ]]; then
-    LICENSES=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
-    FACTOR=$(cat /proc/cpuinfo |grep -i "physical id" |sort -n|uniq|wc -l)
-  fi
+    if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
+        LICENSES=$(echo 0.25*$CPU_THREADS | bc)
+        FACTOR=0.25
+    elif [[ $DB_VERSION == 'STD' ]]; then
+        LICENSES=$(cat /proc/cpuinfo | grep -i "physical id" | sort -n | uniq | wc -l)
+        FACTOR=$(cat /proc/cpuinfo | grep -i "physical id" | sort -n | uniq | wc -l)
+    fi
 fi
 
 if [[ $DB_VERSION == 'EXE' ]]; then
-  echo "Oracle EXE; $LICENSES;"
+    echo "Oracle EXE; $LICENSES;"
 else
-  echo "Oracle EXE;;"
+    echo "Oracle EXE;;"
 fi
 if [[ $DB_VERSION == 'ENT' ]]; then
-  echo "Oracle ENT; $LICENSES;"
+    echo "Oracle ENT; $LICENSES;"
 else
-  echo "Oracle ENT;;"
+    echo "Oracle ENT;;"
 fi
 if [[ $DB_VERSION == 'STD' ]]; then
-  echo "Oracle STD; $LICENSES;"
+    echo "Oracle STD; $LICENSES;"
 else
-  echo "Oracle STD;;"
+    echo "Oracle STD;;"
 fi
 
-
-if [ $DBV == "10" ] ||  [ $DBV == "9" ]; then
-  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS $FACTOR
+if [ $DBV == "10" ] || [ $DBV == "9" ]; then
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS $FACTOR
 else
-  sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS $FACTOR $DB_ONE
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS $FACTOR $DB_ONE
 fi
-
