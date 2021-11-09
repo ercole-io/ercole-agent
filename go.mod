@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/aws/aws-sdk-go v1.38.67 // indirect
-	github.com/ercole-io/ercole/v2 v2.0.0-20211105133246-e95bc0c392ae
+	github.com/ercole-io/ercole/v2 v2.0.0-20211109141944-78a76913fbf7
 	github.com/fatih/color v1.12.0
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/golang/mock v1.5.0
@@ -21,4 +21,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
-// replace github.com/ercole-io/ercole/v2 => ../ercole
+// replace github.com/ercole-io/ercole/v2 => ../ercole-aws

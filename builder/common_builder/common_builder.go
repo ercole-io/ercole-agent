@@ -87,6 +87,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.ClusterMembershipStatus = *cms
 	}
 
+	b.runCloud(hostData)
+
 	b.runOracleDatabase(hostData)
 
 	b.runOracleExadata(hostData)
@@ -96,8 +98,22 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	b.runVirtualization(hostData)
 
 	b.runMySQL(hostData)
+}
 
-	b.runCloud(hostData)
+func (b *CommonBuilder) runCloud(hostData *model.HostData) {
+	hostData.Cloud = model.Cloud{
+		Membership: model.CloudMembershipUnknown,
+	}
+
+	membership, err := b.fetcher.GetCloudMembership()
+	if err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+
+		return
+	}
+
+	hostData.Cloud.Membership = membership
 }
 
 func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
@@ -115,7 +131,8 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 	lazyInitOracleFeature(&hostData.Features)
 
 	var err error
-	if hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info); err != nil {
+	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info, hostData.CoreFactor())
+	if err != nil {
 		hostData.AddErrors(err)
 	}
 }
@@ -243,20 +260,4 @@ func lazyInitMicrosoftFeature(fs *model.Features) {
 	if fs.Microsoft == nil {
 		fs.Microsoft = new(model.MicrosoftFeature)
 	}
-}
-
-func (b *CommonBuilder) runCloud(hostData *model.HostData) {
-	hostData.Cloud = model.Cloud{
-		Membership: model.CloudMembershipUnknown,
-	}
-
-	membership, err := b.fetcher.GetCloudMembership()
-	if err != nil {
-		b.log.Error(err)
-		hostData.AddErrors(err)
-
-		return
-	}
-
-	hostData.Cloud.Membership = membership
 }
