@@ -28,7 +28,8 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.OracleDatabaseFeature, error) {
+func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor float64,
+) (*model.OracleDatabaseFeature, error) {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
 
 	oratabEntries, err := b.fetcher.GetOracleDatabaseOratabEntries()
@@ -39,7 +40,7 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host) (*model.Oracle
 
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
 
-	oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host)
+	oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host, hostCoreFactor)
 
 	return oracleDatabaseFeature, err
 }
@@ -66,7 +67,8 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 	return unlistedRunningDBs
 }
 
-func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host) ([]model.OracleDatabase, error) {
+func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host, hostCoreFactor float64,
+) ([]model.OracleDatabase, error) {
 	databaseChan := make(chan *model.OracleDatabase, len(oratabEntries))
 	errChan := make(chan error, len(oratabEntries))
 
@@ -74,7 +76,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 		entry := oratabEntries[i]
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
-			database, err := b.getOracleDB(entry, host)
+			database, err := b.getOracleDB(entry, host, hostCoreFactor)
 			if err != nil {
 				b.log.Errorf("Can't get Oracle db: %s\n Errors: %s\n", entry, err)
 				errChan <- err
@@ -102,7 +104,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 	return databases, merr
 }
 
-func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
+func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host, hostCoreFactor float64) (*model.OracleDatabase, error) {
 	dbStatus, err := b.fetcher.GetOracleDatabaseDbStatus(entry)
 	if err != nil {
 		b.log.Errorf("Oracle db [%s]: can't get db status, failed", entry.DBName)
@@ -113,10 +115,10 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 
 	switch dbStatus {
 	case "OPEN":
-		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology)
+		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology, hostCoreFactor)
 
 	case "MOUNTED":
-		database, err = b.getMountedDatabase(entry, host)
+		database, err = b.getMountedDatabase(entry, host, hostCoreFactor)
 
 	case "unreachable!":
 		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -132,7 +134,8 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 	return database, err
 }
 
-func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string) (*model.OracleDatabase, error) {
+func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAbstractionTechnology string,
+	hostCoreFactor float64) (*model.OracleDatabase, error) {
 	stringDbVersion, err := b.fetcher.GetOracleDatabaseDbVersion(entry)
 	if err != nil {
 		b.log.Errorf("Oracle db [%s]: can't get db version, failed", entry.DBName)
@@ -214,7 +217,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	utils.RunRoutineInGroup(b.configuration, func() {
 		<-statsCtx.Done()
 
-		if database.Licenses, err = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology); err != nil {
+		database.Licenses, err = b.fetcher.GetOracleDatabaseLicenses(entry, stringDbVersion, hardwareAbstractionTechnology, hostCoreFactor)
+		if err != nil {
 			b.log.Errorf("Oracle db [%s]: can't get licenses, failed", entry.DBName)
 			blockingErrs <- err
 		}
@@ -335,7 +339,8 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	return nil
 }
 
-func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host model.Host) (*model.OracleDatabase, error) {
+func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host model.Host, hostCoreFactor float64,
+) (*model.OracleDatabase, error) {
 	database, err := b.fetcher.GetOracleDatabaseMountedDb(entry)
 	if err != nil {
 		b.log.Errorf("Oracle db [%s]: can't get mounted db, failed", entry.DBName)
@@ -356,7 +361,7 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 
 	database.Licenses = make([]model.OracleDatabaseLicense, 0)
 	if database.Edition() != model.OracleDatabaseEditionExpress {
-		coreFactor, err := database.CoreFactor(host)
+		coreFactor, err := database.CoreFactor(host, hostCoreFactor)
 		if err != nil {
 			b.log.Errorf("Oracle db [%s]: can't calculate coreFactor, failed", entry.DBName)
 			return nil, err

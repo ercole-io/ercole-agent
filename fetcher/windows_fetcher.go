@@ -277,7 +277,9 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel
 }
 
 // GetOracleDatabaseLicenses get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) ([]model.OracleDatabaseLicense, error) {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry,
+	dbVersion, hardwareAbstractionTechnology string, hostCoreFactor float64,
+) ([]model.OracleDatabaseLicense, error) {
 	out, err := wf.execute("win.ps1", "-s", "license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)

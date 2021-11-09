@@ -285,8 +285,11 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.O
 }
 
 // GetOracleDatabaseLicenses get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry, dbVersion, hardwareAbstractionTechnology string) ([]model.OracleDatabaseLicense, error) {
-	out, err := lf.execute("license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
+func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry,
+	dbVersion, hardwareAbstractionTechnology string, hostCoreFactor float64,
+) ([]model.OracleDatabaseLicense, error) {
+	out, err := lf.execute("license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome,
+		strconv.FormatFloat(hostCoreFactor, 'f', -1, 64))
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}

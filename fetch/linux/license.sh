@@ -74,22 +74,19 @@ EOF
 )
 
 CPU_THREADS=$(grep processor /proc/cpuinfo | wc -l)
+THREAD_FACTOR=$(echo "$FACTOR"/2 | bc)
 
 if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' || "$TYPE" == 'KVM' ]]; then
     if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-        LICENSES=$(echo 0.25*$CPU_THREADS | bc)
-        FACTOR=0.25
+        LICENSES=$(echo "$THREAD_FACTOR"*$CPU_THREADS | bc)
     elif [[ $DB_VERSION == 'STD' ]]; then
         LICENSES=0
-        FACTOR=0
     fi
 elif [ $TYPE == 'PH' ]; then
     if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
-        LICENSES=$(echo 0.25*$CPU_THREADS | bc)
-        FACTOR=0.25
+        LICENSES=$(echo "$THREAD_FACTOR"*$CPU_THREADS | bc)
     elif [[ $DB_VERSION == 'STD' ]]; then
         LICENSES=$(cat /proc/cpuinfo | grep -i "physical id" | sort -n | uniq | wc -l)
-        FACTOR=$(cat /proc/cpuinfo | grep -i "physical id" | sort -n | uniq | wc -l)
     fi
 fi
 
@@ -110,7 +107,7 @@ else
 fi
 
 if [ $DBV == "10" ] || [ $DBV == "9" ]; then
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS $FACTOR
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS "$THREAD_FACTOR"
 else
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS $FACTOR $DB_ONE
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 fi
