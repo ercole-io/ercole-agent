@@ -13,6 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+whenever sqlerror exit sql.sqlcode
+
 set feedback off pages 0 serverout on verify off lines 123 timing off
 -- Prepare settings for pre 12c databases
 define DFUS=DBA_
