@@ -19,6 +19,7 @@ SID=$1
 DBV=$2
 TYPE=$3
 HOME=$4
+FACTOR=$5
 
 if [ -z "$SID" ]; then
     echo >&2 "Missing SID parameter"
@@ -37,6 +38,11 @@ fi
 
 if [ -z "$HOME" ]; then
     echo >&2 "Missing ORACLE_HOME parameter"
+    exit 1
+fi
+
+if [ -z "$FACTOR" ]; then
+    echo >&2 "Missing FACTOR parameter"
     exit 1
 fi
 
