@@ -80,7 +80,7 @@ EOF
 )
 
 CPU_THREADS=$(grep processor /proc/cpuinfo | wc -l)
-THREAD_FACTOR=$(echo "$FACTOR"/2 | bc)
+THREAD_FACTOR=$(echo "$FACTOR"/2 | bc --mathlib)
 
 if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' || "$TYPE" == 'KVM' ]]; then
     if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
