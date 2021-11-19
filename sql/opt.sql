@@ -1,5 +1,5 @@
 set colsep "|||"
--- Copyright (c) 2019 Sorint.lab S.p.A.
+-- Copyright (c) 2021 Sorint.lab S.p.A.
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -117,12 +117,14 @@ SELECT '.HW'                                                 , 'Hybrid Columnar 
 SELECT '.HW'                                                 , 'Hybrid Columnar Compression'                             , '^12\.[2-9]|^1[89]\.|^2[0-9]\.'                , ' '       from dual union all
 SELECT '.HW'                                                 , 'Hybrid Columnar Compression Conventional Load'           , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
 SELECT '.HW'                                                 , 'Hybrid Columnar Compression Row Level Locking'           , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
+SELECT '.HW'                                                 , 'ODA Infrastructure'                                       , '^1[9]\.|^2[0-9]\.'                           , ' '       from dual union all
 SELECT '.HW'                                                 , 'Sun ZFS with EHCC'                                       , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
 SELECT '.HW'                                                 , 'ZFS Storage'                                             , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
 SELECT '.HW'                                                 , 'Zone maps'                                               , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
 SELECT 'Label Security'                                      , 'Label Security'                                          , '^11\.2|^1[289]\.|^2[0-9]\.'                   , ' '       from dual union all
-SELECT 'Multitenant'                                         , 'Oracle Multitenant'                                      , '^1[289]\.|^2[0-9]\.'                          , 'C003'    from dual union all -- licensing required only when more than one PDB containers are created
-SELECT 'Multitenant'                                         , 'Oracle Pluggable Databases'                              , '^1[289]\.|^2[0-9]\.'                          , 'C003'    from dual union all -- licensing required only when more than one PDB containers are created
+SELECT 'Multitenant'                                         , 'Oracle Multitenant'                                      , '^1[28]\.'                                     , 'C003'    from dual union all -- licensing required only when more than one PDB containers are created
+SELECT 'Multitenant'                                         , 'Oracle Multitenant'                                      , '^1[9]\.|^2[0-9]\.'                            , 'C005'    from dual union all -- licensing required only when more than three PDB containers are created
+SELECT 'Multitenant'                                         , 'Oracle Pluggable Databases'                              , '^1[28]\.'                                     , 'C003'    from dual union all -- licensing required only when more than one PDB containers are created
 SELECT 'OLAP'                                                , 'OLAP - Analytic Workspaces'                              , '^11\.2|^1[289]\.|^2[0-9]\.'                   , ' '       from dual union all
 SELECT 'OLAP'                                                , 'OLAP - Cubes'                                            , '^1[289]\.|^2[0-9]\.'                          , ' '       from dual union all
 SELECT 'Partitioning'                                        , 'Partitioning (user)'                                     , '^11\.2|^1[289]\.|^2[0-9]\.'                   , ' '       from dual union all
@@ -217,8 +219,14 @@ select
     DETECTED_USAGES ,
     TOTAL_SAMPLES   ,
     CURRENTLY_USED  ,
-    FIRST_USAGE_DATE,
-    LAST_USAGE_DATE,
+    case  when CONDITION like 'C___' and CONDITION_MET = 'FALSE'
+               then to_date('')
+          else FIRST_USAGE_DATE
+    end as FIRST_USAGE_DATE,
+    case  when CONDITION like 'C___' and CONDITION_MET = 'FALSE'
+               then to_date('')
+          else LAST_USAGE_DATE
+    end as LAST_USAGE_DATE,
     EXTRA_FEATURE_INFO
 from (
 select m.PRODUCT, m.CONDITION, m.MVERSION,
@@ -233,6 +241,8 @@ select m.PRODUCT, m.CONDITION, m.MVERSION,
                   then 'TRUE'  -- encryption has been used
              when CONDITION = 'C003' and CON_ID=1 and AUX_COUNT > 1
                   then 'TRUE'  -- more than one PDB are created
+             when CONDITION = 'C005' and CON_ID=1 and AUX_COUNT > 3
+                  then 'TRUE'  -- more than three PDBs are created
              when CONDITION = 'C004' and '&&OCS'= 'N'
                   then 'TRUE'  -- not in oracle cloud
              else 'FALSE'
@@ -251,6 +261,8 @@ select m.PRODUCT, m.CONDITION, m.MVERSION,
             when CONDITION = 'C002'
                  then   regexp_substr(to_char(FEATURE_INFO), 'encryption used:(.*?)(times|TRUE|FALSE)', 1, 1, 'i')
             when CONDITION = 'C003'
+                 then   'AUX_COUNT=' || AUX_COUNT
+            when CONDITION = 'C005'
                  then   'AUX_COUNT=' || AUX_COUNT
             when CONDITION = 'C004' and '&&OCS'= 'Y'
                  then   'feature included in Oracle Cloud Services Package'
@@ -275,7 +287,7 @@ select m.PRODUCT, m.CONDITION, m.MVERSION,
   where nvl(f.TOTAL_SAMPLES, 0) > 0                        -- ignore features that have never been sampled
 )
   where nvl(CONDITION, '-') != 'INVALID'                   -- ignore features for which licensing is not required without further conditions
-    and not (CONDITION = 'C003' and CON_ID not in (0, 1))  -- multiple PDBs are visible only in CDB$ROOT; PDB level view is not relevant
+    and not (CONDITION in ('C003', 'C005') and CON_ID not in (0, 1))  -- multiple PDBs are visible only in CDB$ROOT; PDB level view is not relevant
 )
 select
     PRODUCT           ,
