@@ -27,6 +27,9 @@ getent passwd ercole >/dev/null || \
 getent passwd ercole >/dev/null || \
     useradd -r -g oinstall -d /home/ercole-agent -m -s /bin/bash \
     -c "Ercole agent user" ercole
+getent passwd ercole >/dev/null || \
+    useradd -r -g mysql -d /home/ercole-agent -m -s /bin/bash \
+    -c "Ercole agent user" ercole
 exit 0
 
 %prep
