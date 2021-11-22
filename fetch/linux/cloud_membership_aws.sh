@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AWS=$(lspci | grep -i amazon --count)
+AWS=$(grep -i amazon --count /sys/devices/virtual/dmi/id/bios_version )
 
 if [ "$AWS" -gt 0 ]; then
     echo "true"
