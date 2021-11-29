@@ -64,6 +64,8 @@ func (p *program) run() {
 		log.Fatal("Can't initialize AGENT logger: ", err)
 	}
 
+	ping(configuration, p.log)
+
 	doBuildAndSend(configuration, p.log)
 
 	memStorage := storage.NewMemoryStorage()
@@ -81,6 +83,31 @@ func (p *program) run() {
 	}
 
 	scheduler.Wait()
+}
+
+func ping(configuration config.Configuration, log logger.Logger) {
+	log.Info("Ping...")
+
+	client := &http.Client{}
+	if !configuration.EnableServerValidation {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
+	req, err := http.NewRequest("GET", configuration.DataserviceURL+"/ping", nil)
+	if err != nil {
+		log.Error("Error creating request: ", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Can't connect to the database!")
+	} else {
+		log.Info("Ping OK")
+	}
+	defer resp.Body.Close()
+
 }
 
 func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
