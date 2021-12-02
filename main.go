@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -86,7 +87,7 @@ func (p *program) run() {
 }
 
 func ping(configuration config.Configuration, log logger.Logger) {
-	log.Info("Ping...")
+	log.Debug("Ping...")
 
 	client := &http.Client{}
 	if !configuration.EnableServerValidation {
@@ -95,19 +96,34 @@ func ping(configuration config.Configuration, log logger.Logger) {
 		}
 	}
 
-	req, err := http.NewRequest("GET", configuration.DataserviceURL+"/ping", nil)
+	timeout := 15
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", configuration.DataserviceURL+"/ping", nil)
 	if err != nil {
 		log.Error("Error creating request: ", err)
 	}
 
+	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
+
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Can't connect to the database!")
-	} else {
-		log.Info("Ping OK")
-	}
-	defer resp.Body.Close()
+		log.Warn("Can't ping ercole data-service: " + err.Error())
+		time.Sleep(3 * time.Second)
+		return
 
+	} else if resp.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close()
+
+		log.Warn("Can't ping ercole data-service: " + resp.Status)
+		log.Debug("Responde body: " + string(body))
+		time.Sleep(3 * time.Second)
+		return
+	}
+
+	log.Debug("Ping OK")
 }
 
 func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
