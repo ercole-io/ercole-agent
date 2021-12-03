@@ -2,10 +2,13 @@
 
 DESTDIR=build
 
+.PHONY: all
 all: ercole-agent
 
+.PHONY: default
 default: ercole-agent
 
+.PHONY: clean
 clean:
 	rm -rf ercole-agent build ercole-agent.exe *.exe
 	find . -name "fake_*_test.go" -exec rm "{}" \;
@@ -21,22 +24,28 @@ windows:
 nsis: windows
 	makensis package/win/installer.nsi
 
+.PHONY: install
 install: all install-fetchers install-bin install-bin install-config install-scripts
 
+.PHONY: install-fetchers
 install-fetchers:
 	install -d $(DESTDIR)/fetch
 	cp -rp fetch/linux $(DESTDIR)/fetch
 
+.PHONY: install-bin
 install-bin:
 	install -m 755 ercole-agent $(DESTDIR)/ercole-agent
 	install -m 755 package/ercole-setup $(DESTDIR)/ercole-setup
 
+.PHONY: install-scripts
 install-scripts:
 	install -d $(DESTDIR)/sql
 	cp -rp sql/* $(DESTDIR)/sql
 
+.PHONY: install-config
 install-config:
 	install -m 644 config.json $(DESTDIR)/config.json
 
+.PHONY: test
 test:
 	go test ./...
