@@ -16,20 +16,18 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/ercole-io/ercole-agent/v2/builder"
+	"github.com/ercole-io/ercole-agent/v2/client"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/ercole-io/ercole-agent/v2/scheduler"
@@ -65,15 +63,24 @@ func (p *program) run() {
 		log.Fatal("Can't initialize AGENT logger: ", err)
 	}
 
-	ping(configuration, p.log)
+	client, err := client.NewClient(
+		client.EnableServerValidation(configuration.EnableServerValidation),
+		client.SetAuthentication(configuration.AgentUser, configuration.AgentPassword),
+		client.SetBaseUrl(configuration.DataserviceURL),
+	)
+	if err != nil {
+		log.Fatal("Can't initialize AGENT client: ", err)
+	}
 
-	doBuildAndSend(configuration, p.log)
+	ping(p.log, client)
+
+	doBuildAndSend(p.log, client, configuration)
 
 	memStorage := storage.NewMemoryStorage()
 	scheduler := scheduler.New(memStorage)
 
 	_, err = scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, func() {
-		doBuildAndSend(configuration, p.log)
+		doBuildAndSend(p.log, client, configuration)
 	})
 	if err != nil {
 		p.log.Fatal("Error scheduling Ercole agent", err)
@@ -86,34 +93,18 @@ func (p *program) run() {
 	scheduler.Wait()
 }
 
-func ping(configuration config.Configuration, log logger.Logger) {
+func ping(log logger.Logger, client *client.Client) {
 	log.Debug("Ping...")
 
-	client := &http.Client{}
-	if !configuration.EnableServerValidation {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	timeout := 15
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, "GET", configuration.DataserviceURL+"/ping", nil)
-	if err != nil {
-		log.Error("Error creating request: ", err)
-	}
-
-	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
-
-	resp, err := client.Do(req)
+	resp, err := client.DoRequest("GET", "/ping", nil)
 	if err != nil {
 		log.Warn("Can't ping ercole data-service: " + err.Error())
 		time.Sleep(3 * time.Second)
 		return
 
-	} else if resp.StatusCode != 200 {
+	}
+
+	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
 		defer resp.Body.Close()
 
@@ -126,17 +117,17 @@ func ping(configuration config.Configuration, log logger.Logger) {
 	log.Debug("Ping OK")
 }
 
-func doBuildAndSend(configuration config.Configuration, log logger.Logger) {
+func doBuildAndSend(log logger.Logger, client *client.Client, configuration config.Configuration) {
 	hostData := builder.BuildData(configuration, log)
 
 	hostData.AgentVersion = version
 	hostData.SchemaVersion = hostDataSchemaVersion
 	hostData.Tags = []string{}
 
-	sendData(hostData, configuration, log)
+	sendData(log, client, configuration, hostData)
 }
 
-func sendData(data *model.HostData, configuration config.Configuration, log logger.Logger) {
+func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data *model.HostData) {
 	log.Info("Sending data...")
 
 	dataBytes, _ := json.Marshal(data)
@@ -146,27 +137,10 @@ func sendData(data *model.HostData, configuration config.Configuration, log logg
 		writeHostDataOnTmpFile(data, log)
 	}
 
-	client := &http.Client{}
-	if !configuration.EnableServerValidation {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	timeout := 15
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "POST", configuration.DataserviceURL+"/hosts", bytes.NewReader(dataBytes))
-	if err != nil {
-		log.Error("Error creating request: ", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(configuration.AgentUser, configuration.AgentPassword)
-	resp, err := client.Do(req)
+	resp, err := client.DoRequest("POST", "/hosts", dataBytes)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
-			log.Errorf("Error sending data: unable to reach ercole server in %d seconds", timeout)
+			log.Errorf("Error sending data: unable to reach ercole server in %d seconds", client.Timeout())
 		} else {
 			log.Error("Error sending data: ", err)
 		}
