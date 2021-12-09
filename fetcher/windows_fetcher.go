@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2021 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -350,6 +350,16 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.O
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabaseServices get
+func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
+	out, err := wf.execute("win.ps1", "-s", "services", entry.DBName, entry.OracleHome)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.Services(out)
 }
 
 // GetMicrosoftSQLServerInstances get

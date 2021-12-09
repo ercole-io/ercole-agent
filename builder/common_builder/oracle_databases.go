@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2021 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}
 
 	blockingErrs := make(chan error, 4)    // database errs are serious, must not be returned
-	nonBlockingErrs := make(chan error, 7) // database errs, but not blocking ones
+	nonBlockingErrs := make(chan error, 8) // database errs, but not blocking ones
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 	if b.configuration.Features.OracleDatabase.Forcestats {
@@ -255,6 +255,14 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		}
 	}, &wg)
 
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.Services, err = b.fetcher.GetOracleDatabaseServices(entry); err != nil {
+			database.Services = []model.OracleDatabaseService{}
+			b.log.Warnf("Oracle db [%s]: can't get services", entry.DBName)
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
 	wg.Wait()
 	close(blockingErrs)
 	close(nonBlockingErrs)
@@ -273,8 +281,6 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}
 
 	database.Version = checkVersion(database.Name, database.Version)
-
-	database.Services = []model.OracleDatabaseService{}
 
 	return database, merr
 }
@@ -356,7 +362,6 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	database.PSUs = []model.OracleDatabasePSU{}
 	database.Backups = []model.OracleDatabaseBackup{}
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
-	database.Services = []model.OracleDatabaseService{}
 	database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
 	database.Licenses = make([]model.OracleDatabaseLicense, 0)
