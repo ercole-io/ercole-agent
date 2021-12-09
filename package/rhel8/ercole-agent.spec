@@ -117,7 +117,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/schema.sql
 /opt/ercole-agent/sql/schema_pdb.sql
 /opt/ercole-agent/sql/segment_advisor.sql
-/opt/ercole-agent/fetch/linux/services.sql
+/opt/ercole-agent/sql/services.sql
 /opt/ercole-agent/sql/stats.sql
 /opt/ercole-agent/sql/ts.sql
 /opt/ercole-agent/sql/ts_pdb.sql
