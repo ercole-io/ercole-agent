@@ -76,6 +76,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/schema.sh
 /opt/ercole-agent/fetch/linux/schema_pdb.sh
 /opt/ercole-agent/fetch/linux/segmentadvisor.sh
+/opt/ercole-agent/fetch/linux/services.sh
 /opt/ercole-agent/fetch/linux/stats.sh
 /opt/ercole-agent/fetch/linux/tablespace.sh
 /opt/ercole-agent/fetch/linux/tablespace_pdb.sh
@@ -106,6 +107,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/schema.sql
 /opt/ercole-agent/sql/schema_pdb.sql
 /opt/ercole-agent/sql/segment_advisor.sql
+/opt/ercole-agent/fetch/linux/services.sql
 /opt/ercole-agent/sql/stats.sql
 /opt/ercole-agent/sql/ts.sql
 /opt/ercole-agent/sql/ts_pdb.sql
