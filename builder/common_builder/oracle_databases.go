@@ -362,6 +362,7 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	database.PSUs = []model.OracleDatabasePSU{}
 	database.Backups = []model.OracleDatabaseBackup{}
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
+	database.Services = []model.OracleDatabaseService{}
 	database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
 
 	database.Licenses = make([]model.OracleDatabaseLicense, 0)
