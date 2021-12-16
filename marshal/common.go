@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2021 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func marshalValue(s string) string {
@@ -177,6 +178,17 @@ func TrimParseBool(s string) bool {
 	return parseBool(s)
 }
 
+func TrimParseBoolPointer(s string, nils ...string) *bool {
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil
+		}
+	}
+
+	b := TrimParseBool(s)
+	return &b
+}
+
 func TrimParseStringPointer(s string, nils ...string) *string {
 	for _, aNil := range nils {
 		if s == aNil {
@@ -185,6 +197,21 @@ func TrimParseStringPointer(s string, nils ...string) *string {
 	}
 
 	return &s
+}
+
+func TrimParseDatePointer(s string, nils ...string) (*time.Time, error) {
+	for _, aNil := range nils {
+		if s == aNil {
+			return nil, nil
+		}
+	}
+
+	d, err := time.Parse("02-Jan-06", strings.TrimSpace(s))
+	if err != nil {
+		return nil, err
+	}
+
+	return &d, nil
 }
 
 func parseKeyValueColonSeparated(b []byte) map[string]string {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2021 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -375,6 +375,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabE
 	}
 
 	return marshal_oracle.Schemas(out)
+}
+
+// GetOracleDatabaseServices get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
+	out, err := lf.execute("services", entry.DBName, entry.OracleHome)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.Services(out)
 }
 
 // GetClusters return VMWare clusters from the given hyperVisor
