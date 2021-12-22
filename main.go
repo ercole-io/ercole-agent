@@ -26,6 +26,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/shirou/gopsutil/host"
+
 	"github.com/ercole-io/ercole-agent/v2/builder"
 	"github.com/ercole-io/ercole-agent/v2/client"
 	"github.com/ercole-io/ercole-agent/v2/config"
@@ -38,6 +40,8 @@ import (
 
 var version = "latest"
 var hostDataSchemaVersion = 1
+
+const maxSecondsToWait = 1800
 
 type program struct {
 	log logger.Logger
@@ -74,6 +78,8 @@ func (p *program) run() {
 
 	ping(p.log, client)
 
+	uptime(p.log, client)
+
 	doBuildAndSend(p.log, client, configuration)
 
 	memStorage := storage.NewMemoryStorage()
@@ -91,6 +97,20 @@ func (p *program) run() {
 	}
 
 	scheduler.Wait()
+}
+
+func uptime(log logger.Logger, client *client.Client) {
+	log.Debug("Uptime...")
+
+	uptime, _ := host.Uptime()
+
+	if uptime < maxSecondsToWait {
+		secondsToWait := time.Duration(maxSecondsToWait - uptime)
+		log.Debug("Seconds to wait: %d", secondsToWait)
+		time.Sleep(secondsToWait * time.Second)
+	}
+
+	log.Debug("Uptime OK")
 }
 
 func ping(log logger.Logger, client *client.Client) {
