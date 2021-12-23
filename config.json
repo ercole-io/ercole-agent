@@ -2,7 +2,7 @@
     "Hostname": "default",
     "Environment": "TST",
     "Location": "Germany",
-    "DataserviceURL": "http://localhost:11111",
+    "DataserviceURL": "http://ercole/data",
     "AgentUser": "user",
     "AgentPassword": "password",
     "Period": 24,
