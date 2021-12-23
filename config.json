@@ -1,7 +1,7 @@
 {
     "Hostname": "default",
     "Environment": "TST",
-    "Location": "Germany",
+    "Location": "Italy",
     "DataserviceURL": "http://ercole/data",
     "AgentUser": "user",
     "AgentPassword": "password",
