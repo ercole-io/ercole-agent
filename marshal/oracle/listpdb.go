@@ -20,12 +20,14 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
 
 // ListPDB returns information about pdbs extracted
 // from the listdb fetcher command output.
-func ListPDB(cmdOutput []byte) []model.OracleDatabasePluggableDatabase {
+func ListPDB(cmdOutput []byte) ([]model.OracleDatabasePluggableDatabase, error) {
 	pdbs := []model.OracleDatabasePluggableDatabase{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
@@ -33,12 +35,18 @@ func ListPDB(cmdOutput []byte) []model.OracleDatabasePluggableDatabase {
 		pdb := new(model.OracleDatabasePluggableDatabase)
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
+		iter := marshal.NewIter(splitted)
+		if len(splitted) != 2 {
+			return nil, ercutils.NewErrorf("Invalid line")
+		}
 
-		pdb.Name = strings.TrimSpace(splitted[0])
-		pdb.Status = strings.TrimSpace(splitted[1])
+		pdb.Name = strings.TrimSpace(iter())
+		pdb.Status = strings.TrimSpace(iter())
+
 		pdb.Services = []model.OracleDatabaseService{}
 
 		pdbs = append(pdbs, *pdb)
 	}
-	return pdbs
+
+	return pdbs, nil
 }

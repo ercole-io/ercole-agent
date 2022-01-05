@@ -354,7 +354,12 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) 
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.ListPDB(out), nil
+	listPDB, err := marshal_oracle.ListPDB(out)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return listPDB, nil
 }
 
 // GetOracleDatabasePDBTablespaces get
