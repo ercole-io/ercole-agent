@@ -18,13 +18,14 @@
 package fetcher
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ercole-io/ercole-agent/v2/logger"
 )
 
 // RunCommandAs utility
-func runCommandAs(log logger.Logger, u *User, commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
+func runCommandAs(ctx context.Context, log logger.Logger, u *User, commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
 	msg := "Not yet implemented for Windows"
 	log.Error(msg)
 

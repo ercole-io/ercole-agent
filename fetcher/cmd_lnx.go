@@ -18,6 +18,7 @@
 package fetcher
 
 import (
+	"context"
 	"os/exec"
 	"syscall"
 
@@ -25,8 +26,8 @@ import (
 )
 
 // runCommandAs utility
-func runCommandAs(log logger.Logger, u *User, commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
-	cmd := exec.Command(commandName, args...)
+func runCommandAs(ctx context.Context, log logger.Logger, u *User, commandName string, args ...string) (stdout, stderr []byte, exitCode int, err error) {
+	cmd := exec.CommandContext(ctx, commandName, args...)
 
 	if u != nil {
 		log.Debugf("runCommand [%v] with user [%v]", commandName, u)

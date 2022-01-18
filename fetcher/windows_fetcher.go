@@ -17,11 +17,13 @@ package fetcher
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/config"
@@ -51,6 +53,10 @@ func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) *Window
 
 // Execute Execute specific fetcher by name
 func (wf *WindowsFetcherImpl) execute(fetcherName string, args ...string) ([]byte, error) {
+	return wf.executeWithContext(context.Background(), fetcherName, args...)
+}
+
+func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherName string, args ...string) ([]byte, error) {
 	var (
 		cmd    *exec.Cmd
 		err    error
@@ -74,7 +80,7 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, args ...string) ([]byt
 
 	wf.log.Info("Fetching " + psexe + " " + strings.Join(args, " "))
 
-	cmd = exec.Command(psexe, args...)
+	cmd = exec.CommandContext(ctx, psexe, args...)
 
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -101,6 +107,37 @@ func (wf *WindowsFetcherImpl) execute(fetcherName string, args ...string) ([]byt
 	}
 
 	return stdout.Bytes(), nil
+}
+
+func (wf *WindowsFetcherImpl) executeWithDeadline(duration time.Duration, fetcherName string, args ...string) ([]byte, error) {
+	type execResult struct {
+		bytes []byte
+		err   error
+	}
+	c := make(chan execResult, 1)
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
+	defer cancel()
+
+	go func() {
+		bytes, err := wf.executeWithContext(ctx, fetcherName, args...)
+		c <- execResult{
+			bytes: bytes,
+			err:   err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("fetcher last more than %s, timer has exceeded", duration)
+		}
+
+		return nil, ctx.Err()
+
+	case result := <-c:
+		return result.bytes, result.err
+	}
 }
 
 // SetUser not implemented
@@ -164,7 +201,7 @@ func (wf *WindowsFetcherImpl) GetHost() (*model.Host, error) {
 
 // GetFilesystems get
 func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
-	out, err := wf.execute("win.ps1", "-s", "filesystem")
+	out, err := wf.executeWithDeadline(20*time.Second, "win.ps1", "-s", "filesystem")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
