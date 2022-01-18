@@ -16,12 +16,14 @@
 package fetcher
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"os/user"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/config"
@@ -92,10 +94,45 @@ func (lf *LinuxFetcherImpl) SetUserAsCurrent() error {
 
 // Execute execute bash script by name
 func (lf *LinuxFetcherImpl) execute(fetcherName string, args ...string) ([]byte, error) {
+	return lf.executeWithContext(context.Background(), fetcherName, args...)
+}
+
+func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherName string, args ...string) ([]byte, error) {
+	type execResult struct {
+		bytes []byte
+		err   error
+	}
+	c := make(chan execResult, 1)
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
+	defer cancel()
+
+	go func() {
+		bytes, err := lf.executeWithContext(ctx, fetcherName, args...)
+		c <- execResult{
+			bytes: bytes,
+			err:   err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("fetcher last more than %s, timer has exceeded", duration)
+		}
+
+		return nil, ctx.Err()
+
+	case result := <-c:
+		return result.bytes, result.err
+	}
+}
+
+func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName string, args ...string) ([]byte, error) {
 	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
 	lf.log.Infof("Fetching %s %s", commandName, strings.Join(args, " "))
 
-	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, commandName, args...)
+	stdout, stderr, exitCode, err := runCommandAs(ctx, lf.log, lf.fetcherUser, commandName, args...)
 
 	msg := fmt.Sprintf("Fetcher [%s] stdout: [%v] stderr: [%v] exitCode: [%v] err: [%v]",
 		fetcherName,
@@ -127,7 +164,7 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 
 	lf.log.Infof("Fetching %s %s", scriptPath, strings.Join(args, " "))
 
-	stdout, stderr, exitCode, err := runCommandAs(lf.log, lf.fetcherUser, "/usr/bin/pwsh", args...)
+	stdout, stderr, exitCode, err := runCommandAs(context.Background(), lf.log, lf.fetcherUser, "/usr/bin/pwsh", args...)
 
 	if len(stdout) > 0 {
 		lf.log.Debugf("Fetcher [%s] stdout: [%v]", fetcherName, strings.TrimSpace(string(stdout)))
@@ -156,7 +193,7 @@ func (lf *LinuxFetcherImpl) GetHost() (*model.Host, error) {
 
 // GetFilesystems get
 func (lf *LinuxFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
-	out, err := lf.execute("filesystem")
+	out, err := lf.executeWithDeadline(20*time.Second, "filesystem")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
