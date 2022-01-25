@@ -37,7 +37,7 @@ end;
 
 alter session set nls_date_format='dd-mm-yyyy hh24:mi';
 
-set lines 200 pages 0
+set lines 32767 pages 0
 set colsep "|||"
 col WEEK_DAYS for a70
 col RETENTION for a20
