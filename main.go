@@ -106,7 +106,7 @@ func uptime(log logger.Logger, client *client.Client) {
 
 	if uptime < maxSecondsToWait {
 		secondsToWait := time.Duration(maxSecondsToWait - uptime)
-		log.Debug("Seconds to wait: %d", secondsToWait)
+		log.Debugf("Seconds to wait: %d", secondsToWait)
 		time.Sleep(secondsToWait * time.Second)
 	}
 
