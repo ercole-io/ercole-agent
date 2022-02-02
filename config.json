@@ -34,6 +34,12 @@
                     "Password": "R34d3r",
                     "Ovmuserkey": "92838932423",
                     "Ovmcontrol": "/path/to/ovmcontrol"
+                },
+                {
+                    "Type": "olvm",
+                    "Endpoint": "endpoint",
+                    "Username": "username",
+                    "Password": "password"
                 }
             ]
         },

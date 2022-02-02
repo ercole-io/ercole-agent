@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -131,7 +131,7 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 	lazyInitOracleFeature(&hostData.Features)
 
 	var err error
-	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info, hostData.CoreFactor())
+	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info, CoreFactor(*hostData))
 	if err != nil {
 		hostData.AddErrors(err)
 	}
@@ -260,4 +260,12 @@ func lazyInitMicrosoftFeature(fs *model.Features) {
 	if fs.Microsoft == nil {
 		fs.Microsoft = new(model.MicrosoftFeature)
 	}
+}
+
+func CoreFactor(v model.HostData) float64 {
+	if v.Cloud.Membership == model.CloudMembershipAws {
+		return 1
+	}
+
+	return 0.5
 }
