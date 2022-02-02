@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -201,6 +201,7 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 	hypervisorTypes := map[string]string{
 		"ovm":    model.TechnologyOracleVM,
 		"vmware": model.TechnologyVMWare,
+		"olvm":   model.TechnologyOracleLVM,
 	}
 
 	for i := range config.Features.Virtualization.Hypervisors {
