@@ -8,7 +8,7 @@ local go_runtime(version, arch) = {
 
 local task_build_go(setup) = {
   name: 'build go ' + setup.goos,
-  runtime: go_runtime('1.16', 'amd64'),
+  runtime: go_runtime('1.17', 'amd64'),
   environment: {
     GOOS: setup.goos,
     BIN: setup.bin,
@@ -163,7 +163,7 @@ local task_deploy_repository(dist) = {
             type: 'pod',
             arch: 'amd64',
             containers: [
-              { image: 'golang:1.16' },
+              { image: 'golang:1.17' },
             ],
           },
           steps: [
