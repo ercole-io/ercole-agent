@@ -78,7 +78,7 @@ func (p *program) run() {
 
 	ping(p.log, client)
 
-	uptime(p.log, client)
+	uptime(p.log)
 
 	doBuildAndSend(p.log, client, configuration)
 
@@ -99,7 +99,7 @@ func (p *program) run() {
 	scheduler.Wait()
 }
 
-func uptime(log logger.Logger, client *client.Client) {
+func uptime(log logger.Logger) {
 	log.Debug("Uptime...")
 
 	uptime, err := host.Uptime()
