@@ -40,6 +40,7 @@ type Scheduler struct {
 // New will return a new instance of the Scheduler struct.
 func New(store storage.TaskStore) Scheduler {
 	funcRegistry := task.NewFuncRegistry()
+
 	return Scheduler{
 		funcRegistry: funcRegistry,
 		stopChan:     make(chan bool),
@@ -63,6 +64,7 @@ func (scheduler *Scheduler) RunAt(time time.Time, function task.Function, params
 	task.NextRun = time
 
 	scheduler.registerTask(task)
+
 	return task.Hash(), nil
 }
 
@@ -85,6 +87,7 @@ func (scheduler *Scheduler) RunEvery(duration time.Duration, function task.Funct
 	task.NextRun = time.Now().Add(duration)
 
 	scheduler.registerTask(task)
+
 	return task.Hash(), nil
 }
 
@@ -98,13 +101,16 @@ func (scheduler *Scheduler) Start() error {
 	if err := scheduler.populateTasks(); err != nil {
 		return err
 	}
+
 	if err := scheduler.persistRegisteredTasks(); err != nil {
 		return err
 	}
+
 	scheduler.runPending()
 
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
+
 		for {
 			select {
 			case <-ticker.C:
@@ -143,6 +149,7 @@ func (scheduler *Scheduler) Cancel(taskID task.ID) error {
 	}
 
 	delete(scheduler.tasks, taskID)
+
 	return nil
 }
 
@@ -155,6 +162,7 @@ func (scheduler *Scheduler) Clear() {
 
 		delete(scheduler.tasks, taskID)
 	}
+
 	scheduler.funcRegistry = task.NewFuncRegistry()
 }
 
@@ -184,6 +192,7 @@ func (scheduler *Scheduler) populateTasks() error {
 		if !ok {
 			log.Printf("Detected a change in attributes of one of the instances of task %s, \n",
 				dbTask.Func.Name)
+
 			if dbTaskFunc, err := scheduler.funcRegistry.Get(dbTask.Func.Name); err != nil {
 				log.Printf("%v\n", err)
 			} else {
@@ -203,6 +212,7 @@ func (scheduler *Scheduler) populateTasks() error {
 			}
 
 			delete(scheduler.tasks, dbTask.Hash())
+
 			continue
 		}
 
@@ -212,6 +222,7 @@ func (scheduler *Scheduler) populateTasks() error {
 			registeredTask.NextRun = dbTask.LastRun.Add(registeredTask.Duration)
 		}
 	}
+
 	return nil
 }
 
@@ -222,6 +233,7 @@ func (scheduler *Scheduler) persistRegisteredTasks() error {
 			return err
 		}
 	}
+
 	return nil
 }
 

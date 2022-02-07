@@ -33,6 +33,7 @@ func ClusterMembershipStatus(cmdOutput []byte) *model.ClusterMembershipStatus {
 	clusterMembershipStatus.VeritasClusterServer = TrimParseBool(data["VeritasClusterServer"])
 
 	hostnames := make([]string, 0)
+
 	for _, s := range strings.Split(data["VeritasClusterHostnames"], ";") {
 		fields := strings.Fields(s)
 		if len(fields) != 2 {

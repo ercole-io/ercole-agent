@@ -36,6 +36,7 @@ func ListPDB(cmdOutput []byte) ([]model.OracleDatabasePluggableDatabase, error) 
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		iter := marshal.NewIter(splitted)
+
 		if len(splitted) != 2 {
 			return nil, ercutils.NewErrorf("Invalid line")
 		}

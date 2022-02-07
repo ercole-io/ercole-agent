@@ -32,6 +32,7 @@ import (
 func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUsageStat, error) {
 	featuresUsageStats := []model.OracleDatabaseFeatureUsageStat{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
@@ -42,12 +43,15 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUs
 		if len(splitted) == 7 {
 			stats.Product = strings.TrimSpace(splitted[0])
 			stats.Feature = strings.TrimSpace(splitted[1])
+
 			if stats.DetectedUsages, err = marshal.TrimParseInt64(splitted[2]); err != nil {
 				merr = multierror.Append(merr, err)
 			}
+
 			stats.CurrentlyUsed = marshal.TrimParseBool(splitted[3])
 
 			var err error
+
 			stats.FirstUsageDate, err = time.Parse("2006-01-02 15:04:05", strings.TrimSpace(splitted[4]))
 			if err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
@@ -67,5 +71,6 @@ func DatabaseFeatureUsageStat(cmdOutput []byte) ([]model.OracleDatabaseFeatureUs
 	if merr != nil {
 		return nil, merr
 	}
+
 	return featuresUsageStats, nil
 }

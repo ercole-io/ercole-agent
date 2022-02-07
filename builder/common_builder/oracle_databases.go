@@ -58,6 +58,7 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 	}
 
 	unlistedRunningDBs := make([]string, 0)
+
 	for _, runningDB := range runningDBs {
 		if !oratabEntriesNames[runningDB] {
 			unlistedRunningDBs = append(unlistedRunningDBs, runningDB)
@@ -74,6 +75,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
+
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
 			database, err := b.getOracleDB(entry, host, hostCoreFactor)
@@ -89,6 +91,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 	}
 
 	var databases = []model.OracleDatabase{}
+
 	for i := 0; i < len(oratabEntries); i++ {
 		db := <-databaseChan
 		if db != nil {
@@ -145,7 +148,9 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	dbVersion, err := version.NewVersion(stringDbVersion)
 	if err != nil {
 		err = ercutils.NewErrorf("Can't parse db version [%s]: %w", stringDbVersion, err)
+
 		b.log.Error(err)
+
 		return nil, err
 	}
 
@@ -153,6 +158,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	nonBlockingErrs := make(chan error, 8) // database errs, but not blocking ones
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
+
 	if b.configuration.Features.OracleDatabase.Forcestats {
 		utils.RunRoutine(b.configuration, func() {
 			if err := b.fetcher.RunOracleDatabaseStats(entry); err != nil {
@@ -268,6 +274,7 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	close(nonBlockingErrs)
 
 	var merr error
+
 	for err := range nonBlockingErrs {
 		merr = multierror.Append(merr, err)
 	}
@@ -302,7 +309,9 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	if database.IsCDB, err = b.fetcher.GetOracleDatabaseCheckPDB(entry); err != nil {
 		database.IsCDB = false
+
 		b.log.Warnf("Oracle db [%s]: can't check PDB", entry.DBName)
+
 		return err
 	}
 
@@ -316,6 +325,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	}
 
 	var wg sync.WaitGroup
+
 	errChan := make(chan error)
 
 	for i := range database.PDBs {
@@ -340,9 +350,11 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	if len(errChan) > 0 {
 		var merr error
+
 		for len(errChan) > 0 {
 			merr = multierror.Append(merr, <-errChan)
 		}
+
 		return merr
 	}
 

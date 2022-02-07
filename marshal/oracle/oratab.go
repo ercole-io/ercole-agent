@@ -25,7 +25,6 @@ import (
 
 // Oratab marshals a list of dbs (one per line) from the oratab command
 func Oratab(cmdOutput []byte) []agentmodel.OratabEntry {
-
 	var oratab []agentmodel.OratabEntry
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))

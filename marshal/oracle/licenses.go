@@ -30,6 +30,7 @@ import (
 // fetcher command.
 func Licenses(cmdOutput []byte) ([]model.OracleDatabaseLicense, error) {
 	var licenses []model.OracleDatabaseLicense
+
 	var merr, err error
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
@@ -58,5 +59,6 @@ func Licenses(cmdOutput []byte) ([]model.OracleDatabaseLicense, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return licenses, nil
 }

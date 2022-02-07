@@ -32,11 +32,13 @@ import (
 func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
 		patch := new(model.OracleDatabasePatch)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
 			patch.Version = strings.TrimSpace(splitted[4])
@@ -59,5 +61,6 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return patches, nil
 }

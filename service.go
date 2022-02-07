@@ -46,7 +46,6 @@ func serve(prg *program) {
 			log.Fatal(err)
 		}
 	}
-
 }
 
 func (p *program) Start(s service.Service) error {

@@ -39,12 +39,16 @@ func (memStore *MemoryStorage) Fetch() ([]TaskAttributes, error) {
 // Remove will remove task from store
 func (memStore *MemoryStorage) Remove(task TaskAttributes) error {
 	var newTasks []TaskAttributes
+
 	for _, existingTask := range memStore.tasks {
 		if task.Hash == existingTask.Hash {
 			continue
 		}
+
 		newTasks = append(newTasks, existingTask)
 	}
+
 	memStore.tasks = newTasks
+
 	return nil
 }

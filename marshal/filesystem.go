@@ -32,6 +32,7 @@ func Filesystems(cmdOutput []byte) ([]model.Filesystem, error) {
 	filesystems := []model.Filesystem{}
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
@@ -42,6 +43,7 @@ func Filesystems(cmdOutput []byte) ([]model.Filesystem, error) {
 
 		fs.Filesystem = strings.TrimSpace(iter())
 		fs.Type = strings.TrimSpace(iter())
+
 		if fs.Size, err = TrimParseInt64(iter()); err != nil {
 			merr = multierror.Append(merr, err)
 		}
@@ -62,5 +64,6 @@ func Filesystems(cmdOutput []byte) ([]model.Filesystem, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return filesystems, nil
 }

@@ -30,6 +30,7 @@ import (
 func SegmentAdvisor(cmdOutput []byte) ([]model.OracleDatabaseSegmentAdvisor, error) {
 	segmentadvisors := []model.OracleDatabaseSegmentAdvisor{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
@@ -44,9 +45,11 @@ func SegmentAdvisor(cmdOutput []byte) ([]model.OracleDatabaseSegmentAdvisor, err
 			segmentadvisor.SegmentName = strings.TrimSpace(splitted[3])
 			segmentadvisor.SegmentType = strings.TrimSpace(splitted[4])
 			segmentadvisor.PartitionName = strings.TrimSpace(splitted[5])
+
 			if segmentadvisor.Reclaimable, err = marshal.TrimParseFloat64(splitted[6]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			segmentadvisor.Recommendation = strings.TrimSpace(splitted[7])
 			segmentadvisors = append(segmentadvisors, *segmentadvisor)
 		}
@@ -55,5 +58,6 @@ func SegmentAdvisor(cmdOutput []byte) ([]model.OracleDatabaseSegmentAdvisor, err
 	if merr != nil {
 		return nil, merr
 	}
+
 	return segmentadvisors, nil
 }

@@ -33,6 +33,7 @@ func runCommandAs(ctx context.Context, log logger.Logger, u *User, commandName s
 		log.Debugf("runCommand [%v] with user [%v]", commandName, u)
 
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
+
 		if err != nil {
 			log.Errorf("Can't set process attributes at command [%v]", commandName)
 			return nil, nil, -1, err

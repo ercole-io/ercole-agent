@@ -61,6 +61,7 @@ func (lf *LinuxFetcherImpl) SetUser(username string) error {
 	}
 
 	lf.fetcherUser = u
+
 	return nil
 }
 
@@ -102,6 +103,7 @@ func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherN
 		bytes []byte
 		err   error
 	}
+
 	c := make(chan execResult, 1)
 
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
@@ -151,6 +153,7 @@ func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName 
 		}
 
 		err = fmt.Errorf("Error running [%s %s]: [%v]", commandName, strings.Join(args, " "), err)
+
 		return nil, err
 	}
 
@@ -221,6 +224,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, error
 	dbs := strings.Split(string(out), "\n")
 
 	ret := make([]string, 0)
+
 	for _, db := range dbs {
 		tmp := strings.TrimSpace(db)
 		if len(tmp) > 0 {
@@ -432,6 +436,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEnt
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
 	var out []byte
+
 	var err error
 
 	switch hv.Type {
@@ -620,10 +625,12 @@ func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInst
 
 func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 	file := "/var/lib/mysql/auto.cnf"
+
 	out, err := os.ReadFile(file)
 	if err != nil {
 		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
 		lf.log.Error(err)
+
 		return "", ercutils.NewError(err)
 	}
 
@@ -631,6 +638,7 @@ func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 	if err != nil {
 		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
 		lf.log.Error(err)
+
 		return "", ercutils.NewError(err)
 	}
 
@@ -644,6 +652,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceCo
 	}
 
 	isMaster, slaveUUIDs := marshal_mysql.SlaveHosts(out)
+
 	return isMaster, slaveUUIDs, nil
 }
 
@@ -654,6 +663,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceC
 	}
 
 	isSlave, masterUUID := marshal_mysql.SlaveStatus(out)
+
 	return isSlave, masterUUID, nil
 }
 

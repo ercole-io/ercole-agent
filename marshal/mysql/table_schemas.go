@@ -28,12 +28,14 @@ func TableSchemas(cmdOutput []byte) ([]model.MySQLTableSchema, error) {
 	tableSchemas := make([]model.MySQLTableSchema, 0)
 
 	scanner := marshal.NewCsvScanner(cmdOutput, 3)
+
 	var merr, err error
 
 	for scanner.SafeScan() {
 		var tableSchema model.MySQLTableSchema
 		tableSchema.Name = strings.TrimSpace(scanner.Iter())
 		tableSchema.Engine = strings.TrimSpace(scanner.Iter())
+
 		if tableSchema.Allocation, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
@@ -44,5 +46,6 @@ func TableSchemas(cmdOutput []byte) ([]model.MySQLTableSchema, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return tableSchemas, nil
 }

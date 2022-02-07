@@ -36,6 +36,7 @@ func (sb *storeBridge) Add(task *task.Task) error {
 	if err != nil {
 		return err
 	}
+
 	return sb.store.Add(attributes)
 }
 
@@ -44,7 +45,9 @@ func (sb *storeBridge) Fetch() ([]*task.Task, error) {
 	if err != nil {
 		return []*task.Task{}, err
 	}
+
 	var tasks []*task.Task
+
 	for _, storedTask := range storedTasks {
 		lastRun, err := time.Parse(time.RFC3339, storedTask.LastRun)
 		if err != nil {
@@ -84,6 +87,7 @@ func (sb *storeBridge) Fetch() ([]*task.Task, error) {
 		})
 		tasks = append(tasks, t)
 	}
+
 	return tasks, nil
 }
 
@@ -92,6 +96,7 @@ func (sb *storeBridge) Remove(task *task.Task) error {
 	if err != nil {
 		return err
 	}
+
 	return sb.store.Remove(attributes)
 }
 
@@ -119,14 +124,18 @@ func (sb *storeBridge) getTaskAttributes(task *task.Task) (storage.TaskAttribute
 
 func paramsToString(params []task.Param) (string, error) {
 	var paramsList []string
+
 	for _, param := range params {
 		paramStr, err := json.Marshal(param)
 		if err != nil {
 			return "", err
 		}
+
 		paramsList = append(paramsList, string(paramStr))
 	}
+
 	data, err := json.Marshal(paramsList)
+
 	return string(data), err
 }
 
@@ -135,19 +144,25 @@ func paramsFromString(funcMeta task.FunctionMeta, payload string) ([]task.Param,
 	if strings.TrimSpace(payload) == "" {
 		return params, nil
 	}
+
 	paramTypes := funcMeta.Params()
+
 	var paramsStrings []string
+
 	err := json.Unmarshal([]byte(payload), &paramsStrings)
 	if err != nil {
 		return params, err
 	}
+
 	for i, paramStr := range paramsStrings {
 		paramType := paramTypes[i]
 		target := reflect.New(paramType)
+
 		err := json.Unmarshal([]byte(paramStr), target.Interface())
 		if err != nil {
 			return params, err
 		}
+
 		param := reflect.Indirect(target).Interface().(task.Param)
 		params = append(params, param)
 	}

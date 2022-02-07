@@ -32,23 +32,28 @@ import (
 func ExadataCellDisks(cmdOutput []byte) (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
 	cellDisks := make(map[agentmodel.StorageServerName][]model.OracleExadataCellDisk)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
 		cellDisk := new(model.OracleExadataCellDisk)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 5 {
 			storageServerName := strings.TrimSpace(splitted[0])
 
 			cellDisk.Name = strings.TrimSpace(splitted[1])
 			cellDisk.Status = strings.TrimSpace(splitted[2])
+
 			if cellDisk.ErrCount, err = marshal.TrimParseInt(splitted[3]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if cellDisk.UsedPerc, err = marshal.TrimParseInt(splitted[4]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			addCellDisk(cellDisks, storageServerName, cellDisk)
 		}
 	}
@@ -56,6 +61,7 @@ func ExadataCellDisks(cmdOutput []byte) (map[agentmodel.StorageServerName][]mode
 	if merr != nil {
 		return nil, merr
 	}
+
 	return cellDisks, nil
 }
 

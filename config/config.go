@@ -108,6 +108,7 @@ type MySQLInstanceConnection struct {
 func ReadConfig(log logger.Logger) Configuration {
 	baseDir := GetBaseDir(log)
 	configFile := ""
+
 	if runtime.GOOS == "windows" {
 		configFile = baseDir + "\\config.json"
 	} else {
@@ -128,6 +129,7 @@ func ReadConfig(log logger.Logger) Configuration {
 	}
 
 	var conf Configuration
+
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 
@@ -211,9 +213,11 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 		if !found {
 			log.Errorf("Hypervisor type not supported: %v", hv.Type)
 			log.Errorf("Hypervisor types supported are:")
+
 			for k, v := range hypervisorTypes {
 				log.Errorf("\t\"%v\" for %v", k, v)
 			}
+
 			log.Fatalf("Fix you configuration file")
 		}
 
@@ -224,6 +228,7 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 // GetBaseDir return executable base directory, os independant
 func GetBaseDir(log logger.Logger) string {
 	var s string
+
 	if runtime.GOOS == "windows" {
 		execString, err := os.Executable()
 		if err != nil {

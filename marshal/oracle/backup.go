@@ -34,6 +34,7 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 	for scanner.Scan() {
 		backup := new(model.OracleDatabaseBackup)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 5 {
 			backup.BackupType = strings.TrimSpace(splitted[0])
@@ -52,5 +53,6 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 			backups = append(backups, *backup)
 		}
 	}
+
 	return backups
 }

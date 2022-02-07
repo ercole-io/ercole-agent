@@ -52,12 +52,14 @@ func (p *program) run() {
 	if err != nil {
 		log.Fatal("Can't initialize CONFIG logger: ", err)
 	}
+
 	configuration := config.ReadConfig(confLog)
 
 	opts := make([]logger.LoggerOption, 0)
 	if configuration.Verbose {
 		opts = append(opts, logger.LogLevel(logger.DebugLevel))
 	}
+
 	if len(configuration.LogDirectory) > 0 {
 		opts = append(opts, logger.LogDirectory(configuration.LogDirectory))
 	}
@@ -123,8 +125,8 @@ func ping(log logger.Logger, client *client.Client) {
 	if err != nil {
 		log.Warn("Can't ping ercole data-service: " + err.Error())
 		time.Sleep(3 * time.Second)
-		return
 
+		return
 	}
 
 	if resp.StatusCode != 200 {
@@ -138,6 +140,7 @@ func ping(log logger.Logger, client *client.Client) {
 		log.Warn("Can't ping ercole data-service: " + resp.Status)
 		log.Debug("Responde body: " + string(body))
 		time.Sleep(3 * time.Second)
+
 		return
 	}
 
@@ -177,6 +180,7 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 		}
 
 		log.Warn("Sending result: FAILED")
+
 		return
 	}
 
@@ -199,6 +203,7 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 	}
 
 	var errFE ercutils.ErrorResponseFE
+
 	err = json.Unmarshal(bytes, &errFE)
 	if err != nil {
 		return

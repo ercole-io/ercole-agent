@@ -73,10 +73,12 @@ func (task *Task) Run() {
 	task.scheduleNextRun()
 
 	function := reflect.ValueOf(task.Func.function)
+
 	params := make([]reflect.Value, len(task.Params))
 	for i, param := range task.Params {
 		params[i] = reflect.ValueOf(param)
 	}
+
 	function.Call(params)
 }
 
@@ -86,15 +88,19 @@ func (task *Task) Hash() ID {
 	if _, err := io.WriteString(hash, task.Func.Name); err != nil {
 		log.Printf("%v\n", err)
 	}
+
 	if _, err := io.WriteString(hash, fmt.Sprintf("%+v", task.Params)); err != nil {
 		log.Printf("%v\n", err)
 	}
+
 	if _, err := io.WriteString(hash, task.Schedule.Duration.String()); err != nil {
 		log.Printf("%v\n", err)
 	}
+
 	if _, err := io.WriteString(hash, fmt.Sprintf("%t", task.Schedule.IsRecurring)); err != nil {
 		log.Printf("%v\n", err)
 	}
+
 	return ID(fmt.Sprintf("%x", hash.Sum(nil)))
 }
 

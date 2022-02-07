@@ -103,6 +103,7 @@ func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherNam
 		}
 
 		err = fmt.Errorf("Error running [%s %s]: [%v]", psexe, strings.Join(args, " "), err)
+
 		return nil, err
 	}
 
@@ -114,6 +115,7 @@ func (wf *WindowsFetcherImpl) executeWithDeadline(duration time.Duration, fetche
 		bytes []byte
 		err   error
 	}
+
 	c := make(chan execResult, 1)
 
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
@@ -443,6 +445,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn st
 	if err := marshal_microsoft.LicensingInfo(out, inst); err != nil {
 		return ercutils.NewError(err)
 	}
+
 	return nil
 }
 

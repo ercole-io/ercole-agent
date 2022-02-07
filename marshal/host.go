@@ -29,35 +29,44 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 	data := parseKeyValueColonSeparated(cmdOutput)
 
 	var m model.Host
+
 	var merr, err error
 
 	m.Hostname = strings.TrimSpace(data["Hostname"])
 	m.CPUModel = strings.TrimSpace(data["CPUModel"])
 	m.CPUFrequency = strings.TrimSpace(data["CPUFrequency"])
+
 	if m.CPUSockets, err = TrimParseInt(data["CPUSockets"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	if m.CPUCores, err = TrimParseInt(data["CPUCores"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	if m.CPUThreads, err = TrimParseInt(data["CPUThreads"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	if m.ThreadsPerCore, err = TrimParseInt(data["ThreadsPerCore"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	if m.CoresPerSocket, err = TrimParseInt(data["CoresPerSocket"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	m.HardwareAbstraction = strings.TrimSpace(data["HardwareAbstraction"])
 	m.HardwareAbstractionTechnology = strings.TrimSpace(data["HardwareAbstractionTechnology"])
 	m.Kernel = strings.TrimSpace(data["Kernel"])
 	m.KernelVersion = strings.TrimSpace(data["KernelVersion"])
 	m.OS = strings.TrimSpace(data["OS"])
 	m.OSVersion = strings.TrimSpace(data["OSVersion"])
+
 	if m.MemoryTotal, err = TrimParseFloat64(data["MemoryTotal"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
+
 	if m.SwapTotal, err = TrimParseFloat64(data["SwapTotal"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
@@ -65,5 +74,6 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return &m, nil
 }
