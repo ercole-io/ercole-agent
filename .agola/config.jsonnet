@@ -16,8 +16,6 @@ local task_build_go(setup) = {
   steps: [
     { type: 'clone' },
     { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
-    { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0' },
-    { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
     {
       type: 'run',
       name: 'build',
@@ -171,6 +169,9 @@ local task_deploy_repository(dist) = {
           steps: [
             { type: 'clone' },
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
+
+            { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0' },
+            { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
 
             { type: 'run', name: '', command: 'go get github.com/golang/mock/mockgen@v1.5.0' },
             { type: 'run', name: '', command: 'go generate -v ./...' },
