@@ -138,7 +138,10 @@ func (scheduler *Scheduler) Cancel(taskID task.ID) error {
 		return fmt.Errorf("Task not found")
 	}
 
-	_ = scheduler.taskStore.Remove(task)
+	if err := scheduler.taskStore.Remove(task); err != nil {
+		log.Printf("%v\n", err)
+	}
+
 	delete(scheduler.tasks, taskID)
 	return nil
 }
@@ -146,7 +149,10 @@ func (scheduler *Scheduler) Cancel(taskID task.ID) error {
 // Clear will cancel the execution and clear all registered tasks.
 func (scheduler *Scheduler) Clear() {
 	for taskID, currentTask := range scheduler.tasks {
-		_ = scheduler.taskStore.Remove(currentTask)
+		if err := scheduler.taskStore.Remove(currentTask); err != nil {
+			log.Printf("%v\n", err)
+		}
+
 		delete(scheduler.tasks, taskID)
 	}
 	scheduler.funcRegistry = task.NewFuncRegistry()
@@ -163,7 +169,11 @@ func (scheduler *Scheduler) populateTasks() error {
 		exists := scheduler.funcRegistry.Exists(dbTask.Func.Name)
 		if !exists {
 			log.Printf("%s was not found, it will be removed\n", dbTask.Func.Name)
-			_ = scheduler.taskStore.Remove(dbTask)
+
+			if err := scheduler.taskStore.Remove(dbTask); err != nil {
+				log.Printf("%v\n", err)
+			}
+
 			continue
 		}
 
@@ -174,7 +184,12 @@ func (scheduler *Scheduler) populateTasks() error {
 		if !ok {
 			log.Printf("Detected a change in attributes of one of the instances of task %s, \n",
 				dbTask.Func.Name)
-			dbTask.Func, _ = scheduler.funcRegistry.Get(dbTask.Func.Name)
+			if dbTaskFunc, err := scheduler.funcRegistry.Get(dbTask.Func.Name); err != nil {
+				log.Printf("%v\n", err)
+			} else {
+				dbTask.Func = dbTaskFunc
+			}
+
 			registeredTask = dbTask
 			scheduler.tasks[dbTask.Hash()] = registeredTask
 		}
@@ -183,7 +198,10 @@ func (scheduler *Scheduler) populateTasks() error {
 		if !dbTask.IsRecurring && dbTask.NextRun.Before(time.Now()) {
 			// We might have a task instance which was executed already.
 			// In this case, delete it.
-			_ = scheduler.taskStore.Remove(dbTask)
+			if err := scheduler.taskStore.Remove(dbTask); err != nil {
+				log.Printf("%v\n", err)
+			}
+
 			delete(scheduler.tasks, dbTask.Hash())
 			continue
 		}
@@ -213,7 +231,10 @@ func (scheduler *Scheduler) runPending() {
 			go task.Run()
 
 			if !task.IsRecurring {
-				_ = scheduler.taskStore.Remove(task)
+				if err := scheduler.taskStore.Remove(task); err != nil {
+					log.Printf("%v\n", err)
+				}
+
 				delete(scheduler.tasks, task.Hash())
 			}
 		}
@@ -221,6 +242,9 @@ func (scheduler *Scheduler) runPending() {
 }
 
 func (scheduler *Scheduler) registerTask(task *task.Task) {
-	_, _ = scheduler.funcRegistry.Add(task.Func)
+	if _, err := scheduler.funcRegistry.Add(task.Func); err != nil {
+		log.Printf("%v\n", err)
+	}
+
 	scheduler.tasks[task.Hash()] = task
 }

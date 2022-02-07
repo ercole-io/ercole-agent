@@ -102,7 +102,10 @@ func (p *program) run() {
 func uptime(log logger.Logger, client *client.Client) {
 	log.Debug("Uptime...")
 
-	uptime, _ := host.Uptime()
+	uptime, err := host.Uptime()
+	if err != nil {
+		log.Error(err)
+	}
 
 	if uptime < maxSecondsToWait {
 		secondsToWait := time.Duration(maxSecondsToWait - uptime)
@@ -125,7 +128,11 @@ func ping(log logger.Logger, client *client.Client) {
 	}
 
 	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err)
+		}
+
 		defer resp.Body.Close()
 
 		log.Warn("Can't ping ercole data-service: " + resp.Status)
@@ -150,7 +157,11 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data *model.HostData) {
 	log.Info("Sending data...")
 
-	dataBytes, _ := json.Marshal(data)
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Error(err)
+	}
+
 	log.Debugf("Hostdata: %v", string(dataBytes))
 
 	if configuration.Verbose {
@@ -197,7 +208,10 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 }
 
 func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
-	dataBytes, _ := json.MarshalIndent(data, "", "    ")
+	dataBytes, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		log.Error(err)
+	}
 
 	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02-15:04:05"))
 

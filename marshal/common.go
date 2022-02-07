@@ -21,48 +21,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
-
-func marshalValue(s string) string {
-	if s == "Y" {
-		return "true"
-	}
-
-	if s == "N" {
-		return "false"
-	}
-
-	re := regexp.MustCompile(`^[0-9]+(\.[0-9]+)?$`)
-	isNum := re.Match([]byte(s))
-
-	if isNum {
-		return s
-	}
-
-	return "\"" + s + "\""
-}
-
-func marshalString(s string) string {
-	s = strings.Replace(s, "\\", "\\\\", -1)
-	return "\"" + s + "\""
-}
-
-func marshalKey(s string) string {
-	return "\"" + s + "\" : "
-}
-
-func cleanTr(s string) string {
-	value := strings.Trim(s, " ")
-	value = strings.Replace(value, "\n", "", -1)
-	value = strings.Replace(value, "\t", "", -1)
-	value = strings.Trim(value, " ")
-
-	return value
-}
 
 func parseBool(s string) bool {
 	return strings.EqualFold(s, "y") ||

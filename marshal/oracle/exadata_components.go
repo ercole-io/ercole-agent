@@ -63,7 +63,7 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 				if device.RunningPowerSupply, err = marshal.TrimParseIntPointer(powerCount[0], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
-				if device.TotalPowerSupply, _ = marshal.TrimParseIntPointer(powerCount[1], "-"); err != nil {
+				if device.TotalPowerSupply, err = marshal.TrimParseIntPointer(powerCount[1], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}

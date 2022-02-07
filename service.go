@@ -42,7 +42,9 @@ func serve(prg *program) {
 
 	err = s.Run()
 	if err != nil {
-		serviceLogger.Error(err)
+		if err := serviceLogger.Error(err); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 }

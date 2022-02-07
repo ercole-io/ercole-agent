@@ -18,6 +18,7 @@ package oracle
 import (
 	"bufio"
 	"bytes"
+	"log"
 	"strconv"
 	"strings"
 
@@ -41,7 +42,12 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 			weekDays := strings.TrimSpace(splitted[2])
 			backup.WeekDays = strings.Split(weekDays, ",")
 
-			backup.AvgBckSize, _ = strconv.ParseFloat(splitted[3], 64)
+			avgBckSize, err := strconv.ParseFloat(splitted[3], 64)
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+
+			backup.AvgBckSize = avgBckSize
 			backup.Retention = strings.TrimSpace(splitted[4])
 			backups = append(backups, *backup)
 		}

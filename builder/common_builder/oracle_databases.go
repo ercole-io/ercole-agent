@@ -288,7 +288,11 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion version.Version, entry agentmodel.OratabEntry) error {
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 
-	v2, _ := version.NewVersion("11.2.0.4.0")
+	v2, errVersion := version.NewVersion("11.2.0.4.0")
+	if errVersion != nil {
+		b.log.Error(errVersion)
+	}
+
 	if dbVersion.LessThan(v2) {
 		database.IsCDB = false
 		return nil

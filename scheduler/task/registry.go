@@ -78,10 +78,7 @@ func (reg *FuncRegistry) Get(name string) (FunctionMeta, error) {
 // Exists checks if a function with provided name exists.
 func (reg *FuncRegistry) Exists(name string) bool {
 	_, ok := reg.funcs[name]
-	if ok {
-		return true
-	}
-	return false
+	return ok
 }
 
 // Params returns the list of parameter types
