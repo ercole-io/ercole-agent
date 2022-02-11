@@ -4,15 +4,15 @@ go 1.17
 
 require (
 	github.com/ercole-io/ercole/v2 v2.0.0-20220128132030-5ea349aeb416
-	github.com/fatih/color v1.12.0
-	github.com/golang/mock v1.5.0
+	github.com/fatih/color v1.13.0
+	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/go-version v1.3.0
-	github.com/kardianos/service v1.2.0
+	github.com/hashicorp/go-version v1.4.0
+	github.com/kardianos/service v1.2.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71
+	golang.org/x/sys v0.0.0-20220209214540-3681064d5158
 )
 
 require (
@@ -28,8 +28,8 @@ require (
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.13.1 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

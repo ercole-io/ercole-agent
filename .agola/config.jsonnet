@@ -173,7 +173,7 @@ local task_deploy_repository(dist) = {
             { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0' },
             { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
 
-            { type: 'run', name: '', command: 'go get github.com/golang/mock/mockgen@v1.5.0' },
+            { type: 'run', name: '', command: 'go install github.com/golang/mock/mockgen@v1.6.0' },
             { type: 'run', name: '', command: 'go generate -v ./...' },
             { type: 'run', name: '', command: 'go test -race -coverprofile=coverage.txt -covermode=atomic ./...' },
 
