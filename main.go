@@ -133,6 +133,7 @@ func ping(log logger.Logger, client *client.Client) {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
 		defer resp.Body.Close()
@@ -163,6 +164,7 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
 	log.Debugf("Hostdata: %v", string(dataBytes))
@@ -216,6 +218,7 @@ func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
 	dataBytes, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
 	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02-15:04:05"))

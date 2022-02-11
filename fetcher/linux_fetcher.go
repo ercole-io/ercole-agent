@@ -131,7 +131,12 @@ func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherN
 }
 
 func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName string, args ...string) ([]byte, error) {
-	commandName := config.GetBaseDir(lf.log) + "/fetch/linux/" + fetcherName + ".sh"
+	baseDir, err := config.GetBaseDir(lf.log)
+	if err != nil {
+		return nil, err
+	}
+
+	commandName := baseDir + "/fetch/linux/" + fetcherName + ".sh"
 	lf.log.Infof("Fetching %s %s", commandName, strings.Join(args, " "))
 
 	stdout, stderr, exitCode, err := runCommandAs(ctx, lf.log, lf.fetcherUser, commandName, args...)
@@ -162,7 +167,12 @@ func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName 
 
 // executePwsh execute pwsh script by name
 func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
-	scriptPath := config.GetBaseDir(lf.log) + "/fetch/linux/" + fetcherName
+	baseDir, err := config.GetBaseDir(lf.log)
+	if err != nil {
+		lf.log.Fatalf("Unable to get base directory: %s", err)
+	}
+
+	scriptPath := baseDir + "/fetch/linux/" + fetcherName
 	args = append([]string{scriptPath}, args...)
 
 	lf.log.Infof("Fetching %s %s", scriptPath, strings.Join(args, " "))

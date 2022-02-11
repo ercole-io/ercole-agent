@@ -46,6 +46,7 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 			avgBckSize, err := strconv.ParseFloat(splitted[3], 64)
 			if err != nil {
 				log.Printf("%v\n", err)
+				return backups
 			}
 
 			backup.AvgBckSize = avgBckSize

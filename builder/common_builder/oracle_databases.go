@@ -297,7 +297,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	v2, errVersion := version.NewVersion("11.2.0.4.0")
 	if errVersion != nil {
-		b.log.Error(errVersion)
+		return errVersion
 	}
 
 	if dbVersion.LessThan(v2) {

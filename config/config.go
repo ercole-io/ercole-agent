@@ -106,7 +106,11 @@ type MySQLInstanceConnection struct {
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
 func ReadConfig(log logger.Logger) Configuration {
-	baseDir := GetBaseDir(log)
+	baseDir, err := GetBaseDir(log)
+	if err != nil {
+		log.Fatal("Unable to get base directory: ", err)
+	}
+
 	configFile := ""
 
 	if runtime.GOOS == "windows" {
@@ -226,24 +230,24 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 }
 
 // GetBaseDir return executable base directory, os independant
-func GetBaseDir(log logger.Logger) string {
+func GetBaseDir(log logger.Logger) (string, error) {
 	var s string
 
 	if runtime.GOOS == "windows" {
 		execString, err := os.Executable()
 		if err != nil {
-			log.Error(err)
+			return s, err
 		}
 
 		s = filepath.Dir(execString)
 	} else {
 		execString, err := os.Readlink("/proc/self/exe")
 		if err != nil {
-			log.Error(err)
+			return s, err
 		}
 
 		s = filepath.Dir(execString)
 	}
 
-	return s
+	return s, nil
 }

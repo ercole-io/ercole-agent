@@ -65,7 +65,10 @@ func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherNam
 		stderr bytes.Buffer
 	)
 
-	baseDir := config.GetBaseDir(wf.log)
+	baseDir, err := config.GetBaseDir(wf.log)
+	if err != nil {
+		return nil, err
+	}
 
 	psexe, err = exec.LookPath("powershell.exe")
 	if err != nil {
