@@ -30,24 +30,31 @@ import (
 // from the db fetcher command output.
 func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 	var db model.OracleDatabase
+
 	var merr, err error
+
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	for scanner.Scan() {
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 27 {
 			iter := marshal.NewIter(splitted)
 
 			db.Name = strings.TrimSpace(iter())
+
 			if db.DbID, err = marshal.TrimParseUint(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			db.Role = strings.TrimSpace(iter())
 			db.UniqueName = strings.TrimSpace(iter())
+
 			if db.InstanceNumber, err = marshal.TrimParseInt(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			db.InstanceName = strings.TrimSpace(iter())
 			db.Status = strings.TrimSpace(iter())
 			db.Version = strings.TrimSpace(iter())
@@ -64,42 +71,55 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 
 			db.Charset = strings.TrimSpace(iter())
 			db.NCharset = strings.TrimSpace(iter())
+
 			if db.BlockSize, err = marshal.TrimParseInt(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.CPUCount, err = marshal.TrimParseInt(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.SGATarget, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.PGATarget, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.MemoryTarget, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.SGAMaxSize, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.SegmentsSize, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.DatafileSize, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.Allocable, err = marshal.TrimParseFloat64(iter()); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.Elapsed, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.DBTime, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.DailyCPUUsage, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if db.Work, err = marshal.TrimParseFloat64PointerSafeComma(iter(), "N/A"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
@@ -116,5 +136,6 @@ func Database(cmdOutput []byte) (*model.OracleDatabase, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return &db, nil
 }

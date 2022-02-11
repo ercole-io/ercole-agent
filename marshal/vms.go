@@ -32,10 +32,12 @@ func VmwareVMs(cmdOutput []byte) map[string][]model.VMInfo {
 
 	for scanner.Scan() {
 		line := scanner.Text()
+
 		splitted := strings.Split(line, ",")
 		if len(splitted) == 3 && splitted[0] == "Cluster" && splitted[1] == "Name" && splitted[2] == "guestHostname" {
 			continue
 		}
+
 		vm := model.VMInfo{
 			Name:               strings.TrimSpace(splitted[1]),
 			Hostname:           strings.TrimSpace(splitted[2]),
@@ -63,10 +65,12 @@ func OvmVMs(cmdOutput []byte) map[string][]model.VMInfo {
 
 	for scanner.Scan() {
 		line := scanner.Text()
+
 		splitted := strings.Split(line, ",")
 		if len(splitted) < 5 {
 			continue
 		}
+
 		vm := model.VMInfo{
 			Name:               strings.TrimSpace(splitted[1]),
 			Hostname:           strings.TrimSpace(splitted[2]),

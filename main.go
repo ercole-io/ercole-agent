@@ -52,12 +52,14 @@ func (p *program) run() {
 	if err != nil {
 		log.Fatal("Can't initialize CONFIG logger: ", err)
 	}
+
 	configuration := config.ReadConfig(confLog)
 
 	opts := make([]logger.LoggerOption, 0)
 	if configuration.Verbose {
 		opts = append(opts, logger.LogLevel(logger.DebugLevel))
 	}
+
 	if len(configuration.LogDirectory) > 0 {
 		opts = append(opts, logger.LogDirectory(configuration.LogDirectory))
 	}
@@ -78,7 +80,7 @@ func (p *program) run() {
 
 	ping(p.log, client)
 
-	uptime(p.log, client)
+	uptime(p.log)
 
 	doBuildAndSend(p.log, client, configuration)
 
@@ -99,10 +101,14 @@ func (p *program) run() {
 	scheduler.Wait()
 }
 
-func uptime(log logger.Logger, client *client.Client) {
+func uptime(log logger.Logger) {
 	log.Debug("Uptime...")
 
-	uptime, _ := host.Uptime()
+	uptime, err := host.Uptime()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	if uptime < maxSecondsToWait {
 		secondsToWait := time.Duration(maxSecondsToWait - uptime)
@@ -120,17 +126,23 @@ func ping(log logger.Logger, client *client.Client) {
 	if err != nil {
 		log.Warn("Can't ping ercole data-service: " + err.Error())
 		time.Sleep(3 * time.Second)
-		return
 
+		return
 	}
 
 	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
 		defer resp.Body.Close()
 
 		log.Warn("Can't ping ercole data-service: " + resp.Status)
 		log.Debug("Responde body: " + string(body))
 		time.Sleep(3 * time.Second)
+
 		return
 	}
 
@@ -150,7 +162,12 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data *model.HostData) {
 	log.Info("Sending data...")
 
-	dataBytes, _ := json.Marshal(data)
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
 	log.Debugf("Hostdata: %v", string(dataBytes))
 
 	if configuration.Verbose {
@@ -166,6 +183,7 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 		}
 
 		log.Warn("Sending result: FAILED")
+
 		return
 	}
 
@@ -188,6 +206,7 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 	}
 
 	var errFE ercutils.ErrorResponseFE
+
 	err = json.Unmarshal(bytes, &errFE)
 	if err != nil {
 		return
@@ -197,7 +216,11 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 }
 
 func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
-	dataBytes, _ := json.MarshalIndent(data, "", "    ")
+	dataBytes, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02-15:04:05"))
 

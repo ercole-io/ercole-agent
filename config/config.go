@@ -106,8 +106,13 @@ type MySQLInstanceConnection struct {
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
 func ReadConfig(log logger.Logger) Configuration {
-	baseDir := GetBaseDir()
+	baseDir, err := GetBaseDir(log)
+	if err != nil {
+		log.Fatal("Unable to get base directory: ", err)
+	}
+
 	configFile := ""
+
 	if runtime.GOOS == "windows" {
 		configFile = baseDir + "\\config.json"
 	} else {
@@ -128,6 +133,7 @@ func ReadConfig(log logger.Logger) Configuration {
 	}
 
 	var conf Configuration
+
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 
@@ -211,9 +217,11 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 		if !found {
 			log.Errorf("Hypervisor type not supported: %v", hv.Type)
 			log.Errorf("Hypervisor types supported are:")
+
 			for k, v := range hypervisorTypes {
 				log.Errorf("\t\"%v\" for %v", k, v)
 			}
+
 			log.Fatalf("Fix you configuration file")
 		}
 
@@ -222,15 +230,24 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 }
 
 // GetBaseDir return executable base directory, os independant
-func GetBaseDir() string {
+func GetBaseDir(log logger.Logger) (string, error) {
 	var s string
+
 	if runtime.GOOS == "windows" {
-		s, _ = os.Executable()
-		s = filepath.Dir(s)
+		execString, err := os.Executable()
+		if err != nil {
+			return s, err
+		}
+
+		s = filepath.Dir(execString)
 	} else {
-		s, _ = os.Readlink("/proc/self/exe")
-		s = filepath.Dir(s)
+		execString, err := os.Readlink("/proc/self/exe")
+		if err != nil {
+			return s, err
+		}
+
+		s = filepath.Dir(execString)
 	}
 
-	return s
+	return s, nil
 }

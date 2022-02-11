@@ -26,7 +26,9 @@ import (
 
 func Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 	scanner := marshal.NewCsvScanner(cmdOutput, 16)
+
 	var instance model.MySQLInstance
+
 	var merr, err error
 
 	for scanner.SafeScan() {
@@ -39,21 +41,27 @@ func Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 		instance.RedoLogEnabled = strings.TrimSpace(scanner.Iter())
 		instance.CharsetServer = strings.TrimSpace(scanner.Iter())
 		instance.CharsetSystem = strings.TrimSpace(scanner.Iter())
+
 		if instance.PageSize, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if instance.ThreadsConcurrency, err = marshal.TrimParseInt(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if instance.BufferPoolSize, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if instance.LogBufferSize, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if instance.SortBufferSize, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		instance.ReadOnly = marshal.TrimParseBool(scanner.Iter())
 		instance.LogBin = marshal.TrimParseBool(scanner.Iter())
 	}
@@ -61,5 +69,6 @@ func Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return &instance, nil
 }

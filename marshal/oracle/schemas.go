@@ -31,6 +31,7 @@ import (
 func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 	schemas := []model.OracleDatabaseSchema{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
@@ -40,18 +41,23 @@ func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 
 		if len(splitted) == 8 {
 			schema.User = strings.TrimSpace(splitted[3])
+
 			if schema.Total, err = marshal.TrimParseInt(splitted[4]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if schema.Tables, err = marshal.TrimParseInt(splitted[5]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if schema.Indexes, err = marshal.TrimParseInt(splitted[6]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			if schema.LOB, err = marshal.TrimParseInt(splitted[7]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			schemas = append(schemas, *schema)
 		}
 	}
@@ -59,5 +65,6 @@ func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return schemas, nil
 }

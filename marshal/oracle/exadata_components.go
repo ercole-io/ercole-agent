@@ -30,11 +30,13 @@ import (
 func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) {
 	devices := []model.OracleExadataComponent{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
 		device := new(model.OracleExadataComponent)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 17 {
 			device.Hostname = strings.TrimSpace(splitted[0])
@@ -49,13 +51,16 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 				if device.RunningCPUCount, err = marshal.TrimParseIntPointer(cpuEnabled[0], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
+
 				if device.TotalCPUCount, err = marshal.TrimParseIntPointer(cpuEnabled[1], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
+
 			if device.Memory, err = marshal.TrimParseIntPointer(splitted[5], "-"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			device.Status = marshal.TrimParseStringPointer(splitted[6], "-")
 
 			powerCount := strings.Split(splitted[7], "/")
@@ -63,7 +68,8 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 				if device.RunningPowerSupply, err = marshal.TrimParseIntPointer(powerCount[0], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
-				if device.TotalPowerSupply, _ = marshal.TrimParseIntPointer(powerCount[1], "-"); err != nil {
+
+				if device.TotalPowerSupply, err = marshal.TrimParseIntPointer(powerCount[1], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			}
@@ -75,6 +81,7 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 				if device.RunningFanCount, err = marshal.TrimParseIntPointer(fanCount[0], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
+
 				if device.TotalFanCount, err = marshal.TrimParseIntPointer(fanCount[1], "-"); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
@@ -85,6 +92,7 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 			if device.TempActual, err = marshal.TrimParseFloat64Pointer(splitted[11], "-"); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
 			device.TempStatus = marshal.TrimParseStringPointer(splitted[12], "-")
 			device.CellsrvServiceStatus = marshal.TrimParseStringPointer(splitted[13], "-")
 			device.MsServiceStatus = marshal.TrimParseStringPointer(splitted[14], "-")
@@ -98,5 +106,6 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 	if merr != nil {
 		return nil, merr
 	}
+
 	return devices, nil
 }

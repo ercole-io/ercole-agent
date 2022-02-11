@@ -31,6 +31,7 @@ func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
 	for scanner.Scan() {
 		psu := new(model.OracleDatabasePSU)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 2 {
 			psu.Description = strings.TrimSpace(splitted[0])
@@ -38,5 +39,6 @@ func PSU(cmdOutput []byte) []model.OracleDatabasePSU {
 			psuS = append(psuS, *psu)
 		}
 	}
+
 	return psuS
 }

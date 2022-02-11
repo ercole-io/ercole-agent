@@ -21,48 +21,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
-
-func marshalValue(s string) string {
-	if s == "Y" {
-		return "true"
-	}
-
-	if s == "N" {
-		return "false"
-	}
-
-	re := regexp.MustCompile(`^[0-9]+(\.[0-9]+)?$`)
-	isNum := re.Match([]byte(s))
-
-	if isNum {
-		return s
-	}
-
-	return "\"" + s + "\""
-}
-
-func marshalString(s string) string {
-	s = strings.Replace(s, "\\", "\\\\", -1)
-	return "\"" + s + "\""
-}
-
-func marshalKey(s string) string {
-	return "\"" + s + "\" : "
-}
-
-func cleanTr(s string) string {
-	value := strings.Trim(s, " ")
-	value = strings.Replace(value, "\n", "", -1)
-	value = strings.Replace(value, "\t", "", -1)
-	value = strings.Trim(value, " ")
-
-	return value
-}
 
 func parseBool(s string) bool {
 	return strings.EqualFold(s, "y") ||
@@ -100,6 +62,7 @@ func TrimParseIntPointer(s string, nils ...string) (*int, error) {
 	}
 
 	i, err := TrimParseInt(s)
+
 	return &i, err
 }
 
@@ -174,7 +137,6 @@ func TrimParseFloat64PointerSafeComma(s string, nils ...string) (*float64, error
 
 func TrimParseBool(s string) bool {
 	s = strings.TrimSpace(s)
-
 	return parseBool(s)
 }
 
@@ -186,6 +148,7 @@ func TrimParseBoolPointer(s string, nils ...string) *bool {
 	}
 
 	b := TrimParseBool(s)
+
 	return &b
 }
 
@@ -260,6 +223,7 @@ func (s *CsvScanner) SafeScan() bool {
 	}
 
 	s.iter = nil
+
 	return false
 }
 
@@ -286,9 +250,9 @@ func NewCsvScanner(cmdOutput []byte, fieldsPerRecord int) CsvScanner {
 // NewIter return a an iterator on each string of a slice
 func NewIter(splitted []string) Iterator {
 	i := -1
+
 	return func() string {
 		i++
-
 		return splitted[i]
 	}
 }
@@ -298,9 +262,9 @@ func NewSplitIter(s, sep string) func() string {
 	splitted := strings.Split(s, sep)
 
 	i := -1
+
 	return func() string {
 		i++
-
 		return splitted[i]
 	}
 }

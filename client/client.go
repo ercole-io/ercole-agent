@@ -69,7 +69,6 @@ func SetAuthentication(user, password string) func(*Client) error {
 
 func SetBaseUrl(baseUrl string) func(*Client) error {
 	return func(c *Client) error {
-
 		u, err := url.Parse(baseUrl)
 		if err != nil {
 			return err

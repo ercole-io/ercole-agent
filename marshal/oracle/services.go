@@ -32,11 +32,13 @@ import (
 func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 	services := []model.OracleDatabaseService{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
 		service := new(model.OracleDatabaseService)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 7 {
 			if strings.TrimSpace(splitted[0]) != "" {
@@ -44,6 +46,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			} else {
 				service.Name = nil
 			}
+
 			if strings.TrimSpace(splitted[1]) != "" {
 				service.CreationDate, err = marshal.TrimParseDatePointer(splitted[1])
 				if err != nil {
@@ -52,16 +55,19 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			} else {
 				service.CreationDate = nil
 			}
+
 			if strings.TrimSpace(splitted[2]) != "" {
 				service.FailoverMethod = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[2]))
 			} else {
 				service.FailoverMethod = nil
 			}
+
 			if strings.TrimSpace(splitted[3]) != "" {
 				service.FailoverType = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[3]))
 			} else {
 				service.FailoverType = nil
 			}
+
 			if strings.TrimSpace(splitted[4]) != "" {
 				if service.FailoverRetries, err = marshal.TrimParseIntPointer(splitted[4]); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
@@ -69,6 +75,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			} else {
 				service.FailoverRetries = nil
 			}
+
 			if strings.TrimSpace(splitted[5]) != "" {
 				if service.FailoverDelay, err = marshal.TrimParseIntPointer(splitted[5]); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
@@ -76,6 +83,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			} else {
 				service.FailoverDelay = nil
 			}
+
 			if strings.TrimSpace(splitted[6]) != "" {
 				service.Enabled = marshal.TrimParseBoolPointer(splitted[6])
 			} else {
@@ -89,5 +97,6 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return services, nil
 }

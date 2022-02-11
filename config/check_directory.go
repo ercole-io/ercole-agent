@@ -37,6 +37,7 @@ func checkDirectoryIsWritable(path string) (err error) {
 	if err := unix.Access(path, unix.W_OK); err != nil {
 		return fmt.Errorf("User has no write permission: %w", err)
 	}
+
 	if err := unix.Access(path, unix.X_OK); err != nil {
 		return fmt.Errorf("User has no execute permission: %w", err)
 	}

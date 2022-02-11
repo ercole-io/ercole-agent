@@ -116,7 +116,6 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 
 				vmsChan <- vms
 			})
-
 		} else {
 			utils.RunRoutine(b.configuration, func() {
 				clusters, err := b.fetcher.GetClusters(hv)
@@ -143,15 +142,18 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 	}
 
 	clusters := make([]model.ClusterInfo, 0)
+
 	for i := 0; i < countHypervisors; i++ {
 		c := <-clustersChan
 		if c == nil {
 			continue
 		}
+
 		clusters = append(clusters, c...)
 	}
 
 	allVMs := make(map[string][]model.VMInfo)
+
 	for i := 0; i < countHypervisors; i++ {
 		vmsPerCluster := <-vmsChan
 		if vmsPerCluster == nil {
@@ -200,23 +202,30 @@ func getOlvmClustersData(endpoint string, vmType string, username string, passwo
 	}
 
 	var cpu, socket int
+
 	clusters := []model.ClusterInfo{}
+
 	for _, vC := range responseOLVMClusters.Clusters {
 		cpu, socket = 0, 0
+
 		for _, vH := range responseOLVMHosts.Hosts {
 			if vH.Cluster.Id == vC.Id {
 				cores, err := strconv.Atoi(vH.Cpu.Topology.Cores)
 				if err != nil {
 					return nil, ercutils.NewError(err)
 				}
+
 				cpu += cores
+
 				sockets, err := strconv.Atoi(vH.Cpu.Topology.Sockets)
 				if err != nil {
 					return nil, ercutils.NewError(err)
 				}
+
 				socket += sockets
 			}
 		}
+
 		clusterInfo := model.ClusterInfo{
 			Type:          vmType,
 			FetchEndpoint: endpoint,
@@ -248,6 +257,7 @@ func getOlvmVMsData(endpoint string, username string, password string) (map[stri
 	}
 
 	vms := map[string][]model.VMInfo{}
+
 	for _, vC := range responseClusters.Clusters {
 		for _, vH := range responseHosts.Hosts {
 			if vH.Cluster.Id == vC.Id {
@@ -256,29 +266,36 @@ func getOlvmVMsData(endpoint string, username string, password string) (map[stri
 						if vV.Fqdn == "" {
 							vV.Fqdn = vV.Name
 						}
+
 						vmCores, err := strconv.Atoi(vV.Cpu.Topology.Cores)
 						if err != nil {
 							return nil, ercutils.NewError(err)
 						}
+
 						vmSockets, err := strconv.Atoi(vV.Cpu.Topology.Sockets)
 						if err != nil {
 							return nil, ercutils.NewError(err)
 						}
+
 						vmThreads, err := strconv.Atoi(vV.Cpu.Topology.Threads)
 						if err != nil {
 							return nil, ercutils.NewError(err)
 						}
+
 						vmCappedCPU := vmCores * vmSockets * vmThreads
+
 						vmVcpu := len(vV.Cpu.Cpu_tune.Vcpu_pins.Vcpu_pin)
 						if vmVcpu != 0 && vmVcpu == vmCappedCPU {
 							vV.Capped = true
 						}
+
 						vm := model.VMInfo{
 							Name:               vV.Name,
 							Hostname:           vV.Fqdn,
 							CappedCPU:          vV.Capped,
 							VirtualizationNode: vH.Name,
 						}
+
 						thisVMs := vms[vC.Name]
 						thisVMs = append(thisVMs, vm)
 
@@ -301,6 +318,7 @@ func getResponseOLVMClusters(endpoint string, username string, password string) 
 	}
 
 	var responseOLVMClusters ResponseOLVMClusters
+
 	errClustersUnmarshal := json.Unmarshal(bodyClustersBytes, &responseOLVMClusters)
 	if errClustersUnmarshal != nil {
 		return ResponseOLVMClusters{}, ercutils.NewError(errClustersUnmarshal)
@@ -318,6 +336,7 @@ func getResponseOLVMHosts(endpoint string, username string, password string) (Re
 	}
 
 	var responseOLVMHosts ResponseOLVMHosts
+
 	errHostUnmarshal := json.Unmarshal(bodyHostsBytes, &responseOLVMHosts)
 	if errHostUnmarshal != nil {
 		return ResponseOLVMHosts{}, ercutils.NewError(errHostUnmarshal)
@@ -335,6 +354,7 @@ func getResponseOLVMVMs(endpoint string, username string, password string) (Resp
 	}
 
 	var responseOLVMVMs ResponseOLVMVMs
+
 	errVMUnmarshal := json.Unmarshal(bodyHostsBytes, &responseOLVMVMs)
 	if errVMUnmarshal != nil {
 		return ResponseOLVMVMs{}, ercutils.NewError(errVMUnmarshal)
@@ -345,10 +365,12 @@ func getResponseOLVMVMs(endpoint string, username string, password string) (Resp
 
 func getBodyResponse(url string, username string, password string) ([]byte, error) {
 	client := &http.Client{}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
+
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(username, password)
@@ -357,7 +379,9 @@ func getBodyResponse(url string, username string, password string) ([]byte, erro
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
+
 	defer resp.Body.Close()
+
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, ercutils.NewError(err)

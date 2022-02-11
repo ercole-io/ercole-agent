@@ -24,7 +24,9 @@ import (
 
 func (b *CommonBuilder) getMicrosoftSQLServerFeature() (*model.MicrosoftSQLServerFeature, error) {
 	var sqlServer model.MicrosoftSQLServerFeature
+
 	var merr, err error
+
 	var connString string
 
 	sqlServer.Instances, connString, err = b.getMicrosoftSQLServerInstances()
@@ -56,10 +58,12 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances() ([]model.MicrosoftSQLSe
 	}
 
 	instances := make([]model.MicrosoftSQLServerInstance, 0)
+
 	var merr error
 
 	for _, out := range fetchedInstances {
 		instance := model.MicrosoftSQLServerInstance{}
+
 		var instanceErr error
 
 		instance.Name = out.Name
@@ -105,6 +109,7 @@ func (b *CommonBuilder) getMicrosoftSQLServerInstances() ([]model.MicrosoftSQLSe
 		if err != nil {
 			instanceErr = multierror.Append(instanceErr, err)
 		}
+
 		for _, v := range backupSchedules {
 			dbsMap[v.DatabaseName].Backups = make([]model.MicrosoftSQLServerDatabaseBackup, len(v.Data))
 			for i, b := range v.Data {

@@ -61,6 +61,7 @@ func (lf *LinuxFetcherImpl) SetUser(username string) error {
 	}
 
 	lf.fetcherUser = u
+
 	return nil
 }
 
@@ -102,6 +103,7 @@ func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherN
 		bytes []byte
 		err   error
 	}
+
 	c := make(chan execResult, 1)
 
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
@@ -129,7 +131,12 @@ func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherN
 }
 
 func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName string, args ...string) ([]byte, error) {
-	commandName := config.GetBaseDir() + "/fetch/linux/" + fetcherName + ".sh"
+	baseDir, err := config.GetBaseDir(lf.log)
+	if err != nil {
+		return nil, err
+	}
+
+	commandName := baseDir + "/fetch/linux/" + fetcherName + ".sh"
 	lf.log.Infof("Fetching %s %s", commandName, strings.Join(args, " "))
 
 	stdout, stderr, exitCode, err := runCommandAs(ctx, lf.log, lf.fetcherUser, commandName, args...)
@@ -151,6 +158,7 @@ func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName 
 		}
 
 		err = fmt.Errorf("Error running [%s %s]: [%v]", commandName, strings.Join(args, " "), err)
+
 		return nil, err
 	}
 
@@ -158,8 +166,13 @@ func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName 
 }
 
 // executePwsh execute pwsh script by name
-func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
-	scriptPath := config.GetBaseDir() + "/fetch/linux/" + fetcherName
+func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) ([]byte, error) {
+	baseDir, err := config.GetBaseDir(lf.log)
+	if err != nil {
+		return nil, err
+	}
+
+	scriptPath := baseDir + "/fetch/linux/" + fetcherName
 	args = append([]string{scriptPath}, args...)
 
 	lf.log.Infof("Fetching %s %s", scriptPath, strings.Join(args, " "))
@@ -178,7 +191,7 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", scriptPath, strings.Join(args, " "), err)
 	}
 
-	return stdout
+	return stdout, nil
 }
 
 // GetHost get
@@ -221,6 +234,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, error
 	dbs := strings.Split(string(out), "\n")
 
 	ret := make([]string, 0)
+
 	for _, db := range dbs {
 		tmp := strings.TrimSpace(db)
 		if len(tmp) > 0 {
@@ -371,7 +385,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntr
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.Backups(out), nil
+	return marshal_oracle.Backups(out)
 }
 
 // GetOracleDatabaseCheckPDB get
@@ -432,11 +446,15 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEnt
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
 	var out []byte
+
 	var err error
 
 	switch hv.Type {
 	case model.TechnologyVMWare:
-		out = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
+		out, err = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
+		if err != nil {
+			return nil, ercutils.NewError(err)
+		}
 
 	case model.TechnologyOracleVM:
 		out, err = lf.execute("ovm", "cluster", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
@@ -463,7 +481,11 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) (map[string
 
 	switch hv.Type {
 	case model.TechnologyVMWare:
-		out := lf.executePwsh("vmware.ps1", "-s", "vms", hv.Endpoint, hv.Username, hv.Password)
+		out, err := lf.executePwsh("vmware.ps1", "-s", "vms", hv.Endpoint, hv.Username, hv.Password)
+		if err != nil {
+			return nil, ercutils.NewError(err)
+		}
+
 		vms = marshal.VmwareVMs(out)
 
 	case model.TechnologyOracleVM:
@@ -620,10 +642,12 @@ func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInst
 
 func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 	file := "/var/lib/mysql/auto.cnf"
+
 	out, err := os.ReadFile(file)
 	if err != nil {
 		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
 		lf.log.Error(err)
+
 		return "", ercutils.NewError(err)
 	}
 
@@ -631,6 +655,7 @@ func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 	if err != nil {
 		err = fmt.Errorf("Can't get MySQL UUID from %s: %w", file, err)
 		lf.log.Error(err)
+
 		return "", ercutils.NewError(err)
 	}
 
@@ -644,6 +669,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceCo
 	}
 
 	isMaster, slaveUUIDs := marshal_mysql.SlaveHosts(out)
+
 	return isMaster, slaveUUIDs, nil
 }
 
@@ -654,6 +680,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceC
 	}
 
 	isSlave, masterUUID := marshal_mysql.SlaveStatus(out)
+
 	return isSlave, masterUUID, nil
 }
 

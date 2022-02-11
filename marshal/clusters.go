@@ -28,6 +28,7 @@ import (
 func Clusters(cmdOutput []byte) []model.ClusterInfo {
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 	clusters := []model.ClusterInfo{}
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, ",")

@@ -65,7 +65,10 @@ func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherNam
 		stderr bytes.Buffer
 	)
 
-	baseDir := config.GetBaseDir()
+	baseDir, err := config.GetBaseDir(wf.log)
+	if err != nil {
+		return nil, err
+	}
 
 	psexe, err = exec.LookPath("powershell.exe")
 	if err != nil {
@@ -103,6 +106,7 @@ func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherNam
 		}
 
 		err = fmt.Errorf("Error running [%s %s]: [%v]", psexe, strings.Join(args, " "), err)
+
 		return nil, err
 	}
 
@@ -114,6 +118,7 @@ func (wf *WindowsFetcherImpl) executeWithDeadline(duration time.Duration, fetche
 		bytes []byte
 		err   error
 	}
+
 	c := make(chan execResult, 1)
 
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
@@ -362,7 +367,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEn
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.Backups(out), nil
+	return marshal_oracle.Backups(out)
 }
 
 // GetOracleDatabaseCheckPDB get
@@ -443,6 +448,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn st
 	if err := marshal_microsoft.LicensingInfo(out, inst); err != nil {
 		return ercutils.NewError(err)
 	}
+
 	return nil
 }
 

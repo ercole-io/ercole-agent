@@ -36,15 +36,19 @@ func SegmentAdvisors(cmdOutput []byte) ([]model.MySQLSegmentAdvisor, error) {
 		segmentAdv.TableSchema = strings.TrimSpace(scanner.Iter())
 		segmentAdv.TableName = strings.TrimSpace(scanner.Iter())
 		segmentAdv.Engine = strings.TrimSpace(scanner.Iter())
+
 		if segmentAdv.Allocation, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if segmentAdv.Data, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if segmentAdv.Index, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
+
 		if segmentAdv.Free, err = marshal.TrimParseFloat64(scanner.Iter()); err != nil {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 		}
@@ -55,5 +59,6 @@ func SegmentAdvisors(cmdOutput []byte) ([]model.MySQLSegmentAdvisor, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return segmentAdvs, nil
 }

@@ -30,16 +30,19 @@ import (
 func Addms(cmdOutput []byte) ([]model.OracleDatabaseAddm, error) {
 	addms := []model.OracleDatabaseAddm{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
 	var merr, err error
 
 	for scanner.Scan() {
 		addm := new(model.OracleDatabaseAddm)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 6 {
 			addm.Finding = strings.TrimSpace(splitted[2])
 			addm.Recommendation = strings.TrimSpace(splitted[3])
 			addm.Action = strings.TrimSpace(splitted[4])
+
 			if addm.Benefit, err = marshal.TrimParseFloat64(splitted[5]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
@@ -51,5 +54,6 @@ func Addms(cmdOutput []byte) ([]model.OracleDatabaseAddm, error) {
 	if merr != nil {
 		return nil, merr
 	}
+
 	return addms, nil
 }

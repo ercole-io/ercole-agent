@@ -23,6 +23,7 @@ func SlaveHosts(cmdOutput []byte) (isMaster bool, slaveUUIDs []string) {
 	scanner := marshal.NewCsvScanner(cmdOutput, 5)
 
 	slaveUUIDs = make([]string, 0)
+
 	for scanner.SafeScan() {
 		slaveUUID := scanner.Get(4)
 		slaveUUIDs = append(slaveUUIDs, slaveUUID)

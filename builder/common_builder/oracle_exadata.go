@@ -27,13 +27,17 @@ import (
 func (b *CommonBuilder) checksToRunExadata() error {
 	if runtime.GOOS != "linux" {
 		err := ercutils.NewErrorf("Can't run exadata mode if os is different from linux, current os: [%v]", runtime.GOOS)
+
 		b.log.Error(err)
+
 		return err
 	}
 
 	if !utils.IsRunnigAsRootInLinux() {
 		err := ercutils.NewErrorf("You must be root to run in exadata mode")
+
 		b.log.Error(err)
+
 		return err
 	}
 
@@ -42,7 +46,9 @@ func (b *CommonBuilder) checksToRunExadata() error {
 
 func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, error) {
 	oracleExadataFeature := new(model.OracleExadataFeature)
+
 	var err error
+
 	oracleExadataFeature.Components, err = b.getOracleExadataComponents()
 	if err != nil {
 		b.log.Error(err)

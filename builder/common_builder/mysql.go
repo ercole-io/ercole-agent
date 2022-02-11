@@ -32,49 +32,65 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 		instance, err := b.fetcher.GetMySQLInstance(conf)
 		if err != nil {
 			b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.HighAvailability, err = b.fetcher.GetMySQLHighAvailability(conf); err != nil {
 			b.log.Errorf("Can't get MySQL HighAvailability: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.UUID, err = b.fetcher.GetMySQLUUID(); err != nil {
 			b.log.Errorf("Can't get MySQL UUID: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.IsMaster, instance.SlaveUUIDs, err = b.fetcher.GetMySQLSlaveHosts(conf); err != nil {
 			b.log.Errorf("Can't get MySQL slave hosts: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.IsSlave, instance.MasterUUID, err = b.fetcher.GetMySQLSlaveStatus(conf); err != nil {
 			b.log.Errorf("Can't get MySQL slave status: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.Databases, err = b.fetcher.GetMySQLDatabases(conf); err != nil {
 			b.log.Errorf("Can't get MySQL databases: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.TableSchemas, err = b.fetcher.GetMySQLTableSchemas(conf); err != nil {
 			b.log.Errorf("Can't get MySQL table schemas: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 
 		if instance.SegmentAdvisors, err = b.fetcher.GetMySQLSegmentAdvisors(conf); err != nil {
 			b.log.Errorf("Can't get MySQL segment advisors: %s", conf.Host)
+
 			merr = multierror.Append(merr, ercutils.NewError(err))
+
 			continue
 		}
 

@@ -22,17 +22,22 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Backups marshals a backup output list into a struct.
-func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
+func Backups(cmdOutput []byte) ([]model.OracleDatabaseBackup, error) {
 	backups := []model.OracleDatabaseBackup{}
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
+	var merr error
+
 	for scanner.Scan() {
 		backup := new(model.OracleDatabaseBackup)
 		line := scanner.Text()
+
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 5 {
 			backup.BackupType = strings.TrimSpace(splitted[0])
@@ -41,10 +46,20 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 			weekDays := strings.TrimSpace(splitted[2])
 			backup.WeekDays = strings.Split(weekDays, ",")
 
-			backup.AvgBckSize, _ = strconv.ParseFloat(splitted[3], 64)
+			avgBckSize, err := strconv.ParseFloat(splitted[3], 64)
+			if err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+
+			backup.AvgBckSize = avgBckSize
 			backup.Retention = strings.TrimSpace(splitted[4])
 			backups = append(backups, *backup)
 		}
 	}
-	return backups
+
+	if merr != nil {
+		return nil, merr
+	}
+
+	return backups, nil
 }
