@@ -107,6 +107,7 @@ func uptime(log logger.Logger) {
 	uptime, err := host.Uptime()
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
 	if uptime < maxSecondsToWait {
