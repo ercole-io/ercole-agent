@@ -166,10 +166,10 @@ func (lf *LinuxFetcherImpl) executeWithContext(ctx context.Context, fetcherName 
 }
 
 // executePwsh execute pwsh script by name
-func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []byte {
+func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) ([]byte, error) {
 	baseDir, err := config.GetBaseDir(lf.log)
 	if err != nil {
-		lf.log.Fatalf("Unable to get base directory: %s", err)
+		return nil, err
 	}
 
 	scriptPath := baseDir + "/fetch/linux/" + fetcherName
@@ -191,7 +191,7 @@ func (lf *LinuxFetcherImpl) executePwsh(fetcherName string, args ...string) []by
 		lf.log.Fatalf("Fatal error running [%s %s]: [%v]", scriptPath, strings.Join(args, " "), err)
 	}
 
-	return stdout
+	return stdout, nil
 }
 
 // GetHost get
@@ -385,7 +385,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntr
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.Backups(out), nil
+	return marshal_oracle.Backups(out)
 }
 
 // GetOracleDatabaseCheckPDB get
@@ -451,7 +451,10 @@ func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterIn
 
 	switch hv.Type {
 	case model.TechnologyVMWare:
-		out = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
+		out, err = lf.executePwsh("vmware.ps1", "-s", "cluster", hv.Endpoint, hv.Username, hv.Password)
+		if err != nil {
+			return nil, ercutils.NewError(err)
+		}
 
 	case model.TechnologyOracleVM:
 		out, err = lf.execute("ovm", "cluster", hv.Endpoint, hv.Username, hv.Password, hv.OvmUserKey, hv.OvmControl)
@@ -478,7 +481,11 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) (map[string
 
 	switch hv.Type {
 	case model.TechnologyVMWare:
-		out := lf.executePwsh("vmware.ps1", "-s", "vms", hv.Endpoint, hv.Username, hv.Password)
+		out, err := lf.executePwsh("vmware.ps1", "-s", "vms", hv.Endpoint, hv.Username, hv.Password)
+		if err != nil {
+			return nil, ercutils.NewError(err)
+		}
+
 		vms = marshal.VmwareVMs(out)
 
 	case model.TechnologyOracleVM:

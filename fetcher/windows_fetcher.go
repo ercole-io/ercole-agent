@@ -367,7 +367,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEn
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.Backups(out), nil
+	return marshal_oracle.Backups(out)
 }
 
 // GetOracleDatabaseCheckPDB get

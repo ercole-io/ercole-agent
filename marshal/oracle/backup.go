@@ -18,18 +18,21 @@ package oracle
 import (
 	"bufio"
 	"bytes"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
+	ercutils "github.com/ercole-io/ercole/v2/utils"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Backups marshals a backup output list into a struct.
-func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
+func Backups(cmdOutput []byte) ([]model.OracleDatabaseBackup, error) {
 	backups := []model.OracleDatabaseBackup{}
 
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
+
+	var merr error
 
 	for scanner.Scan() {
 		backup := new(model.OracleDatabaseBackup)
@@ -45,8 +48,7 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 
 			avgBckSize, err := strconv.ParseFloat(splitted[3], 64)
 			if err != nil {
-				log.Printf("%v\n", err)
-				return backups
+				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
 			backup.AvgBckSize = avgBckSize
@@ -55,5 +57,9 @@ func Backups(cmdOutput []byte) []model.OracleDatabaseBackup {
 		}
 	}
 
-	return backups
+	if merr != nil {
+		return nil, merr
+	}
+
+	return backups, nil
 }
