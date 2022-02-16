@@ -129,8 +129,14 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		return nil, nil
 
 	default:
+		if strings.Contains(dbStatus, "ORA-01034") {
+			b.log.Debugf("Connection Error: DBName: [%s] OracleHome: [%s]", entry.DBName, entry.OracleHome)
+			return nil, nil
+		}
+
 		err := ercutils.NewErrorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
+
 		return nil, err
 	}
 
