@@ -6,6 +6,7 @@ require (
 	github.com/ercole-io/ercole/v2 v2.0.0-20220128132030-5ea349aeb416
 	github.com/fatih/color v1.13.0
 	github.com/golang/mock v1.6.0
+	github.com/goraz/onion v0.1.3
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-version v1.4.0
 	github.com/kardianos/service v1.2.1
@@ -30,6 +31,7 @@ require (
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
