@@ -16,12 +16,14 @@
 package config
 
 import (
-	"bytes"
-	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/goraz/onion"
+	"github.com/goraz/onion/onionwriter"
 
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/ercole-io/ercole/v2/model"
@@ -113,33 +115,30 @@ func ReadConfig(log logger.Logger) Configuration {
 
 	configFile := ""
 
+	layers := make([]onion.Layer, 0)
+
 	if runtime.GOOS == "windows" {
 		configFile = baseDir + "\\config.json"
-	} else {
-		configFile = baseDir + "/config.json"
-	}
-
-	if !exists(configFile) {
-		if runtime.GOOS == "windows" {
+		if !exists(configFile) {
 			configFile = "C:\\ErcoleAgent\\config.json"
-		} else {
-			configFile = "/opt/ercole-agent/config.json"
 		}
+
+		layers = addFileLayers(log, layers, configFile)
+	} else {
+		layers = addFileLayers(log, layers, "opt/ercole-agent/config.json")
+		layers = addFileLayers(log, layers, "usr/share/ercole-agent/config.json")
+		layers = addFileLayers(log, layers, "etc/ercole-agent/ercole-agent.json")
+		layers = addFileLayers(log, layers, "etc/ercole-agent/conf.d/*.json")
+		layers = addFileLayers(log, layers, "./config.json")
 	}
 
-	raw, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		log.Fatal("Unable to read configuration file: ", err)
-	}
+	configOnion := onion.New(layers...)
 
 	var conf Configuration
 
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-
-	err = decoder.Decode(&conf)
+	err = onionwriter.DecodeOnion(configOnion, &conf)
 	if err != nil {
-		log.Fatal("Unable to parse configuration file: ", err)
+		log.Fatal("something went wrong while reading your configuration files")
 	}
 
 	checkConfiguration(log, &conf)
@@ -250,4 +249,22 @@ func GetBaseDir(log logger.Logger) (string, error) {
 	}
 
 	return s, nil
+}
+
+func addFileLayers(log logger.Logger, layers []onion.Layer, configFiles ...string) []onion.Layer {
+	for _, file := range configFiles {
+		layer, err := onion.NewFileLayer(file, nil)
+
+		var pathErr *os.PathError
+
+		if err == nil {
+			log.Debugf("Read file for conf: %s", file)
+
+			layers = append(layers, layer)
+		} else if !errors.As(err, &pathErr) {
+			log.Warnf("error reading file [%s]: [%s]", file, err)
+		}
+	}
+
+	return layers
 }
