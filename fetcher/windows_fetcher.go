@@ -51,11 +51,6 @@ func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) *Window
 	}
 }
 
-// Execute Execute specific fetcher by name
-func (wf *WindowsFetcherImpl) execute(fetcherName string, args ...string) ([]byte, error) {
-	return wf.executeWithContext(context.Background(), fetcherName, args...)
-}
-
 func (wf *WindowsFetcherImpl) executeWithContext(ctx context.Context, fetcherName string, args ...string) ([]byte, error) {
 	var (
 		cmd    *exec.Cmd
@@ -196,7 +191,7 @@ func (wf *WindowsFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembe
 
 // GetHost get
 func (wf *WindowsFetcherImpl) GetHost() (*model.Host, error) {
-	out, err := wf.execute("win.ps1", "-s", "host")
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "host")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -216,7 +211,7 @@ func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 
 // GetOracleDatabaseOratabEntries get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseOratabEntries() ([]agentmodel.OratabEntry, error) {
-	out, err := wf.execute("win.ps1", "-s", "oratab", wf.configuration.Features.OracleDatabase.Oratab)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "oratab", wf.configuration.Features.OracleDatabase.Oratab)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -231,7 +226,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, err
 
 // GetOracleDatabaseDbStatus get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) (string, error) {
-	out, err := wf.execute("win.ps1", "-s", "dbstatus", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "dbstatus", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return "", ercutils.NewError(err)
 	}
@@ -241,7 +236,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabE
 
 // GetOracleDatabaseMountedDb get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
-	out, err := wf.execute("win.ps1", "-s", "dbmounted", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "dbmounted", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -251,7 +246,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.Oratab
 
 // GetOracleDatabaseDbVersion get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) (string, error) {
-	out, err := wf.execute("win.ps1", "-s", "dbversion", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "dbversion", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return "", ercutils.NewError(err)
 	}
@@ -261,7 +256,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.Oratab
 
 // RunOracleDatabaseStats Execute stats script
 func (wf *WindowsFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry) error {
-	if _, err := wf.execute("win.ps1", "-s", "stats", entry.DBName, entry.OracleHome); err != nil {
+	if _, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "stats", entry.DBName, entry.OracleHome); err != nil {
 		return ercutils.NewError(err)
 	}
 
@@ -270,7 +265,7 @@ func (wf *WindowsFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntr
 
 // GetOracleDatabaseOpenDb get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
-	out, err := wf.execute("win.ps1", "-s", "db", entry.DBName, strconv.Itoa(wf.configuration.Features.OracleDatabase.AWR))
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "db", entry.DBName, strconv.Itoa(wf.configuration.Features.OracleDatabase.AWR))
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -280,7 +275,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEnt
 
 // GetOracleDatabaseTablespaces get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) ([]model.OracleDatabaseTablespace, error) {
-	out, err := wf.execute("win.ps1", "-s", "tablespace", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "tablespace", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -290,7 +285,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.Orat
 
 // GetOracleDatabaseSchemas get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, error) {
-	out, err := wf.execute("win.ps1", "-s", "schema", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "schema", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -300,7 +295,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEn
 
 // GetOracleDatabasePatches get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, error) {
-	out, err := wf.execute("win.ps1", "-s", "patch", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "patch", entry.DBName, dbVersion, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -310,7 +305,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEn
 
 // GetOracleDatabaseFeatureUsageStat get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error) {
-	out, err := wf.execute("win.ps1", "-s", "opt", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "opt", entry.DBName, dbVersion, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -322,7 +317,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel
 func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry,
 	dbVersion, hardwareAbstractionTechnology string, hostCoreFactor float64,
 ) ([]model.OracleDatabaseLicense, error) {
-	out, err := wf.execute("win.ps1", "-s", "license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -332,7 +327,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabE
 
 // GetOracleDatabaseADDMs get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) ([]model.OracleDatabaseAddm, error) {
-	out, err := wf.execute("win.ps1", "-s", "addm", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "addm", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -342,7 +337,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntr
 
 // GetOracleDatabaseSegmentAdvisors get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSegmentAdvisor, error) {
-	out, err := wf.execute("win.ps1", "-s", "segmentadvisor", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "segmentadvisor", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -352,7 +347,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.
 
 // GetOracleDatabasePSUs get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePSU, error) {
-	out, err := wf.execute("win.ps1", "-s", "psu", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "psu", entry.DBName, dbVersion, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -362,7 +357,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry
 
 // GetOracleDatabaseBackups get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntry) ([]model.OracleDatabaseBackup, error) {
-	out, err := wf.execute("win.ps1", "-s", "backup", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "backup", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -396,7 +391,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.Orata
 
 // GetOracleDatabaseServices get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
-	out, err := wf.execute("win.ps1", "-s", "services", entry.DBName, entry.OracleHome)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "services", entry.DBName, entry.OracleHome)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -406,7 +401,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabE
 
 // GetMicrosoftSQLServerInstances get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -416,7 +411,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.Lis
 
 // GetMicrosoftSQLServerInstanceInfo get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "dbmounted", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "dbmounted", "-instance", conn)
 	if err != nil {
 		return ercutils.NewError(err)
 	}
@@ -426,7 +421,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, ins
 
 // GetMicrosoftSQLServerInstanceEdition get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "edition", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "edition", "-instance", conn)
 	if err != nil {
 		return ercutils.NewError(err)
 	}
@@ -440,7 +435,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceEdition(conn string, 
 
 // GetMicrosoftSQLServerInstanceLicensingInfo get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "licensingInfo", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "licensingInfo", "-instance", conn)
 	if err != nil {
 		return ercutils.NewError(err)
 	}
@@ -454,7 +449,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn st
 
 // GetMicrosoftSQLServerInstanceDatabase get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "db", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "db", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -464,7 +459,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string)
 
 // GetMicrosoftSQLServerInstanceDatabaseBackups get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "backup_schedule", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "backup_schedule", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -474,7 +469,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn 
 
 // GetMicrosoftSQLServerInstanceDatabaseSchemas get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) ([]agentmodel.DbSchemasModel, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "schema", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "schema", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -484,7 +479,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn 
 
 // GetMicrosoftSQLServerInstanceDatabaseTablespaces get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) ([]agentmodel.DbTablespacesModel, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "ts", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "ts", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -494,7 +489,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(c
 
 // GetMicrosoftSQLServerInstancePatches get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) ([]model.MicrosoftSQLServerPatch, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "patches", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "patches", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -504,7 +499,7 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) 
 
 // GetMicrosoftSQLServerProductFeatures get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error) {
-	out, err := wf.execute("ercoleAgentMsSQLServer-Gather.ps1", "-action", "sqlFeatures", "-instance", conn)
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "sqlFeatures", "-instance", conn)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}

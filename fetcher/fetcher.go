@@ -16,9 +16,15 @@
 package fetcher
 
 import (
+	"time"
+
 	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole/v2/model"
+)
+
+const (
+	FetcherStandardTimeOut = 12 * time.Hour
 )
 
 // Fetcher interface for Linux and Windows
