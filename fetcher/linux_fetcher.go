@@ -115,7 +115,7 @@ func (lf *LinuxFetcherImpl) executeWithDeadline(duration time.Duration, fetcherN
 	select {
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return nil, fmt.Errorf("fetcher %s last more than %s, timer has exceeded", fetcherName, duration)
+			return nil, fmt.Errorf("fetcher %q last more than %s, timer has exceeded", fetcherName, duration)
 		}
 
 		return nil, ctx.Err()
