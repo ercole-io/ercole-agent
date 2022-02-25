@@ -48,7 +48,7 @@ type program struct {
 }
 
 func (p *program) run() {
-	confLog, err := logger.NewLogger("CONFIG")
+	confLog, err := logger.NewLogger("CONFIG", logger.LogLevel(logger.DebugLevel))
 	if err != nil {
 		log.Fatal("Can't initialize CONFIG logger: ", err)
 	}
