@@ -125,10 +125,10 @@ func ReadConfig(log logger.Logger) Configuration {
 
 		layers = addFileLayers(log, layers, configFile)
 	} else {
-		layers = addFileLayers(log, layers, "opt/ercole-agent/config.json")
-		layers = addFileLayers(log, layers, "usr/share/ercole-agent/config.json")
-		layers = addFileLayers(log, layers, "etc/ercole-agent/ercole-agent.json")
-		layers = addFileLayers(log, layers, "etc/ercole-agent/conf.d/*.json")
+		layers = addFileLayers(log, layers, "/opt/ercole-agent/config.json")
+		layers = addFileLayers(log, layers, "/usr/share/ercole-agent/config.json")
+		layers = addFileLayers(log, layers, "/etc/ercole-agent/ercole-agent.json")
+		layers = addFileLayers(log, layers, "/etc/ercole-agent/conf.d/*.json")
 		layers = addFileLayers(log, layers, "./config.json")
 	}
 
