@@ -116,14 +116,14 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 
 	var database *model.OracleDatabase
 
-	switch dbStatus {
-	case "OPEN":
+	switch {
+	case dbStatus == "OPEN":
 		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology, hostCoreFactor)
 
-	case "MOUNTED":
+	case dbStatus == "MOUNTED" || strings.Contains(dbStatus, "ORA-03170") || strings.Contains(dbStatus, "ORA-01555"):
 		database, err = b.getMountedDatabase(entry, host, hostCoreFactor)
 
-	case "unreachable!":
+	case dbStatus == "unreachable!":
 		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
 		return nil, nil
