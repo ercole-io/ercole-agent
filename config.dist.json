@@ -2,18 +2,18 @@
     "Hostname": "default",
     "Environment": "TST",
     "Location": "Italy",
-    "DataserviceURL": "http://localhost:11113",
+    "DataserviceURL": "http://ercole/data",
     "AgentUser": "user",
     "AgentPassword": "password",
     "Period": 24,
     "EnableServerValidation": false,
     "ForcePwshVersion": "0",
     "ParallelizeRequests": false,
-    "Verbose": true,
+    "Verbose": false,
     "LogDirectory": "",
     "Features": {
         "OracleDatabase": {
-            "Enabled": false,
+            "Enabled": true,
             "Oratab": "/etc/oratab",
             "Forcestats": true,
             "AWR": 30
