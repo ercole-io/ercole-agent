@@ -213,9 +213,10 @@ func (b *CommonBuilder) runVirtualization(hostData *model.HostData) {
 	}
 
 	var err error
-	hostData.Clusters, err = b.getClustersInfos()
-	b.log.Error(err)
-	hostData.AddErrors(err)
+	if hostData.Clusters, err = b.getClustersInfos(); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+	}
 }
 
 func (b *CommonBuilder) runMySQL(hostData *model.HostData) {
