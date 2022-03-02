@@ -168,6 +168,9 @@ local task_deploy_repository(dist) = {
           },
           steps: [
             { type: 'clone' },
+
+            { type: 'run', name: 'config', command: 'mv config.dist.json config.json' },
+
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
 
             { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0' },

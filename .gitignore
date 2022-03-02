@@ -5,6 +5,7 @@ build
 with.lst
 .vscode
 main
+config.json
 
 # Mocks
 fake_*_test.go
