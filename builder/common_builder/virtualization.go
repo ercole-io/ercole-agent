@@ -89,7 +89,7 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 
 	clustersChan := make(chan []model.ClusterInfo, countHypervisors)
 	vmsChan := make(chan map[string][]model.VMInfo, countHypervisors)
-	errsChan := make(chan error)
+	errsChan := make(chan error, countHypervisors*2)
 
 	for i := range b.configuration.Features.Virtualization.Hypervisors {
 		hv := b.configuration.Features.Virtualization.Hypervisors[i]
