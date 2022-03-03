@@ -15,6 +15,7 @@ local task_build_go(setup) = {
   },
   steps: [
     { type: 'clone' },
+    { type: 'run', name: 'config', command: 'mv config.dist.json config.json' },
     { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
     {
       type: 'run',
@@ -168,8 +169,6 @@ local task_deploy_repository(dist) = {
           },
           steps: [
             { type: 'clone' },
-
-            { type: 'run', name: 'config', command: 'mv config.dist.json config.json' },
 
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
 
