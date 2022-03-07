@@ -18,12 +18,13 @@ package oracle
 import (
 	"bufio"
 	"bytes"
-	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
+
+	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
-	"github.com/hashicorp/go-multierror"
 )
 
 // Backups marshals a backup output list into a struct.
@@ -46,7 +47,7 @@ func Backups(cmdOutput []byte) ([]model.OracleDatabaseBackup, error) {
 			weekDays := strings.TrimSpace(splitted[2])
 			backup.WeekDays = strings.Split(weekDays, ",")
 
-			avgBckSize, err := strconv.ParseFloat(splitted[3], 64)
+			avgBckSize, err := marshal.TrimParseFloat64(splitted[3])
 			if err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
