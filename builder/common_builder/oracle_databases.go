@@ -79,11 +79,14 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 		utils.RunRoutine(b.configuration, func() {
 			b.log.Debugf("oratab entry: [%v]", entry)
 			database, err := b.getOracleDB(entry, host, hostCoreFactor)
-			if err != nil {
-				b.log.Errorf("Can't get Oracle db: %s\n Errors: %s\n", entry, err)
+			if err != nil && database == nil {
+				b.log.Errorf("Oracle db, blocking error (db discarded): %s\n Errors: %s\n", entry, err)
 				errChan <- err
 				databaseChan <- nil
 				return
+			} else if err != nil {
+				b.log.Warnf("Oracle db, non-blocking error: %s\n Errors: %s\n", entry, err)
+				errChan <- err
 			}
 
 			databaseChan <- database
