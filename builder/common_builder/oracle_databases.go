@@ -38,17 +38,7 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor
 		return nil, err
 	}
 
-	m := map[agentmodel.OratabEntry]struct{}{}
-	uniqueOratabEntries := []agentmodel.OratabEntry{}
-
-	for _, d := range oratabEntries {
-		if _, ok := m[d]; !ok {
-			uniqueOratabEntries = append(uniqueOratabEntries, d)
-			m[d] = struct{}{}
-		} else {
-			b.log.Warnf("Duplicated oratab entries %s", d.DBName)
-		}
-	}
+	uniqueOratabEntries := b.RemoveDuplicatedOratabEntries(oratabEntries)
 
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
 

@@ -19,6 +19,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/fetcher"
 	"github.com/ercole-io/ercole-agent/v2/logger"
@@ -294,4 +295,20 @@ func CoreFactor(v model.HostData) float64 {
 	}
 
 	return 0.5
+}
+
+func (b *CommonBuilder) RemoveDuplicatedOratabEntries(oratabEntries []agentmodel.OratabEntry) []agentmodel.OratabEntry {
+	m := map[agentmodel.OratabEntry]struct{}{}
+	uniqueOratabEntries := []agentmodel.OratabEntry{}
+
+	for _, d := range oratabEntries {
+		if _, ok := m[d]; !ok {
+			uniqueOratabEntries = append(uniqueOratabEntries, d)
+			m[d] = struct{}{}
+		} else {
+			b.log.Warnf("Duplicated oratab entries %s", d.DBName)
+		}
+	}
+
+	return uniqueOratabEntries
 }

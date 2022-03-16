@@ -22,6 +22,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -77,6 +78,26 @@ func TestGetUnlistedRunningOracleDBs2(t *testing.T) {
 
 	expected := []string{"ERC001"}
 	actual := b.getUnlistedRunningOracleDBs(listedDBs)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestRemoveDulpicatedOratabEntries(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	fakeFetcher := NewMockFetcher(ctrl)
+	b := CommonBuilder{
+		fetcher:       fakeFetcher,
+		configuration: config.Configuration{},
+		log: &logger.LogrusLogger{
+			Logger: logrus.New(),
+		},
+	}
+
+	duplicatedList := []agentmodel.OratabEntry{{DBName: "pippo"}, {DBName: "topolino"}, {DBName: "pluto"}, {DBName: "pippo"}}
+
+	actual := b.RemoveDuplicatedOratabEntries(duplicatedList)
+
+	expected := []agentmodel.OratabEntry{{DBName: "pippo"}, {DBName: "topolino"}, {DBName: "pluto"}}
 
 	assert.Equal(t, expected, actual)
 }
