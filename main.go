@@ -26,14 +26,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/shirou/gopsutil/host"
 
 	"github.com/ercole-io/ercole-agent/v2/builder"
 	"github.com/ercole-io/ercole-agent/v2/client"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
-	"github.com/ercole-io/ercole-agent/v2/scheduler"
-	"github.com/ercole-io/ercole-agent/v2/scheduler/storage"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
@@ -84,21 +83,18 @@ func (p *program) run() {
 
 	doBuildAndSend(p.log, client, configuration)
 
-	memStorage := storage.NewMemoryStorage()
-	scheduler := scheduler.New(memStorage)
+	scheduler := gocron.NewScheduler(time.UTC)
 
-	_, err = scheduler.RunEvery(time.Duration(configuration.Period)*time.Hour, func() {
+	_, err = scheduler.Every(int(configuration.Period)).Hours().Do(func() {
 		doBuildAndSend(p.log, client, configuration)
 	})
 	if err != nil {
 		p.log.Fatal("Error scheduling Ercole agent", err)
 	}
 
-	if err := scheduler.Start(); err != nil {
-		p.log.Fatal("Error starting Ercole agent scheduler", err)
-	}
+	scheduler.StartAsync()
 
-	scheduler.Wait()
+	scheduler.WaitForSchedule()
 }
 
 func uptime(log logger.Logger) {
