@@ -17,6 +17,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -321,7 +322,9 @@ func getResponseOLVMClusters(endpoint string, username string, password string) 
 
 	errClustersUnmarshal := json.Unmarshal(bodyClustersBytes, &responseOLVMClusters)
 	if errClustersUnmarshal != nil {
-		return ResponseOLVMClusters{}, ercutils.NewError(errClustersUnmarshal)
+		return ResponseOLVMClusters{},
+			ercutils.NewError(errClustersUnmarshal,
+				fmt.Sprintf("Can't unmarshal clusters, bodyClusterBytes:\n%s\n", string(bodyClustersBytes)))
 	}
 
 	return responseOLVMClusters, nil
@@ -339,7 +342,9 @@ func getResponseOLVMHosts(endpoint string, username string, password string) (Re
 
 	errHostUnmarshal := json.Unmarshal(bodyHostsBytes, &responseOLVMHosts)
 	if errHostUnmarshal != nil {
-		return ResponseOLVMHosts{}, ercutils.NewError(errHostUnmarshal)
+		return ResponseOLVMHosts{},
+			ercutils.NewError(errHostUnmarshal,
+				fmt.Sprintf("Can't unmarshal hosts, bodyHostsBytes:\n%s\n", string(bodyHostsBytes)))
 	}
 
 	return responseOLVMHosts, nil
@@ -348,16 +353,18 @@ func getResponseOLVMHosts(endpoint string, username string, password string) (Re
 func getResponseOLVMVMs(endpoint string, username string, password string) (ResponseOLVMVMs, error) {
 	url := "https://" + endpoint + "/ovirt-engine/api/vms"
 
-	bodyHostsBytes, err := getBodyResponse(url, username, password)
+	bodyVMsBytes, err := getBodyResponse(url, username, password)
 	if err != nil {
 		return ResponseOLVMVMs{}, ercutils.NewError(err)
 	}
 
 	var responseOLVMVMs ResponseOLVMVMs
 
-	errVMUnmarshal := json.Unmarshal(bodyHostsBytes, &responseOLVMVMs)
+	errVMUnmarshal := json.Unmarshal(bodyVMsBytes, &responseOLVMVMs)
 	if errVMUnmarshal != nil {
-		return ResponseOLVMVMs{}, ercutils.NewError(errVMUnmarshal)
+		return ResponseOLVMVMs{},
+			ercutils.NewError(errVMUnmarshal,
+				fmt.Sprintf("Can't unmarshal vms, bodyHostsBytes:\n%s\n", string(bodyVMsBytes)))
 	}
 
 	return responseOLVMVMs, nil
