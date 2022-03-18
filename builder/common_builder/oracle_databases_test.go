@@ -82,7 +82,7 @@ func TestGetUnlistedRunningOracleDBs2(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestRemoveDulpicatedOratabEntries(t *testing.T) {
+func TestRemoveDuplicatedOratabEntries(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	fakeFetcher := NewMockFetcher(ctrl)
 	b := CommonBuilder{

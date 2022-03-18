@@ -406,6 +406,22 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	return database, nil
 }
 
+func (b *CommonBuilder) RemoveDuplicatedOratabEntries(oratabEntries []agentmodel.OratabEntry) []agentmodel.OratabEntry {
+	m := map[agentmodel.OratabEntry]struct{}{}
+	uniqueOratabEntries := []agentmodel.OratabEntry{}
+
+	for _, d := range oratabEntries {
+		if _, ok := m[d]; !ok {
+			uniqueOratabEntries = append(uniqueOratabEntries, d)
+			m[d] = struct{}{}
+		} else {
+			b.log.Warnf("Duplicated oratab entries %s", d.DBName)
+		}
+	}
+
+	return uniqueOratabEntries
+}
+
 func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model.OracleDatabaseLicense {
 	licenses := make([]model.OracleDatabaseLicense, 0)
 	numLicenses := coreFactor * float64(cpuCores)
