@@ -81,8 +81,6 @@ func (p *program) run() {
 
 	uptime(p.log)
 
-	doBuildAndSend(p.log, client, configuration)
-
 	scheduler := gocron.NewScheduler(time.UTC)
 
 	_, err = scheduler.Every(int(configuration.Period)).Hours().Do(func() {
