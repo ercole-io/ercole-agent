@@ -83,16 +83,14 @@ func (p *program) run() {
 
 	scheduler := gocron.NewScheduler(time.UTC)
 
-	_, err = scheduler.Every(int(configuration.Period)).Hours().Do(func() {
+	_, err = scheduler.Every(int(configuration.Period)).Hour().Do(func() {
 		doBuildAndSend(p.log, client, configuration)
 	})
 	if err != nil {
 		p.log.Fatal("Error scheduling Ercole agent", err)
 	}
 
-	scheduler.StartAsync()
-
-	scheduler.WaitForSchedule()
+	scheduler.StartBlocking()
 }
 
 func uptime(log logger.Logger) {
