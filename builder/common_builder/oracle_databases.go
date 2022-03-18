@@ -38,9 +38,11 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor
 		return nil, err
 	}
 
-	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(oratabEntries)
+	uniqueOratabEntries := b.RemoveDuplicatedOratabEntries(oratabEntries)
 
-	oracleDatabaseFeature.Databases, err = b.getOracleDBs(oratabEntries, host, hostCoreFactor)
+	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
+
+	oracleDatabaseFeature.Databases, err = b.getOracleDBs(uniqueOratabEntries, host, hostCoreFactor)
 
 	return oracleDatabaseFeature, err
 }
@@ -402,6 +404,22 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	}
 
 	return database, nil
+}
+
+func (b *CommonBuilder) RemoveDuplicatedOratabEntries(oratabEntries []agentmodel.OratabEntry) []agentmodel.OratabEntry {
+	m := map[agentmodel.OratabEntry]struct{}{}
+	uniqueOratabEntries := []agentmodel.OratabEntry{}
+
+	for _, d := range oratabEntries {
+		if _, ok := m[d]; !ok {
+			uniqueOratabEntries = append(uniqueOratabEntries, d)
+			m[d] = struct{}{}
+		} else {
+			b.log.Warnf("Duplicated oratab entries %s", d.DBName)
+		}
+	}
+
+	return uniqueOratabEntries
 }
 
 func computeLicenses(dbEdition string, coreFactor float64, cpuCores int) []model.OracleDatabaseLicense {
