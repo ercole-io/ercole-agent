@@ -332,7 +332,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	var wg sync.WaitGroup
 
-	errChan := make(chan error, 2)
+	errChan := make(chan error, 2*len(database.PDBs))
 
 	for i := range database.PDBs {
 		pdb := &database.PDBs[i]
