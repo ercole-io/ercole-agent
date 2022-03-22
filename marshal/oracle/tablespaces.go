@@ -35,32 +35,33 @@ func Tablespaces(cmdOutput []byte) ([]model.OracleDatabaseTablespace, error) {
 	var merr, err error
 
 	for scanner.Scan() {
-		tablespace := new(model.OracleDatabaseTablespace)
 		line := scanner.Text()
 
 		splitted := strings.Split(line, "|||")
 		if len(splitted) == 9 {
+			tablespace := model.OracleDatabaseTablespace{}
+
 			tablespace.Name = strings.TrimSpace(splitted[3])
 
-			if tablespace.MaxSize, err = marshal.TrimParseFloat64(splitted[4]); err != nil {
+			if tablespace.MaxSize, err = marshal.TrimParseFloat64SafeComma(splitted[4]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.Total, err = marshal.TrimParseFloat64(splitted[5]); err != nil {
+			if tablespace.Total, err = marshal.TrimParseFloat64SafeComma(splitted[5]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.Used, err = marshal.TrimParseFloat64(splitted[6]); err != nil {
+			if tablespace.Used, err = marshal.TrimParseFloat64SafeComma(splitted[6]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.UsedPerc, err = marshal.TrimParseFloat64(splitted[7]); err != nil {
+			if tablespace.UsedPerc, err = marshal.TrimParseFloat64SafeComma(splitted[7]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
 			tablespace.Status = strings.TrimSpace(splitted[8])
 
-			tablespaces = append(tablespaces, *tablespace)
+			tablespaces = append(tablespaces, tablespace)
 		}
 	}
 
