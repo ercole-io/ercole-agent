@@ -99,6 +99,23 @@ func TrimParseFloat64(s string) (float64, error) {
 	return val, nil
 }
 
+func TrimParseFloat64SafeComma(s string) (float64, error) {
+	s = strings.TrimSpace(s)
+
+	if val, err := strconv.ParseFloat(s, 64); err == nil {
+		return val, nil
+	}
+
+	s = strings.Replace(s, ",", ".", 1)
+	val, err := strconv.ParseFloat(s, 64)
+
+	if err == nil {
+		return val, nil
+	}
+
+	return 0, err
+}
+
 func TrimParseFloat64Pointer(s string, nils ...string) (*float64, error) {
 	s = strings.TrimSpace(s)
 

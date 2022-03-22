@@ -65,6 +65,53 @@ func TestTrimParseInt(t *testing.T) {
 	}
 }
 
+func TestTrimParseFloat64SafeComma(t *testing.T) {
+	testCases := []struct {
+		s           string
+		expected    float64
+		expectedErr error
+	}{
+		{
+			s:           "N/A",
+			expected:    0,
+			expectedErr: strconv.ErrSyntax,
+		},
+		{
+			s:           "42",
+			expected:    42,
+			expectedErr: nil,
+		},
+		{
+			s:           "42.42",
+			expected:    42.42,
+			expectedErr: nil,
+		},
+		{
+			s:           "42,42",
+			expected:    42.42,
+			expectedErr: nil,
+		},
+		{
+			s:           "42!42",
+			expected:    0,
+			expectedErr: strconv.ErrSyntax,
+		},
+	}
+
+	for _, tc := range testCases {
+		v, err := TrimParseFloat64SafeComma(tc.s)
+
+		assert.Equal(t, tc.expected, v)
+
+		if tc.expectedErr == nil {
+			assert.Nil(t, err)
+			continue
+		}
+
+		assert.ErrorAs(t, err, &tc.expectedErr)
+	}
+}
+
 func TestTrimParseFloat64PointerSafeComma(t *testing.T) {
 	testCases := []struct {
 		s           string
