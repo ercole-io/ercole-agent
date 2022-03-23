@@ -48,9 +48,6 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 
 		if instance.UUID, err = b.fetcher.GetMySQLUUID(); err != nil {
 			b.log.Errorf("Can't get MySQL UUID: %s", conf.Host)
-
-			merr = multierror.Append(merr, ercutils.NewError(err))
-
 			continue
 		}
 
