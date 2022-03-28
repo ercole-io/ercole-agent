@@ -40,11 +40,36 @@ LINUX_FETCHERS_DIR=$(dirname "$0")
 FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
-export ORAENV_ASK=NO 
+export ORAENV_ASK=NO
 export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
+DB_VERSION=$(
+    sqlplus -S / as sysdba <<EOF
+set pages 0 feedback off timing off
+select (case when UPPER(banner) like '%EXTREME%' then 'EXE' when UPPER(banner) like '%ENTERPRISE%' then 'ENT' else 'STD' end) as versione from v\$version where rownum=1;
+exit
+EOF
+)
 
-sqlplus -S "/ AS SYSDBA" < ${ERCOLE_HOME}/sql/opt.sql
 
+if [ $DBV == "10" ] || [ $DBV == "9" ]; then
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR"
+elif [ $DBV == "11" ]; then 
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+else
+IS_PDB=$(
+    sqlplus -S / as sysdba <<EOF
+set pages 0 feedback off timing off
+SELECT CASE WHEN COUNT(*) > 0 THEN 'TRUE' WHEN count(*) = 0 THEN 'FALSE' END FROM v\$pdbs;
+exit
+EOF
+)
+
+if [ $IS_PDB == "TRUE" ]; then
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt_pluggable.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+else
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+fi
+fi

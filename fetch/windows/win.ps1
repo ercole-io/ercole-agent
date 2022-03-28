@@ -281,16 +281,8 @@ function getDbLic {
 			$edt = gc $env:temp\datafile.xyz
 			rm $env:temp\datafile.xyz
 		}
-		#if (!(Test-Path .\sql\dbone.sql)) { Write-Warning "file dbone.sql unavailable!"; throw }
-		#else {
-		#	$ar = '-silent / as sysdba @".\sql\dbone.sql"'
-		#	Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafile.xyz
-		#	$db_one = gc $env:temp\datafile.xyz
-		#	$db_one = 'x' + $db_one
-		#	rm $env:temp\datafile.xyz
-		#}
 		$db_one = 'xOne'
-		if (!((Test-Path .\sql\license.sql) -and (Test-Path .\sql\license-10.sql))) { Write-Warning "file license*.sql unavailable!"; throw }
+		if (!((Test-Path .\sql\license.sql) -and (Test-Path .\sql\license-10.sql) -and (Test-Path .\sql\license_pluggable.sql))) { Write-Warning "file license*.sql unavailable!"; throw }
 		else {
 			switch (isVirtual) {
 				"Y" {
@@ -356,7 +348,21 @@ function getDbLic {
 			}
 			switch ($v) {
 				10 { $ar = '-silent / as sysdba @".\sql\license-10.sql" '+$crs+' '+$factor }
-				Default { $ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one}
+				11 { $ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one}
+				Default {
+					if (!(Test-Path .\sql\pluggable.sql)) { Write-Warning "file pluggable.sql unavailable!"; throw }
+					else {
+						$arPDB = '-silent / as sysdba @".\sql\pluggable.sql"'
+						Start-Process $ohome\sqlplus -ArgumentList $arPDB -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafilePDB.xyz
+						$idPDB = gc $env:temp\datafilePDB.xyz
+						rm $env:temp\datafilePDB.xyz
+						if ($idPDB == "TRUE") {
+							$ar = '-silent / as sysdba @".\sql\license_pluggable.sql" '+$crs+' '+$factor+' '+$db_one
+						} else {
+							$ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one
+						}
+					}
+				}
 			}
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
@@ -479,11 +485,22 @@ function getDbOpt {
 	else {
 		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
 		$env:ORACLE_SID= $dbs.PathName.Split()[1]
-		if (!(Test-Path .\sql\opt.sql)) { Write-Warning "file opt.sql unavailable!"; throw }
+		if (!((Test-Path .\sql\opt.sql) -and (Test-Path .\sql\opt_pluggable.sql))) { Write-Warning "file opt.sql unavailable!"; throw }
 		else {
-			$ar = '-silent / as sysdba @".\sql\opt.sql" '+$d
-			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
-				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
+			if (!(Test-Path .\sql\pluggable.sql)) { Write-Warning "file pluggable.sql unavailable!"; throw }
+			else {
+				$arPDB = '-silent / as sysdba @".\sql\pluggable.sql"'
+				Start-Process $ohome\sqlplus -ArgumentList $arPDB -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafilePDB.xyz
+				$idPDB = gc $env:temp\datafilePDB.xyz
+				rm $env:temp\datafilePDB.xyz
+				if ($idPDB == "TRUE") {
+					$ar = '-silent / as sysdba @".\sql\opt_pluggable.sql" '+$d
+				} else {
+					$ar = '-silent / as sysdba @".\sql\opt.sql" '+$d
+				}
+				if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
+					Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
+				}
 			}
 		}
 	}
