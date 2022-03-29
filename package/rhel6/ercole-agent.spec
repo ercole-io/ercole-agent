@@ -98,10 +98,13 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/edition.sql
 /opt/ercole-agent/sql/license-10.sql
 /opt/ercole-agent/sql/license.sql
+/opt/ercole-agent/sql/license_pluggable.sql
 /opt/ercole-agent/sql/listpdb.sql
 /opt/ercole-agent/sql/opt.sql
+/opt/ercole-agent/sql/opt_pluggable.sql
 /opt/ercole-agent/sql/patch-12.sql
 /opt/ercole-agent/sql/patch.sql
+/opt/ercole-agent/sql/pluggable.sql
 /opt/ercole-agent/sql/psu-1.sql
 /opt/ercole-agent/sql/psu-2.sql
 /opt/ercole-agent/sql/schema.sql

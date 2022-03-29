@@ -114,6 +114,20 @@ fi
 
 if [ $DBV == "10" ] || [ $DBV == "9" ]; then
     sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license-10.sql $CPU_THREADS "$THREAD_FACTOR"
+elif [ $DBV == "11" ]; then 
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+else
+IS_PDB=$(
+    sqlplus -S / as sysdba <<EOF
+set pages 0 feedback off timing off
+SELECT CASE WHEN COUNT(*) > 0 THEN 'TRUE' WHEN count(*) = 0 THEN 'FALSE' END FROM v\$pdbs;
+exit
+EOF
+)
+
+if [ $IS_PDB == "TRUE" ]; then
+    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license_pluggable.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 else
     sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/license.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+fi
 fi
