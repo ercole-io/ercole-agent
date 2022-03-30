@@ -31,10 +31,10 @@ col DCOL2_ new_val DCOL2 noprint
 define DCNA=to_char(NULL)
 col DCNA_ new_val DCNA noprint
 
---select 'CDB_' as DFUS_, 'CON_ID' as DCID_, '(select NAME from V$CONTAINERS xz where xz.CON_ID=xy.CON_ID)' as DCNA_, 'XXXXXX' as DCOL1_, 'XXXXXX' as DCOL2_
---  from CDB_FEATURE_USAGE_STATISTICS
---  where exists (select 1 from V$DATABASE where CDB='YES')
---    and rownum=1;
+select 'CDB_' as DFUS_, 'CON_ID' as DCID_, '(select NAME from V$CONTAINERS xz where xz.CON_ID=xy.CON_ID)' as DCNA_, 'XXXXXX' as DCOL1_, 'XXXXXX' as DCOL2_
+  from CDB_FEATURE_USAGE_STATISTICS
+  where exists (select 1 from V$DATABASE where CDB='YES')
+    and rownum=1;
 
 col GID     NOPRINT
 -- Hide CON_NAME column for non-Container Databases:
@@ -47,7 +47,7 @@ col OCS_ new_val OCS noprint
 select 'Y' as OCS_ from V$VERSION where BANNER like 'Oracle %Perf%';
 
 set feedback off pages 0 lines 123 colsep |
--- spool &3 APPEND
+
 with
 MAP as (
 select '' PRODUCT, '' feature, '' MVERSION, '' CONDITION from dual union all
@@ -179,7 +179,7 @@ FIRST_USAGE_DATE,
 LAST_USAGE_DATE ,
 AUX_COUNT       ,
 FEATURE_INFO
-from DBA_FEATURE_USAGE_STATISTICS xy),
+from &&DFUS.FEATURE_USAGE_STATISTICS xy),
 PFUS as (
 -- Product-Feature Usage Statitsics = DBA_FUS entries mapped to their corresponding database products
 select
@@ -289,6 +289,9 @@ select m.PRODUCT, m.CONDITION, m.MVERSION,
 ),
 TAB as (
 select
+    grouping_id(p.CON_ID) as gid,
+    p.CON_ID   ,
+    decode(grouping_id(p.CON_ID), 1, '--ALL--', max(p.CON_NAME)) as CON_NAME,
     m.PRODUCT  ,
     decode(max(p.USAGE),
           '1.NO_PAST_USAGE'        , ''            ,
@@ -302,43 +305,52 @@ select
   --where USAGE in ('2.NO_CURRENT_USAGE', '4.PAST_USAGE', '5.PAST_OR_CURRENT_USAGE', '6.CURRENT_USAGE')   -- ignore ''1.NO_PAST_USAGE'', ''3.SUPPRESSED_DUE_TO_BUG''
   group by rollup(CON_ID), m.PRODUCT
   having not (max(CON_ID) in (-1, 0) and grouping_id(CON_ID) = 1)            -- aggregation not needed for non-container databases
-order by decode(substr(m.PRODUCT, 1, 1), '.', 2, 1), m.PRODUCT)
+order by decode(substr(m.PRODUCT, 1, 1), '.', 2, 1), m.PRODUCT),
+FILTERCONID as (
+select * from tab where con_id is null
+)
 select distinct LTRIM(product,'.')||';'||
 case 
-   when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' 
-   then
+when (select UPPER(banner) from v$version where rownum=1) like '%EXTREME%' or (select UPPER(banner) from v$version where rownum=1) like '%ENTERPRISE%' 
+then
       case 
- 	     when (select version from v$instance) like '12%' and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters') is NOT NULL and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters One Node') is NOT NULL 
- 	     then
-              case 
-			     when LTRIM(product,'.') like 'Real Application Clusters' 
- 	     	     then ''||';'
-                 else to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
-              end
-         when (select version from v$instance) like '11%' and (select usage from TAB where LTRIM(product,'.') like 'Real Application Clusters') is NOT NULL and '&3'='xOne' and (select count(*) from gv$instance) = 1 
- 	     then 
-              case 
-                  when LTRIM(product,'.') like 'Real Application Clusters One Node' 
- 	     	      then to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
-                  when LTRIM(product,'.') like 'Real Application Clusters' 
- 	     	      then ''||';'
-                  else to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
- 	     	  end
-          when LTRIM(product,'.') like 'Advanced Compression' and usage is NULL and ((select count(*) from dba_tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from dba_tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from dba_tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0)
-          then 
-		  to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
-          when LTRIM(product,'.') like 'Partitioning' and usage is NULL and (select count(*) from dba_tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0
-          then 
-		  to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
-																									WHEN LTRIM(product,'.') LIKE 'Active Data Guard'
-                                                                                                        AND (select usage from TAB where LTRIM(product,'.') LIKE 'GoldenGate' )>0
-                                                                                                        THEN ''||';'
-          else 
-		  to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
-      end	
-       else
-       to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
+ 	        when (select version from v$instance) like '12%' and (select usage from FILTERCONID where LTRIM(product,'.') like 'Real Application Clusters') is NOT NULL and (select usage from FILTERCONID where LTRIM(product,'.') like 'Real Application Clusters One Node') is NOT NULL 
+ 	        then
+                  case 
+			             when LTRIM(product,'.') like 'Real Application Clusters' 
+ 	        	       then ''||';'
+                   else to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
+                  end
+          when (select version from v$instance) like '11%' and (select usage from FILTERCONID where LTRIM(product,'.') like 'Real Application Clusters') is NOT NULL and '&3'='xOne' and (select count(*) from gv$instance) = 1 
+ 	        then 
+                 case 
+                     when LTRIM(product,'.') like 'Real Application Clusters One Node' 
+ 	        	         then to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
+                     when LTRIM(product,'.') like 'Real Application Clusters' 
+ 	        	         then ''||';'
+                     else to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
+ 	        	     end
+           when LTRIM(product,'.') like 'Advanced Compression' and usage is NULL and ((select count(*) from &&DFUS.tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from &&DFUS.tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from &&DFUS.tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0)
+           then 
+		          to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
+           when LTRIM(product,'.') like 'Partitioning' and usage is NULL and (select count(*) from &&DFUS.tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0
+           then 
+		          to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
+					 when LTRIM(product,'.') LIKE 'Active Data Guard'AND (select usage from FILTERCONID where LTRIM(product,'.') LIKE 'GoldenGate' )>0
+           then ''||';'
+           when LTRIM(product,'.') LIKE 'Database Gateway'
+            AND (select count(replace(replace(replace(to_char(substr(FEATURE_INFO, 1, 1000)), chr(10), '[LF]'), chr(13), '[CR]'),'"','''')) from &&DFUS.feature_usage_Statistics
+                 where FEATURE_INFO like '%dg4db2%' or FEATURE_INFO like '%dg4ifmx%'or FEATURE_INFO like '%dg4msql%'or FEATURE_INFO like '%dg4sybs%'or FEATURE_INFO like '%dg4drda%'or FEATURE_INFO like '%dg4tera%' ) = 0
+            AND (select count(replace(replace(replace(to_char(substr(FEATURE_INFO, 1, 1000)), chr(10), '[LF]'), chr(13), '[CR]'),'"','''')) from &&DFUS.feature_usage_Statistics
+                 where FEATURE_INFO like '%NAME:dg4odbc%'
+                 or FEATURE_INFO like '%NAME:ODBC%') > 0  
+            then ''||';'
+        else 
+		      to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
+        end	
+else
+  to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
 end
-as a from TAB where product is not null order by a desc;
-spool off
+as a from FILTERCONID where product is not null order by a desc;
+
 exit
