@@ -4,6 +4,9 @@ while [ "$1" != "" ]; do
         -h | --host )           shift
                                 host=$1
                                 ;;
+        -P | --port )           shift
+                                port=$1
+                                ;;
         -u | --user )           shift
                                 user=$1
                                 ;;
@@ -42,6 +45,9 @@ fi
 if [ -z "$path" ]; then
         path="sql/mysql/"
 fi
+if [ -z "$port" ]; then
+        port="3306"
+fi
 
 #actions
 if [ "$action" ==  "instance" ] || 
@@ -57,7 +63,7 @@ else
 fi
 
 if [ -z "$loginPath" ]; then
-        mysql -h "$host" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        mysql -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 else
         mysql --login-path="$loginPath" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 fi
