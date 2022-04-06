@@ -101,6 +101,7 @@ type MySQLFeature struct {
 
 type MySQLInstanceConnection struct {
 	Host     string
+	Port     string
 	User     string
 	Password string
 }

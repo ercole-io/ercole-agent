@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -591,7 +591,7 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "instance")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "instance")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -600,7 +600,7 @@ func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConn
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) ([]model.MySQLDatabase, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "databases")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "databases")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -609,7 +609,7 @@ func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceCon
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "table_schemas")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "table_schemas")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -618,7 +618,7 @@ func (lf *LinuxFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstance
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "segment_advisors")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "segment_advisors")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -627,7 +627,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInsta
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) (bool, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "high_availability")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "high_availability")
 	if err != nil {
 		return false, ercutils.NewError(err)
 	}
@@ -658,7 +658,7 @@ func (lf *LinuxFetcherImpl) GetMySQLUUID() (string, error) {
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_hosts")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "slave_hosts")
 	if err != nil {
 		return false, nil, ercutils.NewError(err)
 	}
@@ -669,7 +669,7 @@ func (lf *LinuxFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceCo
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-u", connection.User, "-p", connection.Password, "-a", "slave_status")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "slave_status")
 	if err != nil {
 		return false, nil, ercutils.NewError(err)
 	}
