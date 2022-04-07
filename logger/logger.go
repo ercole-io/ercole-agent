@@ -127,3 +127,11 @@ func LogLevel(level Level) LoggerOption {
 		return nil
 	}
 }
+
+func LogVerbosely(verbose bool) LoggerOption {
+	if verbose {
+		return LogLevel(DebugLevel)
+	}
+
+	return func(logger Logger) error { return nil }
+}

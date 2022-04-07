@@ -31,7 +31,7 @@ local task_build_go(setup) = {
         echo VERSION: ${VERSION}
         echo BUILD_VERSION: ${BUILD_VERSION}
 
-        go build -ldflags="-X main.version=${BUILD_VERSION}" -o ${BIN}
+        go build -ldflags="-X github.com/ercole-io/ercole-agent/v2/cmd.version=${BUILD_VERSION}" -o ${BIN}
       |||,
     },
     {

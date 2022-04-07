@@ -108,7 +108,7 @@ type MySQLInstanceConnection struct {
 
 // ReadConfig reads the configuration file from the current dir
 // or /opt/ercole-agent
-func ReadConfig(log logger.Logger) Configuration {
+func ReadConfig(log logger.Logger, extraConfigFile string) Configuration {
 	baseDir, err := GetBaseDir(log)
 	if err != nil {
 		log.Fatal("Unable to get base directory: ", err)
@@ -131,6 +131,7 @@ func ReadConfig(log logger.Logger) Configuration {
 		layers = addFileLayers(log, layers, "/etc/ercole-agent/ercole-agent.json")
 		layers = addFileLayers(log, layers, "/etc/ercole-agent/conf.d/*.json")
 		layers = addFileLayers(log, layers, "./config.json")
+		layers = addFileLayers(log, layers, extraConfigFile)
 	}
 
 	configOnion := onion.New(layers...)
