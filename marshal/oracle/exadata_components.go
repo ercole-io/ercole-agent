@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"strings"
+	"time"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
@@ -43,8 +44,15 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 			device.ServerType = strings.TrimSpace(splitted[1])
 			device.Model = strings.TrimSpace(splitted[2])
 			device.SwVersion = strings.TrimSpace(splitted[3])
+
 			tmp := strings.Split(device.SwVersion, ".")
-			device.SwReleaseDate = tmp[len(tmp)-1]
+			swReleaseDate := tmp[len(tmp)-1]
+
+			if t, err := time.Parse("060102", swReleaseDate); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			} else {
+				device.SwReleaseDate = t.Format("2006-01-02")
+			}
 
 			cpuEnabled := strings.Split(splitted[4], "/")
 			if len(cpuEnabled) == 2 {
