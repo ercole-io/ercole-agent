@@ -12,10 +12,30 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-package main
+package cmd
 
-import "github.com/ercole-io/ercole-agent/v2/cmd"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
 
-func main() {
-	cmd.Execute()
+	"github.com/spf13/cobra"
+)
+
+var showConfigCmd = &cobra.Command{
+	Use:   "show-config",
+	Short: "Show the configuration",
+	Long:  `Show ercole-agent configuration`,
+	Run: func(cmd *cobra.Command, args []string) {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "    ")
+		if err := enc.Encode(configuration); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(showConfigCmd)
 }
