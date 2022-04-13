@@ -37,6 +37,9 @@ var rootCmd = &cobra.Command{
 			configuration.Verbose = verbose
 		}
 	},
+	Run: func(cmd *cobra.Command, args []string) {
+		serve(new(program))
+	},
 }
 
 func fileExists(filename string) bool {
