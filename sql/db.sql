@@ -15,6 +15,10 @@
 
 set lines 32767 pages 0 feedback off verify off timing off
 set colsep "|||"
+col Sga_Target for a20
+col Pga_Target for a20
+col Memory_Target for a20
+col sga_max_size for a20
 
 VARIABLE dbid NUMBER;
 VARIABLE inst_num NUMBER;
