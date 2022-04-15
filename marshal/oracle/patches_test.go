@@ -22,9 +22,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testPatchesData string = `erclin8dbx							|||ND|||ERC819							|||ERC819			 |||19.0.0.0.0	     |||  30869156|||APPLY	    |||Database Release Update : 19.7.0.0.200414 (30869156)						   |||2020-05-28`
-
 func TestPatches(t *testing.T) {
+	testPatchesData := `erclin8dbx							|||ND|||ERC819							|||ERC819			 |||19.0.0.0.0	     |||  30869156|||APPLY	    |||Database Release Update : 19.7.0.0.200414 (30869156)						   |||2020-05-28`
+
 	cmdOutput := []byte(testPatchesData)
 	actual, err := Patches(cmdOutput)
 
@@ -41,4 +41,37 @@ func TestPatches(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 	assert.Nil(t, err)
+}
+
+func TestPatches_WrongDates(t *testing.T) {
+	testPatchesData := `erclin8dbx				         	|||ND|||ERC819							|||ERC819			 |||19.0.0.0.0	     |||  30869156|||APPLY	    |||Database Release Update : 19.7.0.0.200414 (30869156)						   |||2020-05-28
+	erclin8dbx							|||ND|||ERC819							|||ERC819			 |||19.0.0.0.0	     |||  30869156|||APPLY	    |||Database Release Update : 19.7.0.0.200414 (30869156)						   |||2020-28
+	erclin8dbx							|||ND|||ERC819							|||ERC819			 |||19.0.0.0.0	     |||  30869156|||APPLY	    |||Database Release Update : 19.7.0.0.200414 (30869156)						   |||2020-05-28	`
+
+	cmdOutput := []byte(testPatchesData)
+	actual, err := Patches(cmdOutput)
+
+	expected := []model.OracleDatabasePatch{
+		{
+			Version:     "19.0.0.0.0",
+			PatchID:     30869156,
+			Action:      "APPLY",
+			Description: "Database Release Update : 19.7.0.0.200414 (30869156)",
+			Date:        "2020-05-28",
+			OtherInfo:   nil,
+		},
+		{
+			Version:     "19.0.0.0.0",
+			PatchID:     30869156,
+			Action:      "APPLY",
+			Description: "Database Release Update : 19.7.0.0.200414 (30869156)",
+			Date:        "2020-05-28",
+			OtherInfo:   nil,
+		},
+	}
+
+	assert.Equal(t, expected, actual)
+	// assert.Nil(t, err)
+	//assert.EqualError(t, err, "This patch is not valid")
+	assert.NotNil(t, err)
 }
