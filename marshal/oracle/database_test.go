@@ -22,10 +22,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testDatabaseData1 string = `ERC18													|||1111111111|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||OPEN	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||ARCHIVELOG  |||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
-const testDatabaseData2 string = `ERC18													|||2222222222|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||OPEN	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||NOARCHIVELOG  |||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
-const testDatabaseData3 string = `ERC18													|||3333333333|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||OPEN	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||PIPPO|||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
-const testDatabaseData4 string = `ERC18													|||4444444444|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||OPEN	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||NOARCHIVELOG|||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      N/A|||1					  |||N|||N`
+const testDatabaseData1 string = `ERC18													|||1111111111|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||READ WRITE	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||ARCHIVELOG  |||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
+const testDatabaseData2 string = `ERC18													|||2222222222|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||READ WRITE	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||NOARCHIVELOG  |||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
+const testDatabaseData3 string = `ERC18													|||3333333333|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||READ WRITE	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||PIPPO|||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      0|||1					  |||N|||N`
+const testDatabaseData4 string = `ERC18													|||4444444444|||PRIMARY  |||ERC18			 |||		  1|||ERC18	      |||READ WRITE	     |||18.0.0.0.0 Enterprise Edition	    |||Linux x86 64-bit 							    |||NOARCHIVELOG|||AL32UTF8																					      |||AL16UTF16																						 |||8192																								    |||2																								       |||1.172 	|||.391 	 |||0.		  |||1.172	   |||	       3|||														   5||| 																								   129|||																	  12660.45|||					7.7|||																		      N/A|||1					  |||N|||N`
 
 func TestDatabase_WithArchivelog(t *testing.T) {
 	cmdOutput := []byte(testDatabaseData1)
@@ -45,7 +45,7 @@ func TestDatabase_WithArchivelog(t *testing.T) {
 		DbID:          1111111111,
 		Role:          "PRIMARY",
 		UniqueName:    "ERC18",
-		Status:        "OPEN",
+		Status:        "READ WRITE",
 		IsCDB:         false,
 		Version:       "18.0.0.0.0 Enterprise Edition",
 		Platform:      "Linux x86 64-bit",
@@ -90,7 +90,7 @@ func TestDatabase_WithoutArchivelog(t *testing.T) {
 		DbID:          2222222222,
 		Role:          "PRIMARY",
 		UniqueName:    "ERC18",
-		Status:        "OPEN",
+		Status:        "READ WRITE",
 		IsCDB:         false,
 		Version:       "18.0.0.0.0 Enterprise Edition",
 		Platform:      "Linux x86 64-bit",
@@ -142,7 +142,7 @@ func TestDatabase_WithoutDailyCPUUsage(t *testing.T) {
 		DbID:          4444444444,
 		Role:          "PRIMARY",
 		UniqueName:    "ERC18",
-		Status:        "OPEN",
+		Status:        "READ WRITE",
 		IsCDB:         false,
 		Version:       "18.0.0.0.0 Enterprise Edition",
 		Platform:      "Linux x86 64-bit",
