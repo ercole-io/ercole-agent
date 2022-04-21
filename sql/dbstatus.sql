@@ -14,5 +14,5 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set pages 0 feedback off timing off
-select status from v$instance;
+select open_mode from v$database;
 exit

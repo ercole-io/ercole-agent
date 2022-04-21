@@ -40,7 +40,7 @@ fi
 
 DB_STATUS=$(sqlplus -S / as sysdba << EOF
 set pages 0 feedback off timing off
-select status from v\$instance;
+select open_mode from v\$database;
 exit
 EOF
 )

@@ -161,8 +161,8 @@ SELECT
    FROM v$instance) AS Instance_number,
   (SELECT instance_name
    FROM v$instance) AS Instance_name,
-  (SELECT status
-   FROM v$instance) AS DB_Status, (
+  (select open_mode
+   from v$database) AS DB_Status, (
                                      (SELECT VERSION
                                       FROM V$INSTANCE)||
                                      (SELECT (CASE WHEN UPPER(banner) LIKE '%EXTREME%' THEN ' Extreme Edition' WHEN UPPER(banner) LIKE '%ENTERPRISE%' THEN ' Enterprise Edition' ELSE ' Standard Edition' END)
