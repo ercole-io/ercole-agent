@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2019 Sorint.lab S.p.A.
+# Copyright (c) 2022 Sorint.lab S.p.A.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ if [[ "$TYPE" == 'OVM' || "$TYPE" == 'VMWARE' || "$TYPE" == 'VMOTHER' || "$TYPE"
     if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
         LICENSES=$(echo "$THREAD_FACTOR"*$CPU_THREADS | bc)
     elif [[ $DB_VERSION == 'STD' ]]; then
-        LICENSES=0
+        LICENSES=1
     fi
 elif [ $TYPE == 'PH' ]; then
     if [[ $DB_VERSION == 'EXE' || $DB_VERSION == 'ENT' ]]; then
