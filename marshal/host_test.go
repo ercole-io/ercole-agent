@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,7 +61,6 @@ func TestHost(t *testing.T) {
 		OSVersion:                     "7.8",
 		MemoryTotal:                   189,
 		SwapTotal:                     31,
-		OtherInfo:                     nil,
 	}
 	assert.Nil(t, errs)
 	assert.Equal(t, expected, actual)

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ func TestSegmentAdvisor(t *testing.T) {
 			PartitionName:  "",
 			Reclaimable:    0.36,
 			Recommendation: "Enable row movement of the table ERCOLE.ERC_TABLE_2 and perform shrink, estimated savings is 389430466 bytes.",
-			OtherInfo:      map[string]interface{}(nil),
 		},
 	}
 
