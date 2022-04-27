@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -183,7 +183,6 @@ func (wf *WindowsFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembe
 		SunCluster:           false,
 		VeritasClusterServer: false,
 		HACMP:                false,
-		OtherInfo:            nil,
 	}
 
 	return &cms, nil
