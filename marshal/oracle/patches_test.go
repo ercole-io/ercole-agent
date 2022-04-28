@@ -71,7 +71,5 @@ func TestPatches_WrongDates(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, actual)
-	// assert.Nil(t, err)
-	//assert.EqualError(t, err, "This patch is not valid")
 	assert.NotNil(t, err)
 }
