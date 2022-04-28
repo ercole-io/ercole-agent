@@ -18,7 +18,9 @@ package oracle
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/hashicorp/go-multierror"
@@ -33,7 +35,7 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 	patches := []model.OracleDatabasePatch{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
-	var merr, err error
+	var merr error
 
 	for scanner.Scan() {
 		patch := new(model.OracleDatabasePatch)
@@ -45,22 +47,26 @@ func Patches(cmdOutput []byte) ([]model.OracleDatabasePatch, error) {
 
 			patchID := strings.TrimSpace(splitted[5])
 			if patchID != "" {
+				var err error
 				if patch.PatchID, err = marshal.TrimParseInt(patchID); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
+					continue
 				}
 			}
 
 			patch.Action = strings.TrimSpace(splitted[6])
 			patch.Description = strings.TrimSpace(splitted[7])
+
 			patch.Date = strings.TrimSpace(splitted[8])
+
+			if _, err := time.Parse("2006-01-02", patch.Date); err != nil {
+				merr = multierror.Append(merr, fmt.Errorf("Patch (patch ID %q ) is not valid: wrong date format: %q", patch.PatchID, patch.Date))
+				continue
+			}
 
 			patches = append(patches, *patch)
 		}
 	}
 
-	if merr != nil {
-		return nil, merr
-	}
-
-	return patches, nil
+	return patches, merr
 }

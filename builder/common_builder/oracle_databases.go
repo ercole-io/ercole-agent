@@ -214,6 +214,12 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 
 	utils.RunRoutineInGroup(b.configuration, func() {
 		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
+		if err != nil && database.Patches != nil {
+			b.log.Warnf("Oracle db [%s]: some patches have not passed", entry.DBName)
+			nonBlockingErrs <- err
+			return
+		}
+
 		if err != nil {
 			database.Patches = []model.OracleDatabasePatch{}
 			b.log.Warnf("Oracle db [%s]: can't get patches", entry.DBName)
