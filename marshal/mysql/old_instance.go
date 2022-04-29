@@ -25,7 +25,6 @@ import (
 )
 
 func Old_Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
-
 	scanner := marshal.NewCsvScanner(cmdOutput, 2)
 
 	var instance model.MySQLInstance

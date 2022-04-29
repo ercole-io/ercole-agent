@@ -26,7 +26,9 @@ import (
 
 func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 	var merr error
+
 	var instance *model.MySQLInstance
+
 	var errInstance error
 
 	mysql := &model.MySQLFeature{
@@ -44,6 +46,7 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 		}
 
 		isOld, err := isOldVersion(version)
+
 		if err != nil {
 			b.log.Errorf("Can't verofy if MySQL is an old version: %s", conf.Host)
 
@@ -131,8 +134,8 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 }
 
 func isOldVersion(version string) (bool, error) {
-
 	var ver1, ver2 = 0, 0
+
 	var err error
 
 	res := strings.Split(version, ".")
