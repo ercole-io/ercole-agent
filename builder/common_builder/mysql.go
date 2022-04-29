@@ -48,7 +48,7 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 		isOld, err := isOldVersion(version)
 
 		if err != nil {
-			b.log.Errorf("Can't verofy if MySQL is an old version: %s", conf.Host)
+			b.log.Errorf("Can't verify if MySQL is an old version: %s", conf.Host)
 
 			merr = multierror.Append(merr, ercutils.NewError(err))
 
