@@ -133,6 +133,8 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/mysql/databases.sql
 /opt/ercole-agent/sql/mysql/high_availability.sql
 /opt/ercole-agent/sql/mysql/instance.sql
+/opt/ercole-agent/sql/mysql/old_instance.sql
+/opt/ercole-agent/sql/mysql/version.sql
 /opt/ercole-agent/sql/mysql/segment_advisors.sql
 /opt/ercole-agent/sql/mysql/slave_hosts.sql
 /opt/ercole-agent/sql/mysql/slave_status.sql

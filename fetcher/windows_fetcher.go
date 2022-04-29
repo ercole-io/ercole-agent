@@ -506,7 +506,17 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) 
 	return marshal_microsoft.Features(out)
 }
 
+func (wf *WindowsFetcherImpl) GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error) {
+	wf.log.Error(notImplementedWindows)
+	return "", ercutils.NewError(notImplementedWindows)
+}
+
 func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLOldInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }

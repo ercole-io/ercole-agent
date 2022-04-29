@@ -51,12 +51,14 @@ fi
 
 #actions
 if [ "$action" ==  "instance" ] || 
+   [ "$action" ==  "old_instance" ] ||
    [ "$action" ==  "databases" ] || 
    [ "$action" ==  "table_schemas" ] || 
    [ "$action" ==  "segment_advisors" ] ||
    [ "$action" ==  "slave_hosts" ] ||
    [ "$action" ==  "slave_status" ] ||
-   [ "$action" == "high_availability" ]; then
+   [ "$action" == "high_availability" ] ||
+   [ "$action" == "version" ]; then
 	query="${path}${action}.sql"
 else 
         exit 1

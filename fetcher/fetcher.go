@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -87,7 +87,9 @@ type Fetcher interface {
 
 	// MySQL fetchers
 
+	GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error)
 	GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error)
+	GetMySQLOldInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error)
 	GetMySQLDatabases(connection config.MySQLInstanceConnection) ([]model.MySQLDatabase, error)
 	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error)
 	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error)

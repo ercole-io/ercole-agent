@@ -590,6 +590,15 @@ func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([
 	return nil, ercutils.NewError(notImplementedLinux)
 }
 
+func (lf *LinuxFetcherImpl) GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "version")
+	if err != nil {
+		return "", err
+	}
+
+	return marshal_mysql.Version(out), nil
+}
+
 func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "instance")
 	if err != nil {
@@ -597,6 +606,15 @@ func (lf *LinuxFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConn
 	}
 
 	return marshal_mysql.Instance(out)
+}
+
+func (lf *LinuxFetcherImpl) GetMySQLOldInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "mysql/mysql_gather", "-h", connection.Host, "-P", connection.Port, "-u", connection.User, "-p", connection.Password, "-a", "old_instance")
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_mysql.Old_Instance(out)
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) ([]model.MySQLDatabase, error) {
