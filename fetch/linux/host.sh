@@ -76,8 +76,8 @@ SWP_TOTAL=$(echo "$(($(free -k | grep Swap | awk -F ' ' '{print $2}') / 1024 / 1
 
 CHECK_TYPE_SERVER_OVM_DMESG=$(dmesg | grep OVM | wc -l)
 CHECK_TYPE_SERVER_OVM_LOG=$(grep OVM /var/log/dmesg | wc -l)
-CHECK_TYPE_SERVER_KVM_DMESG=$(dmesg | grep -i kvm | wc -l)
-CHECK_TYPE_SERVER_KVM_LOG=$(grep -i  kvm /var/log/dmesg | wc -l)
+CHECK_TYPE_SERVER_KVM_DMESG=$(dmesg | grep -i "Hypervisor detected: KVM" | wc -l)
+CHECK_TYPE_SERVER_KVM_LOG=$(grep -i "Hypervisor detected: KVM" /var/log/dmesg | wc -l)
 CHECK_TYPE_SERVER_VMWARE=$(dmesg | grep VMware | wc -l)
 CHECK_TYPE_SERVER_VMWARE_LOG=$(grep VMware /var/log/dmesg* | wc -l)
 CHECK_TYPE_SERVER_HYPERV=$(dmesg | grep HyperV | wc -l)
