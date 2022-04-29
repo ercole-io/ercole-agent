@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -507,7 +507,17 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) 
 	return marshal_microsoft.Features(out)
 }
 
+func (wf *WindowsFetcherImpl) GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error) {
+	wf.log.Error(notImplementedWindows)
+	return "", ercutils.NewError(notImplementedWindows)
+}
+
 func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+func (wf *WindowsFetcherImpl) GetMySQLOldInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }

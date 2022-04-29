@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,9 @@
 package common
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/hashicorp/go-multierror"
@@ -23,19 +26,50 @@ import (
 
 func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 	var merr error
+	var instance *model.MySQLInstance
+	var errInstance error
 
 	mysql := &model.MySQLFeature{
 		Instances: []model.MySQLInstance{},
 	}
 
 	for _, conf := range b.configuration.Features.MySQL.Instances {
-		instance, err := b.fetcher.GetMySQLInstance(conf)
+		version, err := b.fetcher.GetMySQLVersion(conf)
 		if err != nil {
-			b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
+			b.log.Errorf("Can't get MySQL version: %s", conf.Host)
 
 			merr = multierror.Append(merr, ercutils.NewError(err))
 
 			continue
+		}
+
+		isOld, err := isOldVersion(version)
+		if err != nil {
+			b.log.Errorf("Can't verofy if MySQL is an old version: %s", conf.Host)
+
+			merr = multierror.Append(merr, ercutils.NewError(err))
+
+			continue
+		}
+
+		if !isOld {
+			instance, errInstance = b.fetcher.GetMySQLInstance(conf)
+			if errInstance != nil {
+				b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
+
+				merr = multierror.Append(merr, ercutils.NewError(err))
+
+				continue
+			}
+		} else {
+			instance, errInstance = b.fetcher.GetMySQLOldInstance(conf)
+			if errInstance != nil {
+				b.log.Errorf("Can't get MySQL old instance: %s", conf.Host)
+
+				merr = multierror.Append(merr, ercutils.NewError(err))
+
+				continue
+			}
 		}
 
 		if instance.HighAvailability, err = b.fetcher.GetMySQLHighAvailability(conf); err != nil {
@@ -94,4 +128,36 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 	}
 
 	return mysql, merr
+}
+
+func isOldVersion(version string) (bool, error) {
+
+	var ver1, ver2 = 0, 0
+	var err error
+
+	res := strings.Split(version, ".")
+
+	for i, v := range res {
+		if i == 0 {
+			ver1, err = strconv.Atoi(v)
+			if err != nil {
+				return false, err
+			}
+		} else if i == 2 {
+			ver2, err = strconv.Atoi(v)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			break
+		}
+	}
+
+	if ver1 == 5 && ver2 < 7 {
+		return true, nil
+	} else if ver1 < 5 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
