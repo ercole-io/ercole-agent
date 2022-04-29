@@ -35,7 +35,6 @@ func TestPatches(t *testing.T) {
 			Action:      "APPLY",
 			Description: "Database Release Update : 19.7.0.0.200414 (30869156)",
 			Date:        "2020-05-28",
-			OtherInfo:   nil,
 		},
 	}
 
@@ -58,7 +57,6 @@ func TestPatches_WrongDates(t *testing.T) {
 			Action:      "APPLY",
 			Description: "Database Release Update : 19.7.0.0.200414 (30869156)",
 			Date:        "2020-05-28",
-			OtherInfo:   nil,
 		},
 		{
 			Version:     "19.0.0.0.0",
@@ -66,7 +64,6 @@ func TestPatches_WrongDates(t *testing.T) {
 			Action:      "APPLY",
 			Description: "Database Release Update : 19.7.0.0.200414 (30869156)",
 			Date:        "2020-05-28",
-			OtherInfo:   nil,
 		},
 	}
 
