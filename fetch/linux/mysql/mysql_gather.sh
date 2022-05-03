@@ -43,7 +43,7 @@ if [ -z "$database" ]; then
         database="mysql"
 fi
 if [ -z "$path" ]; then
-        path="sql/mysql/"
+        path="/opt/ercole-agent/sql/mysql/"
 fi
 if [ -z "$port" ]; then
         port="3306"
