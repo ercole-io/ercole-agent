@@ -146,7 +146,7 @@ func isOldVersion(version string) (bool, error) {
 			if err != nil {
 				return false, err
 			}
-		} else if i == 2 {
+		} else if i == 1 {
 			ver2, err = strconv.Atoi(v)
 			if err != nil {
 				return false, err
