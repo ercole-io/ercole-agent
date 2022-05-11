@@ -1,4 +1,4 @@
-#-- Copyright (c) 2019 Sorint.lab S.p.A.
+#-- Copyright (c) 2022 Sorint.lab S.p.A.
 #
 #-- This program is free software: you can redistribute it and/or modify
 #-- it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ SELECT
   concat(@@global.hostname,':',@@global.port) as instance,
   @@global.version as version,
   CASE 
-    WHEN @@global.version_comment LIKE '%Community%' THEN  'COMMUNITY'
+    WHEN @@global.version_comment NOT LIKE '%enterprise%' THEN  'COMMUNITY'
     ELSE 'ENTERPRISE'
   END as edition,
   @@global.version_compile_os as platform,
