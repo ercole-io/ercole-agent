@@ -35,7 +35,7 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 		Instances: []model.MySQLInstance{},
 	}
 
-	for _, conf := range b.configuration.Features.MySQL.Instances {
+	for i, conf := range b.configuration.Features.MySQL.Instances {
 		version, err := b.fetcher.GetMySQLVersion(conf)
 		if err != nil {
 			b.log.Errorf("Can't get MySQL version: %s", conf.Host)
@@ -125,6 +125,10 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 			merr = multierror.Append(merr, ercutils.NewError(err))
 
 			continue
+		}
+
+		if len(b.configuration.Features.MySQL.Instances) > 1 {
+			instance.Name = b.configuration.Features.MySQL.Instances[i].Host + ":" + b.configuration.Features.MySQL.Instances[i].Port
 		}
 
 		mysql.Instances = append(mysql.Instances, *instance)
