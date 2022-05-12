@@ -112,7 +112,6 @@ func Old_Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 	}
 
 	instance.Name = hostname + ":" + port
-	instance.RedoLogEnabled = "test"
 
 	if merr != nil {
 		return nil, merr
