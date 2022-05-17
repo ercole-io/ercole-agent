@@ -145,6 +145,8 @@ function getVer {
 function getStats {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -154,6 +156,7 @@ function getStats {
 		if (!(Test-Path .\sql\stats.sql)) { Write-Warning "file stats.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @.\sql\stats.sql'
+			if( $u -and $p ) { $ar = "-silent $u/$p @.\sql\stats.sql" }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -164,6 +167,8 @@ function getStats {
 function getStatus {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -173,6 +178,7 @@ function getStatus {
 		if (!(Test-Path .\sql\dbstatus.sql)) { Write-Warning "file dbstatus.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @.\sql\dbstatus.sql'
+			if ($u -and $p) { $ar = "-silent $u/$p @.\sql\dbstatus.sql" }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -184,6 +190,8 @@ function getDb {
 	param (
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$awr
+		[Parameter(Mandatory=$false)]$u,
+		[Parameter(Mandatory=$false)]$p,
 	)
 
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } }
@@ -198,6 +206,7 @@ function getDb {
 		if (!(Test-Path .\sql\db.sql)) { Write-Warning "file db*.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\db.sql" '+ $awr
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\db.sql" '+ $awr }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -209,6 +218,8 @@ function getDbMount {
 	param (
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -218,6 +229,7 @@ function getDbMount {
 		if (!(Test-Path .\sql\dbmounted.sql)) { Write-Warning "file dbmounted.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\dbmounted.sql" '+$d+' '+$v
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\dbmounted.sql" '+$d+' '+$v }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -228,6 +240,8 @@ function getDbMount {
 function getDbSchema {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -237,6 +251,7 @@ function getDbSchema {
 		if (!(Test-Path .\sql\schema.sql)) { Write-Warning "file schema.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\schema.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\schema.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -247,6 +262,8 @@ function getDbSchema {
 function getDbTbs {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -256,6 +273,7 @@ function getDbTbs {
 		if (!(Test-Path .\sql\ts.sql)) { Write-Warning "file ts.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\ts.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\ts.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -268,6 +286,8 @@ function getDbLic {
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$v,
 		[Parameter(Mandatory=$true)]$t
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -277,6 +297,7 @@ function getDbLic {
 		if (!(Test-Path .\sql\edition.sql)) { Write-Warning "file edition.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\edition.sql"'
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\edition.sql"' }
 			Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafile.xyz
 			$edt = gc $env:temp\datafile.xyz
 			rm $env:temp\datafile.xyz
@@ -347,19 +368,28 @@ function getDbLic {
 				}
 			}
 			switch ($v) {
-				10 { $ar = '-silent / as sysdba @".\sql\license-10.sql" '+$crs+' '+$factor }
-				11 { $ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one}
+				10 { 
+					$ar = '-silent / as sysdba @".\sql\license-10.sql" '+$crs+' '+$factor 
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\license-10.sql" '+$crs+' '+$factor }
+					}
+				11 { 
+					$ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one }
+					}
 				Default {
 					if (!(Test-Path .\sql\pluggable.sql)) { Write-Warning "file pluggable.sql unavailable!"; throw }
 					else {
 						$arPDB = '-silent / as sysdba @".\sql\pluggable.sql"'
+						if ($u -and $p) { $arPDB = '-silent '+"$u/$p"+' @".\sql\pluggable.sql"' }
 						Start-Process $ohome\sqlplus -ArgumentList $arPDB -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafilePDB.xyz
 						$idPDB = gc $env:temp\datafilePDB.xyz
 						rm $env:temp\datafilePDB.xyz
 						if ($idPDB == "TRUE") {
 							$ar = '-silent / as sysdba @".\sql\license_pluggable.sql" '+$crs+' '+$factor+' '+$db_one
+							if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\license_pluggable.sql" '+$crs+' '+$factor+' '+$db_one }
 						} else {
 							$ar = '-silent / as sysdba @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one
+							if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\license.sql" '+$crs+' '+$factor+' '+$db_one }
 						}
 					}
 				}
@@ -375,6 +405,8 @@ function getDbPatch {
 	param (
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$false)]$u,
+		[Parameter(Mandatory=$false)]$p,
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -384,8 +416,14 @@ function getDbPatch {
 		if (!((Test-Path .\sql\patch.sql) -and (Test-Path .\sql\patch-12.sql))) { Write-Warning "file patch*.sql unavailable!"; throw }
 		else {
 			switch ($v) {
-				12 { $ar = '-silent / as sysdba @".\sql\patch-12.sql" '+$d }
-				Default { $ar = '-silent / as sysdba @".\sql\patch.sql" '+$d }
+				12 { 
+					$ar = '-silent / as sysdba @".\sql\patch-12.sql" '+$d 
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\patch-12.sql" '+$d }
+					}
+				Default { 
+					$ar = '-silent / as sysdba @".\sql\patch.sql" '+$d 
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\patch.sql" '+$d }
+					}
 				
 			}
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
@@ -399,6 +437,8 @@ function getDbPSU {
 	param (
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$false)]$u,
+		[Parameter(Mandatory=$false)]$p,
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -408,9 +448,18 @@ function getDbPSU {
 		if (!((Test-Path .\sql\psu-1.sql) -and (Test-Path .\sql\psu-2.sql))) { Write-Warning "file psu.sql unavailable!"; throw }
 		else {
 			switch ($v) {
-				10 { $ar = '-silent / as sysdba @".\sql\psu-1.sql" '+$d }
-				11 { $ar = '-silent / as sysdba @".\sql\psu-1.sql" '+$d }
-				Default { $ar = '-silent / as sysdba @".\sql\psu-2.sql" '+$d }
+				10 { 
+					$ar = '-silent / as sysdba @".\sql\psu-1.sql" '+$d 
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\psu-1.sql" '+$d }
+					}
+				11 { 
+					$ar = '-silent / as sysdba @".\sql\psu-1.sql" '+$d
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\psu-1.sql" '+$d }
+					}
+				Default { 
+					$ar = '-silent / as sysdba @".\sql\psu-2.sql" '+$d 
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\psu-2.sql" '+$d }
+					}
 			}			
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
@@ -422,6 +471,8 @@ function getDbPSU {
 function getDbBackup {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -431,6 +482,7 @@ function getDbBackup {
 		if (!(Test-Path .\sql\backup_schedule.sql)) { Write-Warning "file backup_schedule.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\backup_schedule.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\backup_schedule.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -441,6 +493,8 @@ function getDbBackup {
 function getDbADDM {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -450,6 +504,7 @@ function getDbADDM {
 		if (!(Test-Path .\sql\addm.sql)) { Write-Warning "file addm.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\addm.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\addm.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -460,6 +515,8 @@ function getDbADDM {
 function getDbSegmentAdvisor {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -469,6 +526,7 @@ function getDbSegmentAdvisor {
 		if (!(Test-Path .\sql\segment_advisor.sql)) { Write-Warning "file segment_advisor.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\segment_advisor.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\segment_advisor.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -479,6 +537,8 @@ function getDbSegmentAdvisor {
 function getDbOpt {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -490,13 +550,16 @@ function getDbOpt {
 			if (!(Test-Path .\sql\pluggable.sql)) { Write-Warning "file pluggable.sql unavailable!"; throw }
 			else {
 				$arPDB = '-silent / as sysdba @".\sql\pluggable.sql"'
+				if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\pluggable.sql" '+$d }
 				Start-Process $ohome\sqlplus -ArgumentList $arPDB -Wait -NoNewWindow -RedirectStandardOutput $env:temp\datafilePDB.xyz
 				$idPDB = gc $env:temp\datafilePDB.xyz
 				rm $env:temp\datafilePDB.xyz
 				if ($idPDB == "TRUE") {
 					$ar = '-silent / as sysdba @".\sql\opt_pluggable.sql" '+$d
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\opt_pluggable.sql" '+$d }
 				} else {
 					$ar = '-silent / as sysdba @".\sql\opt.sql" '+$d
+					if ($u -and $p) { $ar = '-silent '+"$u/$p"+'  @".\sql\opt.sql" '+$d }
 				}
 				if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 					Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
@@ -509,6 +572,8 @@ function getDbOpt {
 function getServices {
 	param (
 		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$true)]$u
+		[Parameter(Mandatory=$true)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -518,6 +583,7 @@ function getServices {
 		if (!(Test-Path .\sql\services.sql)) { Write-Warning "file services.sql unavailable!"; throw }
 		else {
 			$ar = '-silent / as sysdba @".\sql\services.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\services.sql" '+$d }
 			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
 				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
 			}
@@ -530,19 +596,19 @@ switch($s.ToUpper()) {
 	"FILESYSTEM"		{ getPartitions }
 	"ORATAB"			{ getTab }
 	"DBVERSION"			{ getVer $d }
-	"STATS"				{ getStats $d }
-	"DBSTATUS"			{ getStatus $d }
-	"DB"				{ getDb $d $v }
-	"DBMOUNTED"			{ getDbMount $d $v }
-	"TABLESPACE"		{ getDbTbs $d }
-	"SCHEMA"			{ getDbSchema $d }
-	"LICENSE"			{ getDbLic $d $v $t }
-	"PATCH"				{ getDbPatch $d $v }
-	"PSU"				{ getDbPSU $d $v }
-	"BACKUP"			{ getDbBackup $d }
-	"ADDM"				{ getDbADDM $d }
-	"SEGMENTADVISOR"	{ getDBSegmentAdvisor $d }
-	"OPT"				{ getDbOpt $d }
-	"SERVICES"			{ getServices $d}
+	"STATS"				{ getStats $d $u $p }
+	"DBSTATUS"			{ getStatus $d $u $p }
+	"DB"				{ getDb $d $v $u $p  }
+	"DBMOUNTED"			{ getDbMount $d $v $u $p }
+	"TABLESPACE"		{ getDbTbs $d $u $p }
+	"SCHEMA"			{ getDbSchema $d $u $p }
+	"LICENSE"			{ getDbLic $d $v $t $u $p }
+	"PATCH"				{ getDbPatch $d $v $u $p }
+	"PSU"				{ getDbPSU $d $v $u $p }
+	"BACKUP"			{ getDbBackup $d $u $p }
+	"ADDM"				{ getDbADDM $d $u $p }
+	"SEGMENTADVISOR"	{ getDBSegmentAdvisor $d $u $p }
+	"OPT"				{ getDbOpt $d $u $p }
+	"SERVICES"			{ getServices $d $u $p }
 	Default				{ Write-Host "wrong switch selection" }
 }

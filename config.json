@@ -16,7 +16,11 @@
             "Enabled": true,
             "Oratab": "/etc/oratab",
             "Forcestats": true,
-            "AWR": 30
+            "AWR": 30,
+            "OracleUser": {
+                "Username": "",
+                "Password": ""
+            }
         },
         "Virtualization": {
             "Enabled": false,

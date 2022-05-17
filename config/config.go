@@ -62,6 +62,16 @@ type OracleDatabaseFeature struct {
 	Oratab      string
 	AWR         int
 	Forcestats  bool
+	OracleUser  OracleUser
+}
+
+func (odf *OracleDatabaseFeature) IsOracleUser() bool {
+	return odf.OracleUser != OracleUser{}
+}
+
+type OracleUser struct {
+	Username string
+	Password string
 }
 
 // VirtualizationFeature holds virtualization feature params

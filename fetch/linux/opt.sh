@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2019 Sorint.lab S.p.A.
+# Copyright (c) 2022 Sorint.lab S.p.A.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,6 +36,14 @@ if [ -z "$HOME" ]; then
   exit 1
 fi
 
+USER=$4
+PASSWORD=$5
+if [ -z "$USER"] && [ -z "$PASSWORD"]; then
+  SQLPLUS_CMD= "sqlplus -S / as sysdba"
+else
+  SQLPLUS_CMD= "sqlplus -S $USER/$PASSWORD"
+fi
+
 LINUX_FETCHERS_DIR=$(dirname "$0")
 FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
@@ -46,7 +54,7 @@ export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
 DB_VERSION=$(
-    sqlplus -S / as sysdba <<EOF
+    $SQLPLUS_CMD <<EOF
 set pages 0 feedback off timing off
 select (case when UPPER(banner) like '%EXTREME%' then 'EXE' when UPPER(banner) like '%ENTERPRISE%' then 'ENT' else 'STD' end) as versione from v\$version where rownum=1;
 exit
@@ -55,12 +63,12 @@ EOF
 
 
 if [ $DBV == "10" ] || [ $DBV == "9" ]; then
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR"
+    $SQLPLUS_CMD @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR"
 elif [ $DBV == "11" ]; then 
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+    $SQLPLUS_CMD @${ERCOLE_HOME}/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 else
 IS_PDB=$(
-    sqlplus -S / as sysdba <<EOF
+    $SQLPLUS_CMD <<EOF
 set pages 0 feedback off timing off
 SELECT CASE WHEN COUNT(*) > 0 THEN 'TRUE' WHEN count(*) = 0 THEN 'FALSE' END FROM v\$pdbs;
 exit
@@ -68,8 +76,8 @@ EOF
 )
 
 if [ $IS_PDB == "TRUE" ]; then
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt_pluggable.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+    $SQLPLUS_CMD @${ERCOLE_HOME}/sql/opt_pluggable.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 else
-    sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+    $SQLPLUS_CMD @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 fi
 fi
