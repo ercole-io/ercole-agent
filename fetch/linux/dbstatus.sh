@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2019 Sorint.lab S.p.A.
+# Copyright (c) 2022 Sorint.lab S.p.A.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,14 @@ if [ -z "$HOME" ]; then
   exit 1
 fi
 
+USER=$3
+PASSWORD=$4
+if [ -z "$USER"] && [ -z "$PASSWORD"]; then
+  SQLPLUS_CMD= "sqlplus -S / as sysdba"
+else
+  SQLPLUS_CMD= "sqlplus -S $USER/$PASSWORD"
+fi
+
 export ORAENV_ASK=NO 
 export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
@@ -38,7 +46,7 @@ if [ "$RUNNING" -eq "0" ]; then
   exit 0
 fi
 
-DB_STATUS=$(sqlplus -S / as sysdba << EOF
+DB_STATUS=$($SQLPLUS_CMD << EOF
 set pages 0 feedback off timing off
 select open_mode from v\$database;
 exit
