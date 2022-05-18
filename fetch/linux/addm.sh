@@ -44,5 +44,5 @@ LINUX_FETCHERS_DIR=$(dirname "$0")
 FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
-$SQLPLUS_CMD < ${ERCOLE_HOME}/sql/addm.sql
+$SQLPLUS_CMD @${ERCOLE_HOME}/sql/addm.sql
 
