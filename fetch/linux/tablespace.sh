@@ -44,4 +44,4 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-$SQLPLUS_CMD < ${ERCOLE_HOME}/sql/ts.sql
+$SQLPLUS_CMD @${ERCOLE_HOME}/sql/ts.sql

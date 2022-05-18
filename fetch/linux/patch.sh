@@ -55,7 +55,7 @@ export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
 if [ $DBV -gt "11" ]; then
-  $SQLPLUS_CMD < ${ERCOLE_HOME}/sql/patch-12.sql
+  $SQLPLUS_CMD @${ERCOLE_HOME}/sql/patch-12.sql
 else
-  $SQLPLUS_CMD < ${ERCOLE_HOME}/sql/patch.sql
+  $SQLPLUS_CMD @${ERCOLE_HOME}/sql/patch.sql
 fi

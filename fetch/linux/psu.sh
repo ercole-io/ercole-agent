@@ -52,7 +52,7 @@ FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
 
 if [ $DBV -lt "12" ]; then
-  $SQLPLUS_CMD < ${ERCOLE_HOME}/sql/psu-1.sql
+  $SQLPLUS_CMD @${ERCOLE_HOME}/sql/psu-1.sql
 else
-  $SQLPLUS_CMD < ${ERCOLE_HOME}/sql/psu-2.sql
+  $SQLPLUS_CMD @${ERCOLE_HOME}/sql/psu-2.sql
 fi
