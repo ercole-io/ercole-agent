@@ -240,9 +240,17 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, error
 	return ret, nil
 }
 
+func (lf *LinuxFetcherImpl) CreateOracleArgs(args ...string) []string {
+	if lf.configuration.Features.OracleDatabase.IsOracleUser() {
+		args = append(args, lf.configuration.Features.OracleDatabase.OracleUser.Username, lf.configuration.Features.OracleDatabase.OracleUser.Password)
+	}
+
+	return args
+}
+
 // GetOracleDatabaseDbStatus get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) (string, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbstatus", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbstatus", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return "", ercutils.NewError(err)
 	}
@@ -252,7 +260,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEnt
 
 // GetOracleDatabaseMountedDb get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbmounted", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbmounted", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -262,7 +270,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEn
 
 // GetOracleDatabaseDbVersion get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) (string, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbversion", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "dbversion", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return "", ercutils.NewError(err)
 	}
@@ -272,7 +280,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.OratabEn
 
 // RunOracleDatabaseStats Execute stats script
 func (lf *LinuxFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry) error {
-	_, err := lf.executeWithDeadline(FetcherStandardTimeOut, "stats", entry.DBName, entry.OracleHome)
+	_, err := lf.executeWithDeadline(FetcherStandardTimeOut, "stats", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return ercutils.NewError(err)
 	}
@@ -282,7 +290,7 @@ func (lf *LinuxFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry)
 
 // GetOracleDatabaseOpenDb get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "db", entry.DBName, entry.OracleHome, strconv.Itoa(lf.configuration.Features.OracleDatabase.AWR))
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "db", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, strconv.Itoa(lf.configuration.Features.OracleDatabase.AWR))...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -292,7 +300,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry
 
 // GetOracleDatabaseTablespaces get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.OratabEntry) ([]model.OracleDatabaseTablespace, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "tablespace", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "tablespace", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -302,7 +310,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseTablespaces(entry agentmodel.Oratab
 
 // GetOracleDatabaseSchemas get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSchema, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "schema", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "schema", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -312,7 +320,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEntr
 
 // GetOracleDatabasePatches get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "patch", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "patch", lf.CreateOracleArgs(entry.DBName, dbVersion, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -322,7 +330,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntr
 
 // GetOracleDatabaseFeatureUsageStat get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabaseFeatureUsageStat, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "opt", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "opt", lf.CreateOracleArgs(entry.DBName, dbVersion, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -334,8 +342,8 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseFeatureUsageStat(entry agentmodel.O
 func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEntry,
 	dbVersion, hardwareAbstractionTechnology string, hostCoreFactor float64,
 ) ([]model.OracleDatabaseLicense, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "license", entry.DBName, dbVersion, hardwareAbstractionTechnology, entry.OracleHome,
-		strconv.FormatFloat(hostCoreFactor, 'f', -1, 64))
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "license", lf.CreateOracleArgs(entry.DBName, dbVersion,
+		hardwareAbstractionTechnology, entry.OracleHome, strconv.FormatFloat(hostCoreFactor, 'f', -1, 64))...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -345,7 +353,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseLicenses(entry agentmodel.OratabEnt
 
 // GetOracleDatabaseADDMs get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry) ([]model.OracleDatabaseAddm, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "addm", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "addm", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -355,7 +363,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseADDMs(entry agentmodel.OratabEntry)
 
 // GetOracleDatabaseSegmentAdvisors get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.OratabEntry) ([]model.OracleDatabaseSegmentAdvisor, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "segmentadvisor", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "segmentadvisor", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -365,7 +373,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseSegmentAdvisors(entry agentmodel.Or
 
 // GetOracleDatabasePSUs get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePSU, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "psu", entry.DBName, dbVersion, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "psu", lf.CreateOracleArgs(entry.DBName, dbVersion, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -375,7 +383,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePSUs(entry agentmodel.OratabEntry, 
 
 // GetOracleDatabaseBackups get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntry) ([]model.OracleDatabaseBackup, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "backup", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "backup", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -385,7 +393,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntr
 
 // GetOracleDatabaseCheckPDB get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) (bool, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "checkpdb", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "checkpdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return false, ercutils.NewError(err)
 	}
@@ -395,7 +403,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEnt
 
 // GetOracleDatabasePDBs get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) ([]model.OracleDatabasePluggableDatabase, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "listpdb", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "listpdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -410,7 +418,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) 
 
 // GetOracleDatabasePDBTablespaces get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "tablespace_pdb", entry.DBName, entry.OracleHome, pdb)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "tablespace_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -420,7 +428,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.Ora
 
 // GetOracleDatabasePDBSchemas get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "schema_pdb", entry.DBName, entry.OracleHome, pdb)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "schema_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
@@ -430,7 +438,7 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabE
 
 // GetOracleDatabaseServices get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "services", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "services", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}

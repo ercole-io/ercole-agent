@@ -75,6 +75,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/fetch/linux/dbstatus.sh
 /opt/ercole-agent/fetch/linux/dbversion.sh
 /opt/ercole-agent/fetch/linux/filesystem.sh
+/opt/ercole-agent/fetch/linux/grant_dba.sh
 /opt/ercole-agent/fetch/linux/host.sh
 /opt/ercole-agent/fetch/linux/license.sh
 /opt/ercole-agent/fetch/linux/listpdb.sh
@@ -106,6 +107,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/dbone.sql
 /opt/ercole-agent/sql/dbstatus.sql
 /opt/ercole-agent/sql/edition.sql
+/opt/ercole-agent/sql/grant_dba.sql
 /opt/ercole-agent/sql/license-10.sql
 /opt/ercole-agent/sql/license.sql
 /opt/ercole-agent/sql/license_pluggable.sql

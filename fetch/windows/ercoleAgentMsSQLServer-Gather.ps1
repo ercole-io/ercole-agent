@@ -371,6 +371,7 @@ function main(){
                 if($sqlmajor[0] -ge '14'){ #newer or equal than 2017
                     $queryList.Add(@{order=1; queryPath=$("$sqlDir"+'mssqlserver.dbmounted.14.sql'); layout= 'dbmounted';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=2; queryPath=$("$sqlDir"+'mssqlserver.edition.sql'); layout='edition';  foreachDB=$false}) |Out-Null
+                    $queryList.Add(@{order=2; queryPath=$("$sqlDir"+'mssqlserver.grant_dba.sql'); layout='grant_dba';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=3; queryPath=$("$sqlDir"+'mssqlserver.licensingInfo.sql'); layout='licensingInfo';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=4; queryPath=$("$sqlDir"+'mssqlserver.listDatabases.sql'); layout='listDatabases';  foreachDB=$true})|Out-Null
                                 
@@ -384,6 +385,7 @@ function main(){
                 else { #older than 2017
                     $queryList.Add(@{order=1; queryPath=$("$sqlDir"+'mssqlserver.dbmounted.10.sql'); layout='dbmounted';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=2; queryPath=$("$sqlDir"+'mssqlserver.edition.sql'); layout='edition';  foreachDB=$false}) |Out-Null
+                    $queryList.Add(@{order=2; queryPath=$("$sqlDir"+'mssqlserver.grant_dba.sql'); layout='grant_dba';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=3; queryPath=$("$sqlDir"+'mssqlserver.licensingInfo.sql'); layout='licensingInfo';  foreachDB=$false}) |Out-Null
                     $queryList.Add(@{order=4; queryPath=$("$sqlDir"+'mssqlserver.listDatabases.sql'); layout='listDatabases';  foreachDB=$true})|Out-Null
                     
@@ -408,6 +410,9 @@ function main(){
 
             }elseif ($action -eq "edition"){
                 $queryList.Add(@{order=1; queryPath=$("$sqlDir"+'mssqlserver.edition.sql'); layout='edition';  foreachDB=$false}) |Out-Null
+
+            }elseif ($action -eq "grant_dba"){
+                $queryList.Add(@{order=1; queryPath=$("$sqlDir"+'mssqlserver.grant_dba.sql'); layout='grant_dba';  foreachDB=$false}) |Out-Null
 
             }elseif ($action -eq "licensingInfo"){
                 $queryList.Add(@{order=1; queryPath=$("$sqlDir"+'mssqlserver.licensingInfo.sql'); layout='licensingInfo';  foreachDB=$false}) |Out-Null

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2019 Sorint.lab S.p.A.
+# Copyright (c) 2022 Sorint.lab S.p.A.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@ if [ -z "$PDB" ]; then
   exit 1
 fi
 
+USER=$4
+PASSWORD=$5
+if [ -z "$USER"] && [ -z "$PASSWORD"]; then
+  SQLPLUS_CMD= "sqlplus -S / as sysdba"
+else
+  SQLPLUS_CMD= "sqlplus -S $USER/$PASSWORD"
+fi
+
 LINUX_FETCHERS_DIR=$(dirname "$0")
 FETCHERS_DIR="$(dirname "$LINUX_FETCHERS_DIR")"
 ERCOLE_HOME="$(dirname "$FETCHERS_DIR")"
@@ -41,4 +49,4 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-sqlplus -S "/ AS SYSDBA" @${ERCOLE_HOME}/sql/ts_pdb.sql $PDB
+$SQLPLUS_CMD @${ERCOLE_HOME}/sql/ts_pdb.sql $PDB
