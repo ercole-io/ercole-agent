@@ -107,6 +107,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/dbone.sql
 /opt/ercole-agent/sql/dbstatus.sql
 /opt/ercole-agent/sql/edition.sql
+/opt/ercole-agent/sql/grant_dba.sql
 /opt/ercole-agent/sql/license-10.sql
 /opt/ercole-agent/sql/license.sql
 /opt/ercole-agent/sql/license_pluggable.sql
