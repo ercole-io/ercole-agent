@@ -251,6 +251,15 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.Oratab
 	return marshal_oracle.Database(out)
 }
 
+func (wf *WindowsFetcherImpl) GetOracleDatabaseGrantsDba(entry agentmodel.OratabEntry) ([]model.OracleGrantDba, error) {
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("grant_dba", entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.GrantDba(out), nil
+}
+
 // GetOracleDatabaseDbVersion get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseDbVersion(entry agentmodel.OratabEntry) (string, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "dbversion", entry.DBName, entry.OracleHome)

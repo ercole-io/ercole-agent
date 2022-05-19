@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent/v2
 go 1.17
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0-20220427093013-94f08d07068e
+	github.com/ercole-io/ercole/v2 v2.0.0-20220518093958-2f0382f759d0
 	github.com/fatih/color v1.13.0
 	github.com/go-co-op/gocron v1.13.0
 	github.com/golang/mock v1.6.0
@@ -50,7 +50,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0-20220512140231-539c8e751b99 // indirect
 )
 
 // replace github.com/ercole-io/ercole/v2 => ../ercole-aws

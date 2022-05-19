@@ -145,6 +145,14 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		return nil, err
 	}
 
+	grantsDba, errGrant := b.fetcher.GetOracleDatabaseGrantsDba(entry)
+	if errGrant != nil {
+		b.log.Errorf("Oracle db [%s]: can't get dba grants, failed", entry.DBName)
+		return nil, errGrant
+	}
+
+	database.GrantDba = grantsDba
+
 	return database, err
 }
 

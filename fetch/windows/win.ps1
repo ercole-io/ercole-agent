@@ -591,6 +591,28 @@ function getServices {
 	}
 }
 
+function getGrantsDba {
+	param (
+		[Parameter(Mandatory=$true)]$d
+		[Parameter(Mandatory=$true)]$u
+		[Parameter(Mandatory=$true)]$p
+	)
+	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "grant_dba" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
+	if (!$dbs) { Write "" } #wrong or no instance
+	else {
+		$ohome = ($dbs.PathName.Split()[0]).trim("ORACLE.EXE")
+		$env:ORACLE_SID= $dbs.PathName.Split()[1]
+		if (!(Test-Path .\sql\services.sql)) { Write-Warning "file services.sql unavailable!"; throw }
+		else {
+			$ar = '-silent / as sysdba @".\sql\grant_dba.sql" '+$d
+			if ($u -and $p) { $ar = '-silent '+"$u/$p"+' @".\sql\grant_dba.sql" '+$d }
+			if ( $dbs.state -eq "Running" -and $dbs.status -eq "OK" ) {
+				Start-Process $ohome\sqlplus -ArgumentList $ar -Wait -NoNewWindow
+			}
+		}
+	}
+}
+
 switch($s.ToUpper()) {
 	"HOST"				{ getSysinfo }
 	"FILESYSTEM"		{ getPartitions }
@@ -610,5 +632,6 @@ switch($s.ToUpper()) {
 	"SEGMENTADVISOR"	{ getDBSegmentAdvisor $d $u $p }
 	"OPT"				{ getDbOpt $d $u $p }
 	"SERVICES"			{ getServices $d $u $p }
+	"GRANT_DBA"			{ getGrantsDba $d $u $p }
 	Default				{ Write-Host "wrong switch selection" }
 }
