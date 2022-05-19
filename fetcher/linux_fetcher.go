@@ -210,7 +210,7 @@ func (lf *LinuxFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 }
 
 func (lf *LinuxFetcherImpl) GetOracleDatabaseGrantsDba(entry agentmodel.OratabEntry) ([]model.OracleGrantDba, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "grant_dba", entry.DBName, entry.OracleHome)
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "grant_dba", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
