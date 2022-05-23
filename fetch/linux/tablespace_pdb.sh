@@ -34,10 +34,10 @@ fi
 
 USER=$4
 PASSWORD=$5
-if [ -z "$USER"] && [ -z "$PASSWORD"]; then
-  SQLPLUS_CMD= "sqlplus -S / as sysdba"
+if [ -z "$USER" ] && [ -z "$PASSWORD" ]; then
+  SQLPLUS_CMD="sqlplus -S / as sysdba"
 else
-  SQLPLUS_CMD= "sqlplus -S $USER/$PASSWORD"
+  SQLPLUS_CMD="sqlplus -S $USER/$PASSWORD"
 fi
 
 LINUX_FETCHERS_DIR=$(dirname "$0")
