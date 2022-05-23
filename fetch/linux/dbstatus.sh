@@ -29,10 +29,10 @@ fi
 
 USER=$3
 PASSWORD=$4
-if [ -z "$USER"] && [ -z "$PASSWORD"]; then
-  SQLPLUS_CMD= "sqlplus -S / as sysdba"
+if [ -z "$USER" ] && [ -z "$PASSWORD" ]; then
+  SQLPLUS_CMD="sqlplus -S / as sysdba"
 else
-  SQLPLUS_CMD= "sqlplus -S $USER/$PASSWORD"
+  SQLPLUS_CMD="sqlplus -S $USER/$PASSWORD"
 fi
 
 export ORAENV_ASK=NO 
