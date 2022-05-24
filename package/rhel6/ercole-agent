@@ -32,7 +32,7 @@ LOGFILE=/var/log/ercole-agent.log
 start() {
 	touch $LOGFILE && chown ercole $LOGFILE
  	echo -n $"Starting $prog:"
-	su - ercole -c "nohup $exec > $LOGFILE 2>&1 < /dev/null &"
+	su - ercole -c "nohup $exec >> $LOGFILE 2>&1 < /dev/null &"
 	retval=$?
 	echo
 	[ $retval -eq 0 ] && touch $lockfile
