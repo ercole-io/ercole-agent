@@ -152,6 +152,48 @@ local task_deploy_repository(dist) = {
   },
 };
 
+local task_upload_asset(dist) = {
+ name: 'upload to github.com ' + dist,
+  runtime: {
+    type: 'pod',
+    arch: 'amd64',
+    containers: [
+      { image: 'curlimages/curl' },
+    ],
+  },
+ environment: {
+    GITHUB_USER: { from_variable: 'github-user' },
+    GITHUB_TOKEN: { from_variable: 'github-token' },
+  },
+steps: [
+    { type: 'restore_workspace', dest_dir: '.' },
+    {
+      type: 'run',
+      name: 'upload to github',
+      command: |||
+          cd dist
+          GH_REPO="https://api.github.com/repos/${GITHUB_USER}/ercole-agent/releases"
+          if [ ${AGOLA_GIT_TAG} ];
+            then GH_TAGS="$GH_REPO/tags/$AGOLA_GIT_TAG" ;
+          else
+            GH_TAGS="$GH_REPO/latest" ; fi
+          response=$(curl -sH "Authorization: token ${GITHUB_TOKEN}" $GH_TAGS)
+          eval $(echo "$response" | grep -m 1 "id.:" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
+          for filename in *; do
+            REPO_ASSET="https://uploads.github.com/repos/${GITHUB_USER}/ercole-agent/releases/$id/assets?name=$(basename $filename)"
+            curl -H POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/octet-stream" --data-binary @"$filename" $REPO_ASSET
+            echo $REPO_ASSET
+          done
+      |||,
+    },
+  ],
+  depends: ['pkg build ' + dist],
+  when: {
+    tag: '#.*#',
+    branch: 'master',
+  },
+};
+
 {
   runs: [
     {
@@ -239,6 +281,9 @@ local task_deploy_repository(dist) = {
         },
       ] + [
         task_deploy_repository(dist)
+        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows']
+      ] + [
+        task_upload_asset(dist)
         for dist in ['rhel6', 'rhel7', 'rhel8', 'windows']
       ],
     },
