@@ -8,7 +8,7 @@ local go_runtime(version, arch) = {
 
 local task_build_go(setup) = {
   name: 'build go ' + setup.goos,
-  runtime: go_runtime('1.17', 'amd64'),
+  runtime: go_runtime('1.18.2', 'amd64'),
   environment: {
     GOOS: setup.goos,
     BIN: setup.bin,
