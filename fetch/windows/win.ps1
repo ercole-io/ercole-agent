@@ -55,7 +55,7 @@ $nfo_sys	= gwmi win32_computersystem
 
 function isVirtual {
 	$ctr = 0
-	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek')
+	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek','oVirt')
 	foreach ($tier in $tiers) {
 		if ($nfo_sys.manufacturer -match $tier -or $nfo_sys.model -match $tier) { $ctr++ }
 	}
@@ -63,7 +63,7 @@ function isVirtual {
 }
 
 function getType {
-	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek')
+	$tiers = @('vmware','ovm','xen','virtual','hyper-v','citrix','innotek','oVirt')
 	foreach ($tier in $tiers) {
 		if ($nfo_sys.manufacturer -match $tier -or $nfo_sys.model -match $tier) { return $tier.ToUpper() }
 	}
