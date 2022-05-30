@@ -45,7 +45,7 @@ func Old_Instance(cmdOutput []byte) (*model.MySQLInstance, error) {
 			instance.Version = scanner.Get(1)
 		case "version_comment":
 			edition := scanner.Get(1)
-			if strings.Contains(edition, "Community") {
+			if !strings.Contains(edition, "enterprise") {
 				instance.Edition = "COMMUNITY"
 			} else {
 				instance.Edition = "ENTERPRISE"
