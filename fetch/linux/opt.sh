@@ -65,7 +65,7 @@ EOF
 if [ $DBV == "10" ] || [ $DBV == "9" ]; then
     $SQLPLUS_CMD @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR"
 elif [ $DBV == "11" ]; then 
-    $SQLPLUS_CMD @${ERCOLE_HOME}/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
+    $SQLPLUS_CMD @${ERCOLE_HOME}/sql/opt.sql $CPU_THREADS "$THREAD_FACTOR" $DB_ONE
 else
 IS_PDB=$(
     $SQLPLUS_CMD <<EOF
