@@ -53,6 +53,7 @@ type Features struct {
 	OracleExadata      OracleExadataFeature
 	MicrosoftSQLServer MicrosoftSQLServerFeature
 	MySQL              MySQLFeature
+	PostgreSQL         PostgreSQLFeature
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -111,6 +112,18 @@ type MySQLFeature struct {
 
 type MySQLInstanceConnection struct {
 	Host     string
+	Port     string
+	User     string
+	Password string
+}
+
+type PostgreSQLFeature struct {
+	Enabled     bool
+	FetcherUser string
+	Instances   []PostgreSQLInstanceConnection
+}
+
+type PostgreSQLInstanceConnection struct {
 	Port     string
 	User     string
 	Password string

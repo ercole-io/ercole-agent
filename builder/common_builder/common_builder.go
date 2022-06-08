@@ -103,6 +103,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	b.runVirtualization(hostData)
 
 	b.runMySQL(hostData)
+
+	b.runPostgreSQL(hostData)
 }
 
 func (b *CommonBuilder) runCloud(hostData *model.HostData) {
@@ -240,6 +242,29 @@ func (b *CommonBuilder) runMySQL(hostData *model.HostData) {
 	}
 }
 
+func (b *CommonBuilder) runPostgreSQL(hostData *model.HostData) {
+	if !b.configuration.Features.PostgreSQL.Enabled {
+		return
+	}
+
+	b.log.Debugf("PostgrSQL mode enabled (user='%s')", b.configuration.Features.PostgreSQL.FetcherUser)
+
+	if err := b.setOrResetFetcherUser(b.configuration.Features.PostgreSQL.FetcherUser); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+
+		return
+	}
+
+	lazyInitPostgreSQLFeature(&hostData.Features)
+
+	var err error
+
+	if hostData.Features.PostgreSQL, err = b.getPostgreSQLFeature(hostData.Hostname); err != nil {
+		hostData.AddErrors(err)
+	}
+}
+
 func (b *CommonBuilder) setOrResetFetcherUser(user string) error {
 	user = strings.TrimSpace(user)
 
@@ -286,6 +311,12 @@ func lazyInitOracleFeature(fs *model.Features) {
 func lazyInitMicrosoftFeature(fs *model.Features) {
 	if fs.Microsoft == nil {
 		fs.Microsoft = new(model.MicrosoftFeature)
+	}
+}
+
+func lazyInitPostgreSQLFeature(fs *model.Features) {
+	if fs.PostgreSQL == nil {
+		fs.PostgreSQL = new(model.PostgreSQLFeature)
 	}
 }
 
