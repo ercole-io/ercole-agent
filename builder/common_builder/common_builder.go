@@ -260,7 +260,7 @@ func (b *CommonBuilder) runPostgreSQL(hostData *model.HostData) {
 
 	var err error
 
-	if hostData.Features.PostgreSQL, err = b.getPostgreSQLFeature(); err != nil {
+	if hostData.Features.PostgreSQL, err = b.getPostgreSQLFeature(hostData.Hostname); err != nil {
 		hostData.AddErrors(err)
 	}
 }

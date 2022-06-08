@@ -16,6 +16,7 @@
 package common
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -43,7 +44,7 @@ func (b *CommonBuilder) isv10(dbversion string) bool {
 	return constraints.Check(v10)
 }
 
-func (b *CommonBuilder) getPostgreSQLFeature() (*model.PostgreSQLFeature, error) {
+func (b *CommonBuilder) getPostgreSQLFeature(hostname string) (*model.PostgreSQLFeature, error) {
 	var merr error
 
 	feature := model.PostgreSQLFeature{}
@@ -53,7 +54,7 @@ func (b *CommonBuilder) getPostgreSQLFeature() (*model.PostgreSQLFeature, error)
 		if err != nil {
 			b.log.Error(err)
 			merr = multierror.Append(merr, err)
-			
+
 			continue
 		}
 
@@ -69,9 +70,10 @@ func (b *CommonBuilder) getPostgreSQLFeature() (*model.PostgreSQLFeature, error)
 		if err != nil {
 			b.log.Error(err)
 			merr = multierror.Append(merr, err)
+		} else {
+			instance.Port = port
+			instance.Name = fmt.Sprintf("%s:%s", hostname, configInstance.Port)
 		}
-
-		instance.Port = port
 
 		dbNameList, err := b.fetcher.GetPostgreSQLDbNameList(configInstance)
 		if err != nil {
