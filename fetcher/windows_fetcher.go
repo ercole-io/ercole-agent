@@ -576,3 +576,30 @@ func (wf *WindowsFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanc
 func (wf *WindowsFetcherImpl) GetCloudMembership() (string, error) {
 	return model.CloudMembershipUnknown, nil
 }
+
+func (wf *WindowsFetcherImpl) GetPostgreSQLSetting(instanceConnection config.PostgreSQLInstanceConnection) (*model.PostgreSQLSetting, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+func (wf *WindowsFetcherImpl) GetPostgreSQLInstance(instanceConnection config.PostgreSQLInstanceConnection, v10 bool) (*model.PostgreSQLInstance, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+func (wf *WindowsFetcherImpl) GetPostgreSQLDbNameList(instanceConnection config.PostgreSQLInstanceConnection) ([]string, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+func (wf *WindowsFetcherImpl) GetPostgreSQLDbSchemaNameList(instanceConnection config.PostgreSQLInstanceConnection, dbname string) ([]string, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+func (wf *WindowsFetcherImpl) GetPostgreSQLDatabase(instanceConnection config.PostgreSQLInstanceConnection, dbname string, v10 bool) (*model.PostgreSQLDatabase, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+func (wf *WindowsFetcherImpl) GetPostgreSQLSchema(instanceConnection config.PostgreSQLInstanceConnection, dbname string, schemaName string, v10 bool) (*model.PostgreSQLSchema, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}

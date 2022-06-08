@@ -31,6 +31,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/marshal"
 	marshal_mysql "github.com/ercole-io/ercole-agent/v2/marshal/mysql"
 	marshal_oracle "github.com/ercole-io/ercole-agent/v2/marshal/oracle"
+	"github.com/ercole-io/ercole-agent/v2/marshal/postgresql"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 )
@@ -253,6 +254,14 @@ func (lf *LinuxFetcherImpl) CreateOracleArgs(args ...string) []string {
 	if lf.configuration.Features.OracleDatabase.IsOracleUser() {
 		args = append(args, lf.configuration.Features.OracleDatabase.OracleUser.Username, lf.configuration.Features.OracleDatabase.OracleUser.Password)
 	}
+
+	return args
+}
+
+func (lf *LinuxFetcherImpl) CreatePostgresqlArgs(instance config.PostgreSQLInstanceConnection, elems ...string) []string {
+	args := make([]string, 0, 4)
+	args = append(args, instance.Port, instance.User, instance.Password)
+	args = append(args, elems...)
 
 	return args
 }
@@ -725,4 +734,73 @@ func (lf *LinuxFetcherImpl) GetCloudMembership() (string, error) {
 	}
 
 	return model.CloudMembershipNone, nil
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLSetting(instanceConnection config.PostgreSQLInstanceConnection) (*model.PostgreSQLSetting, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql", lf.CreatePostgresqlArgs(instanceConnection, "sql/postgresql/i_settings.sql")...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return postgresql.Setting(out)
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLInstance(instanceConnection config.PostgreSQLInstanceConnection, v10 bool) (*model.PostgreSQLInstance, error) {
+	sqlFile := "sql/postgresql/i_info.sql"
+	if v10 {
+		sqlFile = "sql/postgresql/i_info_v10.sql"
+	}
+
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql", lf.CreatePostgresqlArgs(instanceConnection, sqlFile)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return postgresql.Instance(out)
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLDbNameList(instanceConnection config.PostgreSQLInstanceConnection) ([]string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql", lf.CreatePostgresqlArgs(instanceConnection, "sql/postgresql/erc_GetDB.sql")...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return strings.Split(strings.TrimRight(string(out), "\n"), "\n"), nil
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLDbSchemaNameList(instanceConnection config.PostgreSQLInstanceConnection, dbname string) ([]string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql", lf.CreatePostgresqlArgs(instanceConnection, "sql/postgresql/erc_GetSchema.sql", dbname)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return strings.Split(strings.TrimRight(string(out), "\n"), "\n"), nil
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLDatabase(instanceConnection config.PostgreSQLInstanceConnection, dbname string, v10 bool) (*model.PostgreSQLDatabase, error) {
+	sqlFile := "sql/postgresql/d_info.sql"
+	if v10 {
+		sqlFile = "sql/postgresql/d_info_v10.sql"
+	}
+
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql", lf.CreatePostgresqlArgs(instanceConnection, sqlFile, dbname)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return postgresql.Database(out)
+}
+
+func (lf *LinuxFetcherImpl) GetPostgreSQLSchema(instanceConnection config.PostgreSQLInstanceConnection, dbname string, schemaName string, v10 bool) (*model.PostgreSQLSchema, error) {
+	sqlFile := "sql/postgresql/n_info.sql"
+	if v10 {
+		sqlFile = "sql/postgresql/n_info_v10.sql"
+	}
+
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "postgresql/psql_schema", lf.CreatePostgresqlArgs(instanceConnection, sqlFile, dbname, schemaName)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return postgresql.Schema(out)
 }

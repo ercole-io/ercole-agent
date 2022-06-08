@@ -89,6 +89,9 @@ chkconfig ercole-agent on
 
 /opt/ercole-agent/fetch/linux/mysql/mysql_gather.sh
 
+/opt/ercole-agent/fetch/linux/postgresql/psql.sh
+/opt/ercole-agent/fetch/linux/postgresql/psql_schema.sh
+
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/checkpdb.sql
@@ -141,6 +144,16 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/mysql/slave_hosts.sql
 /opt/ercole-agent/sql/mysql/slave_status.sql
 /opt/ercole-agent/sql/mysql/table_schemas.sql
+
+/opt/ercole-agent/sql/postgresql/d_info.sql
+/opt/ercole-agent/sql/postgresql/d_info_v10.sql
+/opt/ercole-agent/sql/postgresql/erc_GetDB.sql
+/opt/ercole-agent/sql/postgresql/erc_GetSchema.sql
+/opt/ercole-agent/sql/postgresql/i_info.sql
+/opt/ercole-agent/sql/postgresql/i_info_v10.sql
+/opt/ercole-agent/sql/postgresql/i_settings.sql
+/opt/ercole-agent/sql/postgresql/n_info.sql
+/opt/ercole-agent/sql/postgresql/n_info_v10.sql
 
 %changelog
 * Mon May  7 2018 Simone Rota <srota2@sorint.it>

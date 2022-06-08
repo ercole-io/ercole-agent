@@ -102,6 +102,14 @@ type Fetcher interface {
 	// Cloud
 
 	GetCloudMembership() (string, error)
+
+	// PostgreSQL
+	GetPostgreSQLSetting(instanceConnection config.PostgreSQLInstanceConnection) (*model.PostgreSQLSetting, error)
+	GetPostgreSQLInstance(instanceConnection config.PostgreSQLInstanceConnection, v10 bool) (*model.PostgreSQLInstance, error)
+	GetPostgreSQLDbNameList(instanceConnection config.PostgreSQLInstanceConnection) ([]string, error)
+	GetPostgreSQLDbSchemaNameList(instanceConnection config.PostgreSQLInstanceConnection, dbname string) ([]string, error)
+	GetPostgreSQLDatabase(instanceConnection config.PostgreSQLInstanceConnection, dbname string, v10 bool) (*model.PostgreSQLDatabase, error)
+	GetPostgreSQLSchema(instanceConnection config.PostgreSQLInstanceConnection, dbname string, schemaName string, v10 bool) (*model.PostgreSQLSchema, error)
 }
 
 // User struct

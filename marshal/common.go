@@ -30,7 +30,8 @@ func parseBool(s string) bool {
 	return strings.EqualFold(s, "y") ||
 		strings.EqualFold(s, "yes") ||
 		strings.EqualFold(s, "true") ||
-		strings.EqualFold(s, "1")
+		strings.EqualFold(s, "1") ||
+		strings.EqualFold(s, "on")
 }
 
 func parseInt(s string) int {
