@@ -14,8 +14,8 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.1
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+	github.com/stretchr/testify v1.7.2
+	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d
 )
 
 require (
@@ -28,7 +28,7 @@ require (
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.4 // indirect
+	github.com/klauspost/compress v1.15.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -47,10 +47,10 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.mongodb.org/mongo-driver v1.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
-	gopkg.in/yaml.v3 v3.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 // replace github.com/ercole-io/ercole/v2 => ../ercole-aws
