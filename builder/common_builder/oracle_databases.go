@@ -369,6 +369,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 				errChan <- err
 			}
 		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.GrantDba, err = b.fetcher.GetOracleDatabaseGrantsDba(entry); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] grants", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
 	}
 
 	wg.Wait()
