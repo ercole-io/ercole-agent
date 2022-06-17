@@ -241,6 +241,12 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabE
 	return strings.TrimSpace(string(out)), nil
 }
 
+// GetOracleDatabaseRac get
+func (wf *WindowsFetcherImpl) GetOracleDatabaseRac(entry agentmodel.OratabEntry) (string, error) {
+	wf.log.Error(notImplementedWindows)
+	return "", ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabaseMountedDb get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "dbmounted", entry.DBName, entry.OracleHome)...)

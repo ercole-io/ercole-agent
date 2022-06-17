@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -399,6 +399,16 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	if err != nil {
 		b.log.Errorf("Oracle db [%s]: can't get mounted db, failed", entry.DBName)
 		return nil, err
+	}
+
+	isRac, err := b.fetcher.GetOracleDatabaseRac(entry)
+	if err != nil {
+		b.log.Errorf("Oracle db [%s]: can't get rac information, failed", entry.DBName)
+		return nil, err
+	}
+
+	if isRac == "TRUE" {
+		database.IsRAC = true
 	}
 
 	database.Version = checkVersion(database.Name, database.Version)
