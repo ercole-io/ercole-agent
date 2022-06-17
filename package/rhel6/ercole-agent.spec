@@ -82,6 +82,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/tablespace.sh
 /opt/ercole-agent/fetch/linux/tablespace_pdb.sh
 /opt/ercole-agent/fetch/linux/oracle_running_databases.sh
+/opt/ercole-agent/fetch/linux/rac.sh
 /opt/ercole-agent/fetch/linux/vmware.ps1
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh

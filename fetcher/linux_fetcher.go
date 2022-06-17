@@ -306,6 +306,16 @@ func (lf *LinuxFetcherImpl) RunOracleDatabaseStats(entry agentmodel.OratabEntry)
 	return nil
 }
 
+// GetOracleDatabaseRac get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseRac(entry agentmodel.OratabEntry) (string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "rac", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return "", ercutils.NewError(err)
+	}
+
+	return strings.TrimSpace(string(out)), nil
+}
+
 // GetOracleDatabaseOpenDb get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseOpenDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "db", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, strconv.Itoa(lf.configuration.Features.OracleDatabase.AWR))...)
