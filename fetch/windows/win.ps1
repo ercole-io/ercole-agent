@@ -114,7 +114,7 @@ function getPartitions {
 	$nfo_part = Get-WmiObject -Class win32_Volume | Where {$_.Drivetype -ne 5 -and $_.DriveLetter -ne $null} | select DeviceID, FileSystem, Capacity, FreeSpace, DriveLetter
 	if (!$nfo_part) { Write-Warning "no partitions to list"; exit }
 	foreach ($part in $nfo_part) {
-		if ($part.DriveLetter) { write-host ("{0} {1} {2} {3} {4} {5}% {6}" -f $part.DeviceID,$part.FileSystem,$($part.Capacity),$($part.Capacity-$part.FreeSpace),$($part.FreeSpace),$([math]::round((($part.Capacity-$part.FreeSpace)*100)/$part.Capacity,2)),$($part.DriveLetter)) }
+		if ($part.DriveLetter) { write-host ("{0} {1} {2} {3} {4} {5}% {6}" -f $part.DeviceID,$part.FileSystem,$($part.Capacity / 1024),$($part.Capacity  / 1024-$part.FreeSpace / 1024),$($part.FreeSpace / 1024),$([math]::round((($part.Capacity / 1024-$part.FreeSpace / 1024)*100)/$part.Capacity / 1024,2)),$($part.DriveLetter)) }
 	}
 }
 
@@ -144,8 +144,8 @@ function getVer {
 
 function getStats {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -166,8 +166,8 @@ function getStats {
 
 function getStatus {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -189,9 +189,9 @@ function getStatus {
 function getDb {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$awr
+		[Parameter(Mandatory=$true)][int]$awr,
 		[Parameter(Mandatory=$false)]$u,
-		[Parameter(Mandatory=$false)]$p,
+		[Parameter(Mandatory=$false)]$p
 	)
 
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } }
@@ -217,8 +217,8 @@ function getDb {
 function getDbMount {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$v
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)][int]$v,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -239,8 +239,8 @@ function getDbMount {
 
 function getDbSchema {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -261,8 +261,8 @@ function getDbSchema {
 
 function getDbTbs {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -285,8 +285,8 @@ function getDbLic {
 	param (
 		[Parameter(Mandatory=$true)]$d,
 		[Parameter(Mandatory=$true)][int]$v,
-		[Parameter(Mandatory=$true)]$t
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$t,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -404,9 +404,9 @@ function getDbLic {
 function getDbPatch {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$true)][int]$v,
 		[Parameter(Mandatory=$false)]$u,
-		[Parameter(Mandatory=$false)]$p,
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -436,9 +436,9 @@ function getDbPatch {
 function getDbPSU {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)][int]$v
+		[Parameter(Mandatory=$true)][int]$v,
 		[Parameter(Mandatory=$false)]$u,
-		[Parameter(Mandatory=$false)]$p,
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d -and $v) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -470,8 +470,8 @@ function getDbPSU {
 
 function getDbBackup {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -492,8 +492,8 @@ function getDbBackup {
 
 function getDbADDM {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -514,8 +514,8 @@ function getDbADDM {
 
 function getDbSegmentAdvisor {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -536,8 +536,8 @@ function getDbSegmentAdvisor {
 
 function getDbOpt {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$false)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$false)]$u,
 		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -571,8 +571,8 @@ function getDbOpt {
 
 function getServices {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$true)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$true)]$u,
 		[Parameter(Mandatory=$true)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
@@ -593,8 +593,8 @@ function getServices {
 
 function getGrantsDba {
 	param (
-		[Parameter(Mandatory=$true)]$d
-		[Parameter(Mandatory=$true)]$u
+		[Parameter(Mandatory=$true)]$d,
+		[Parameter(Mandatory=$true)]$u,
 		[Parameter(Mandatory=$true)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "grant_dba" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
