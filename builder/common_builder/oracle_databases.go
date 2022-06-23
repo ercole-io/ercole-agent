@@ -331,6 +331,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	}
 
 	var err error
+
 	var segmentsSize, datafileSize, allocable, totalSegmentsSize, totalDatafileSize, totalAllocable float64
 
 	if database.IsCDB, err = b.fetcher.GetOracleDatabaseCheckPDB(entry); err != nil {
@@ -392,7 +393,6 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 				errChan <- err
 			}
 		}, &wg)
-
 	}
 
 	database.SegmentsSize = totalSegmentsSize
