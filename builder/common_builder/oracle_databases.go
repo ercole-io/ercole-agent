@@ -331,6 +331,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	}
 
 	var err error
+	var segmentsSize, datafileSize, allocable, totalSegmentsSize, totalDatafileSize, totalAllocable float64
 
 	if database.IsCDB, err = b.fetcher.GetOracleDatabaseCheckPDB(entry); err != nil {
 		database.IsCDB = false
@@ -357,6 +358,21 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		pdb := &database.PDBs[i]
 
 		utils.RunRoutineInGroup(b.configuration, func() {
+			if segmentsSize, datafileSize, allocable, err = b.fetcher.GetOracleDatabasePDBSize(entry); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] size", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
+
+		pdb.SegmentsSize = segmentsSize
+		pdb.DatafileSize = datafileSize
+		pdb.Allocable = allocable
+
+		totalSegmentsSize += segmentsSize
+		totalDatafileSize += datafileSize
+		totalAllocable += allocable
+
+		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.Tablespaces, err = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] tablespaces", entry.DBName, pdb.Name)
 				errChan <- err
@@ -376,7 +392,12 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 				errChan <- err
 			}
 		}, &wg)
+
 	}
+
+	database.SegmentsSize = totalSegmentsSize
+	database.DatafileSize = totalDatafileSize
+	database.Allocable = totalAllocable
 
 	wg.Wait()
 

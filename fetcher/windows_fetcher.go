@@ -315,6 +315,12 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEn
 	return marshal_oracle.Schemas(out)
 }
 
+// GetOracleDatabasePDBSize get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry) (float64, float64, float64, error) {
+	wf.log.Error(notImplementedWindows)
+	return 0, 0, 0, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabasePatches get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "patch", entry.DBName, dbVersion, entry.OracleHome)...)

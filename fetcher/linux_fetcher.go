@@ -464,6 +464,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabE
 	return marshal_oracle.Schemas(out)
 }
 
+// GetOracleDatabasePDBSize get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry) (float64, float64, float64, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "size_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return 0, 0, 0, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.SizePDB(out)
+}
+
 // GetOracleDatabaseServices get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "services", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
