@@ -68,6 +68,7 @@ type Fetcher interface {
 	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error)
 	GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error)
 	GetOracleDatabaseGrantsDba(entry agentmodel.OratabEntry) ([]model.OracleGrantDba, error)
+	GetOracleDatabasePDBSize(entry agentmodel.OratabEntry) (float64, float64, float64, error)
 
 	// Oracle/Exadata fetchers
 
