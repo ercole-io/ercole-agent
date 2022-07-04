@@ -43,7 +43,6 @@ func Schema(cmdOutput []byte) (*model.PostgreSQLSchema, error) {
 		iter := marshal.NewIter(splitted)
 
 		result.SchemaName = iter()
-		result.SchemaOwner = iter()
 
 		if result.TablesCount, err = strconv.Atoi(iter()); err != nil {
 			merr = multierror.Append(merr, err)
@@ -63,6 +62,10 @@ func Schema(cmdOutput []byte) (*model.PostgreSQLSchema, error) {
 
 		if result.ViewsCount, err = strconv.Atoi(iter()); err != nil {
 			merr = multierror.Append(merr, err)
+		}
+
+		if len(splitted) == 7 {
+			result.SchemaOwner = iter()
 		}
 
 		if len(splitted) > 7 {

@@ -1,7 +1,7 @@
 --Tested for PostgreSQL 14 and EPAS 14, compatible with PostgreSQL 9 and EPAS 10.
 --some settings are unavailable (code -404) for some versions.
 WITH
-    --returns DB engine
+    --returns DB engine, not printed
 z AS (SELECT CASE
         WHEN (SELECT version()) ILIKE '%enterprisedb%' THEN 'EDB'
         WHEN (SELECT version()) ILIKE '%edb%' THEN 'EDB'
@@ -9,10 +9,11 @@ z AS (SELECT CASE
         ELSE 'Other DB engine' END
         AS db_engine)
 
-    --returns the DB version
+    --returns the DB version, not printed
 ,a  AS (WITH aa AS (SELECT REGEXP_MATCHES((SELECT version()),'(([0-9]{1,2}\.){1,3}\S*){1}'))
         SELECT regexp_matches[1] AS version FROM aa) --short version
 
+    --returns DB Engine and version
 ,za AS (SELECT db_engine||' '||version AS db_version FROM z,a)
 
     --work_mem setting in a human-readable format
@@ -53,7 +54,8 @@ z AS (SELECT CASE
 ,l  AS (SELECT ((setting::int*1024)::bigint) AS shared_buffers FROM pg_settings WHERE name = 'shared_buffers')
 
     --effective_cache_size setting in a human-readable format
-,m  AS (SELECT ((setting::bigint*(SELECT current_setting('block_size')::bigint))::bigint) AS effective_cache_size FROM pg_settings WHERE name = 'effective_cache_size')
+,m  AS (SELECT ((setting::bigint*(SELECT current_setting('block_size')::bigint))::bigint) AS effective_cache_size
+    FROM pg_settings WHERE name = 'effective_cache_size')
 
     --effective_io_concurrency setting
 ,n  AS (SELECT setting AS effective_io_concurrency FROM pg_settings WHERE name = 'effective_io_concurrency')
@@ -68,10 +70,9 @@ z AS (SELECT CASE
     WHEN (SELECT COUNT(*) FROM pg_settings WHERE name = 'max_parallel_workers') = 0 THEN '-404'
     ELSE (SELECT setting FROM pg_settings WHERE name = 'max_parallel_workers') END AS max_parallel_workers)
 
-    --data directory
-,r  AS (SELECT setting AS data_dir FROM pg_settings WHERE name = 'data_directory')
-
     --port
 ,x  AS (SELECT setting AS port FROM pg_settings WHERE name = 'port')
 
-SELECT * FROM za,r,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p;
+SELECT * FROM za,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p;
+
+--data_directory non visualizzabile da non-superuser

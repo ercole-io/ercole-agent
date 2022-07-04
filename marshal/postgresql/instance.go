@@ -63,8 +63,6 @@ func Instance(cmdOutput []byte) (*model.PostgreSQLInstance, error) {
 		}
 
 		if len(splitted) > 5 {
-			result.Charset = iter()
-
 			if result.Isinreplica, err = strconv.ParseBool(iter()); err != nil {
 				merr = multierror.Append(merr, err)
 			}
@@ -85,9 +83,7 @@ func Instance(cmdOutput []byte) (*model.PostgreSQLInstance, error) {
 				merr = multierror.Append(merr, err)
 			}
 
-			if result.TrustHbaEntries, err = strconv.Atoi(iter()); err != nil {
-				merr = multierror.Append(merr, err)
-			}
+			result.Charset = iter()
 		}
 	}
 

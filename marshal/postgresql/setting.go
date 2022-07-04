@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ func Setting(cmdOutput []byte) (*model.PostgreSQLSetting, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		
+
 		splitted := strings.Split(line, "|")
 		if len(splitted) == 0 {
 			continue
@@ -42,9 +42,8 @@ func Setting(cmdOutput []byte) (*model.PostgreSQLSetting, error) {
 
 		iter := marshal.NewIter(splitted)
 
-		if len(splitted) == 17 {
+		if len(splitted) == 16 {
 			result.DbVersion = iter()
-			result.DataDirectory = iter()
 
 			if result.WorkMem, err = strconv.Atoi(iter()); err != nil {
 				merr = multierror.Append(merr, err)

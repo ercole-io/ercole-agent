@@ -34,7 +34,7 @@ func Database(cmdOutput []byte) (*model.PostgreSQLDatabase, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		
+
 		splitted := strings.Split(line, "|")
 		if len(splitted) < 12 {
 			continue
@@ -43,7 +43,6 @@ func Database(cmdOutput []byte) (*model.PostgreSQLDatabase, error) {
 		iter := marshal.NewIter(splitted)
 
 		result.DbName = iter()
-		result.DbOwner = iter()
 
 		if result.Datconnlimit, err = strconv.Atoi(iter()); err != nil {
 			merr = multierror.Append(merr, err)
@@ -77,12 +76,16 @@ func Database(cmdOutput []byte) (*model.PostgreSQLDatabase, error) {
 			merr = multierror.Append(merr, err)
 		}
 
-		if result.LobsSize, err = strconv.Atoi(iter()); err != nil {
+		if result.ViewsCount, err = strconv.Atoi(iter()); err != nil {
 			merr = multierror.Append(merr, err)
 		}
 
-		if result.ViewsCount, err = strconv.Atoi(iter()); err != nil {
-			merr = multierror.Append(merr, err)
+		if len(splitted) == 12 {
+			if result.LobsSize, err = strconv.Atoi(iter()); err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			result.DbOwner = iter()
 		}
 
 		if len(splitted) > 12 {

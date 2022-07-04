@@ -91,12 +91,4 @@ and the replication is broken) it returns a boolean value*/
 --this query returns the number of largeobjects in the db
 ,b  AS (SELECT COUNT(*) AS lobs_count FROM pg_largeobject_metadata)
 
---this query returns the size of all largeobjects in the db
-,y  AS (SELECT CASE WHEN (SELECT COUNT(*) FROM pg_largeobject_metadata) = 0 THEN 0 ELSE
-      SUM(OCTET_LENGTH(data)) END AS lobs_size
-FROM pg_largeobject)
-
---this query returns the owner of the database
-,c  AS (SELECT o.rolname AS db_owner FROM pg_database d JOIN pg_authid o ON (d.datdba = o.oid) WHERE d.datname = current_database())
-
-SELECT * FROM z,c,g,i,a,d,f,e,q,b,y,o,n,s,h,j,k,l;
+SELECT * FROM z,g,i,a,d,f,e,q,b,o,n,s,h,j,k,l;
