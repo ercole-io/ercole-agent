@@ -1,0 +1,7 @@
+Package: ercole-agent
+Version: VERSION
+Architecture: all
+Maintainer: Sorint.lab
+Depends: systemd
+Homepage: https://github.com/ercole-io/ercole-agent
+Description: Ercole Agent collects information about the Oracle DB instances running on the local machine and send information to a central server.

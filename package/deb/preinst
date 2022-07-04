@@ -1,0 +1,14 @@
+#!/bin/bash
+
+getent passwd ercole >/dev/null || \
+    useradd -r -g oinstall -G oinstall,dba -d /home/ercole-agent -m -s /bin/bash \
+    -c "Ercole agent user" ercole
+getent passwd ercole >/dev/null || \
+    useradd -r -g dba -d /home/ercole-agent -m -s /bin/bash \
+    -c "Ercole agent user" ercole
+getent passwd ercole >/dev/null || \
+    useradd -r -g oinstall -d /home/ercole-agent -m -s /bin/bash \
+    -c "Ercole agent user" ercole
+getent passwd ercole >/dev/null || \
+    useradd -r -g mysql -d /home/ercole-agent -m -s /bin/bash \
+    -c "Ercole agent user" ercole
