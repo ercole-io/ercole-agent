@@ -50,8 +50,5 @@ z  AS (SELECT CASE
 --this query returns the number of views in the schema
 ,o  AS (SELECT COUNT(*) AS views_count FROM pg_views WHERE schemaname = (SELECT schema_name FROM z))
 
---this query returns the owner of the schema
-,p  AS (SELECT o.rolname AS schema_owner FROM pg_namespace AS n JOIN pg_authid AS o ON (n.nspowner = o.oid) WHERE n.nspname = (SELECT schema_name FROM z))
-
-SELECT * FROM z,p,d,f,e,q,o,a,n,s
+SELECT * FROM z,d,f,e,q,o,a,n,s
 

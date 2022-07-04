@@ -23,19 +23,19 @@ import (
 )
 
 func TestSchema(t *testing.T) {
-	testSchemaData := `public|postgres|35|9519104|0|0|0|9519104|0|0`
+	testSchemaData := `public|0|0|0|0|0|postgres`
 	cmdOutput := []byte(testSchemaData)
 	actual, err := Schema(cmdOutput)
 
 	expected := model.PostgreSQLSchema{
 		SchemaName:    "public",
-		SchemaOwner:   "postgres",
-		TablesCount:   35,
-		TablesSize:    9519104,
+		TablesCount:   0,
+		TablesSize:    0,
 		IndexesCount:  0,
 		IndexesSize:   0,
 		ViewsCount:    0,
-		SchemaSize:    9519104,
+		SchemaOwner:   "postgres",
+		SchemaSize:    0,
 		MatviewsCount: 0,
 		MatviewsSize:  0,
 	}

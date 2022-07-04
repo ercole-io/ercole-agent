@@ -23,23 +23,22 @@ import (
 )
 
 func TestInstance(t *testing.T) {
-	testInstanceData := `100|256746178|2|7|0|UTF8|f|f|f|f|0|0`
+	testInstanceData := `100|256746178|2|7|0|f|f|f|f|0|UTF8`
 	cmdOutput := []byte(testInstanceData)
 	actual, err := Instance(cmdOutput)
 
 	expected := model.PostgreSQLInstance{
 		MaxConnections:  100,
 		InstanceSize:    256746178,
-		UsersNum:        2,
-		DbNum:           7,
-		TblspNum:        0,
 		Charset:         "UTF8",
 		Isinreplica:     false,
 		Ismaster:        false,
 		Isslave:         false,
 		ArchiverWorking: false,
+		TblspNum:        0,
+		UsersNum:        2,
+		DbNum:           7,
 		SlavesNum:       0,
-		TrustHbaEntries: 0,
 	}
 
 	assert.Equal(t, &expected, actual)

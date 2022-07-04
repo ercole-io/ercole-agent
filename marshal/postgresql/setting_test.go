@@ -23,13 +23,12 @@ import (
 )
 
 func TestSetting(t *testing.T) {
-	testSettingData := `PostgreSQL 10.20|/var/lib/postgresql/10/main|4194304|off|(disabled)|83886080|1073741824|100|50%|100|4|67108864|16777216|4294967296|1|8|8`
+	testSettingData := `PostgreSQL 10.20|4194304|off|(disabled)|83886080|1073741824|100|50%|100|4|67108864|16777216|4294967296|1|8|8`
 	cmdOutput := []byte(testSettingData)
 	actual, err := Setting(cmdOutput)
 
 	expected := model.PostgreSQLSetting{
 		DbVersion:                  "PostgreSQL 10.20",
-		DataDirectory:              "/var/lib/postgresql/10/main",
 		WorkMem:                    4194304,
 		ArchiveMode:                false,
 		ArchiveCommand:             "(disabled)",

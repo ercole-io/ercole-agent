@@ -23,13 +23,12 @@ import (
 )
 
 func TestDatabase(t *testing.T) {
-	testDatabaseData := `postgres|postgres|-1|1|18087047|35|9519104|0|0|0|0|0|0|0|1|f|0|0`
+	testDatabaseData := `postgres|-1|1|18087047|35|9519104|0|0|0|0|0|0|1|f|0|0`
 	cmdOutput := []byte(testDatabaseData)
 	actual, err := Database(cmdOutput)
 
 	expected := model.PostgreSQLDatabase{
 		DbName:             "postgres",
-		DbOwner:            "postgres",
 		Datconnlimit:       -1,
 		SchemasCount:       1,
 		DbSize:             18087047,

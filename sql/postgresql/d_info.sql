@@ -70,4 +70,4 @@ else the number of maximum allowed connection is shown*/
 --this query returns the owner of the database
 ,c  AS (SELECT o.rolname AS db_owner FROM pg_database d JOIN pg_authid o ON (d.datdba = o.oid) WHERE d.datname = current_database())
 
-SELECT * FROM z,c,g,i,a,d,f,e,q,b,y,o;
+SELECT * FROM z,g,i,a,d,f,e,q,b,o,y,c;

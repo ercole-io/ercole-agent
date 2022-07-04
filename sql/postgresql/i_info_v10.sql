@@ -45,10 +45,6 @@ WITH
     it does not count the default '$PGDATA' directory as a tablespace*/
 ,y  AS (SELECT COUNT(*) AS tblsp_num FROM pg_tablespace WHERE spcname NOT LIKE 'pg_%')
 
-    /*this column shows the number of lines in the 'pg_hba.conf' file that are marked
-    with the 'trust' authentication method. this value should be 0 for safety reasons*/
-,z  AS (SELECT COUNT(*) AS trust_hba_entries FROM pg_hba_file_rules WHERE auth_method = 'trust')
-
     --this column shows whether the wal archiver is working
 ,b  AS (SELECT CASE WHEN (SELECT setting FROM pg_settings WHERE name = 'archive_mode') = 'off' THEN false
                     WHEN last_failed_time > current_timestamp - interval '10 minute' THEN false
@@ -56,4 +52,4 @@ WITH
             END AS archiver_working
             FROM pg_stat_archiver)
 
-SELECT * FROM a,q,w,x,y,r,s,t,u,b,v,z;
+SELECT * FROM a,q,w,x,y,s,t,u,b,v,r;
