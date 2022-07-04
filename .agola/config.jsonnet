@@ -54,6 +54,63 @@ local task_build_go(setup) = {
   depends: ['test'],
 };
 
+local task_pkg_build_deb() = {
+  name: 'pkg build deb',
+  runtime: {
+    type: 'pod',
+    arch: 'amd64',
+    containers: [
+      { image : 'ubuntu:20.04' }
+    ]
+  },
+  working_dir: '/project',
+  environment: {
+    WORKSPACE: '/project',
+  },
+  steps: [
+    { type: 'restore_workspace', dest_dir: '.' },
+    {
+      type: 'run',
+      name: 'version',
+      command: |||
+        if [ -z ${AGOLA_GIT_TAG} ] || [[ ${AGOLA_GIT_TAG} == *-* ]]; then 
+          export VERSION=latest
+        else
+          export VERSION=${AGOLA_GIT_TAG}
+        fi
+        echo VERSION: ${VERSION}
+        echo "export VERSION=${VERSION}" > /tmp/variables
+      |||,
+    },
+    { type: 'run', command: '. /tmp/variables && mkdir -p ercole-agent_${VERSION}_x86_64/opt/ercole-agent && cp ercole-agent ercole-agent_${VERSION}_x86_64/opt/ercole-agent'},
+    { type: 'run', command: '. /tmp/variables && mkdir ercole-agent_${VERSION}_x86_64/opt/ercole-agent/fetch && cp -r fetch ercole-agent_${VERSION}_x86_64/opt/ercole-agent/fetch'},
+    { type: 'run', command: '. /tmp/variables && mkdir ercole-agent_${VERSION}_x86_64/opt/ercole-agent/sql && cp -r sql ercole-agent_${VERSION}_x86_64/opt/ercole-agent/sql'},
+    { type: 'run', command: '. /tmp/variables && mkdir -p ercole-agent_${VERSION}_x86_64/DEBIAN'},
+    {
+      type: 'run',
+      name: 'create control',
+      command: |||
+        . /tmp/variables && 
+         sed -i "s|VERSION|${VERSION}|g" package/deb/control &&
+         cp package/deb/control ercole-agent_${VERSION}_x86_64/DEBIAN
+      |||,
+    },
+    {
+      type: 'run',  
+      command: '. /tmp/variables && cp package/deb/preinst ercole-agent_${VERSION}_x86_64/DEBIAN',
+    },
+    {
+      type: 'run',
+      name: 'deb build',
+      command: '. /tmp/variables && dpkg-deb --root-owner-group --build --nocheck ercole-agent_${VERSION}_x86_64',
+    },
+    { type: 'run', command: 'mkdir dist' },
+    { type: 'run', command: '. /tmp/variables && cp ercole-agent_${VERSION}_x86_64.deb dist'},
+    { type: 'save_to_workspace', contents: [{ source_dir: './dist/', dest_dir: '/dist/', paths: ['**'] }] },
+  ],
+  depends: ['build go linux'],
+};
+
 local task_pkg_build_rhel(setup) = {
   name: 'pkg build ' + setup.dist,
   runtime: {
@@ -237,6 +294,8 @@ steps: [
           { pkg_build_image: 'amreo/rpmbuild-centos8', dist: 'rhel8', distfamily: 'rhel' },
         ]
       ] + [
+        task_pkg_build_deb()
+      ] + [
         {
           name: 'pkg build windows',
           runtime: {
@@ -281,10 +340,10 @@ steps: [
         },
       ] + [
         task_deploy_repository(dist)
-        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows']
+        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb']
       ] + [
         task_upload_asset(dist)
-        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows']
+        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb']
       ],
     },
   ],
