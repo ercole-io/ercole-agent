@@ -83,8 +83,10 @@ local task_pkg_build_deb() = {
       |||,
     },
     { type: 'run', command: '. /tmp/variables && mkdir -p ercole-agent_${VERSION}_x86_64/opt/ercole-agent && cp ercole-agent ercole-agent_${VERSION}_x86_64/opt/ercole-agent'},
-    { type: 'run', command: '. /tmp/variables && mkdir ercole-agent_${VERSION}_x86_64/opt/ercole-agent/fetch && cp -r fetch ercole-agent_${VERSION}_x86_64/opt/ercole-agent/fetch'},
-    { type: 'run', command: '. /tmp/variables && mkdir ercole-agent_${VERSION}_x86_64/opt/ercole-agent/sql && cp -r sql ercole-agent_${VERSION}_x86_64/opt/ercole-agent/sql'},
+    { type: 'run', command: '. /tmp/variables && cp config.json ercole-agent_${VERSION}_x86_64/opt/ercole-agent'},
+    { type: 'run', command: '. /tmp/variables && cp -r fetch ercole-agent_${VERSION}_x86_64/opt/ercole-agent'},
+    { type: 'run', command: '. /tmp/variables && rm -r ercole-agent_${VERSION}_x86_64/opt/ercole-agent/fetch/windows'},
+    { type: 'run', command: '. /tmp/variables && cp -r sql ercole-agent_${VERSION}_x86_64/opt/ercole-agent'},
     { type: 'run', command: '. /tmp/variables && mkdir -p ercole-agent_${VERSION}_x86_64/DEBIAN'},
     {
       type: 'run',
