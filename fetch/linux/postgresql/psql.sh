@@ -42,7 +42,7 @@ fi
 
 
 if [ -z "$DBNAME" ]; then
-  PSQL_CMD="psql -t -A -p $PORT -U $USER -f "
+  PSQL_CMD="psql -t -A -p $PORT -d postgres -U $USER -f "
 else
   PSQL_CMD="psql -t -A -p $PORT -d $DBNAME -U $USER -f "
 fi

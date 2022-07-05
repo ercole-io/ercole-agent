@@ -35,7 +35,7 @@ func (b *CommonBuilder) isv10(dbversion string) bool {
 		return false
 	}
 
-	constraints, err := version.NewConstraint(">= 9.6")
+	constraints, err := version.NewConstraint(">= 10.0")
 	if err != nil {
 		b.log.Error(err)
 		return false
