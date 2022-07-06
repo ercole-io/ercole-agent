@@ -97,10 +97,8 @@ local task_pkg_build_deb() = {
          cp package/deb/control ercole-agent_${VERSION}_x86_64/DEBIAN
       |||,
     },
-    {
-      type: 'run',  
-      command: '. /tmp/variables && cp package/deb/preinst ercole-agent_${VERSION}_x86_64/DEBIAN',
-    },
+    { type: 'run', command: '. /tmp/variables && cp package/deb/preinst ercole-agent_${VERSION}_x86_64/DEBIAN' },
+    { type: 'run', command: '. /tmp/variables && cp package/deb/postinst ercole-agent_${VERSION}_x86_64/DEBIAN' },
     {
       type: 'run',
       name: 'deb build',

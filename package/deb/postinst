@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "[Unit]
+Description=The Ercole Agent retrieves information about Oracle DB instances
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ercole
+ExecStart=/opt/ercole-agent/ercole-agent
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/ercole-agent.service ;
+
+
+echo "/var/log/ercole-agent.log {
+    missingok
+    notifempty
+    create 0600 ercole root
+    rotate 6
+    monthly
+}" > /etc/logrotate.d/ercole-agent
+
+systemctl start ercole-agent.service ;
+systemctl enable ercole-agent.service ;
