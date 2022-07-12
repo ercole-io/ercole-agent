@@ -9,6 +9,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ercole
+WorkingDirectory=/opt/ercole-agent
 ExecStart=/opt/ercole-agent/ercole-agent
 
 [Install]
