@@ -1,5 +1,13 @@
 #!/bin/bash
 
+FILE=/opt/ercole-agent/config.json
+if [[ -f "$FILE" ]]
+    then
+        rm -r /opt/ercole-agent/tmp
+    else
+        mv /opt/ercole-agent/tmp/config.json /opt/ercole-agent
+fi
+
 echo "[Unit]
 Description=The Ercole Agent retrieves information about Oracle DB instances
 StartLimitIntervalSec=0
