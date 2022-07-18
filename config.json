@@ -9,7 +9,7 @@
     "EnableServerValidation": false,
     "ForcePwshVersion": "0",
     "ParallelizeRequests": false,
-    "Verbose": true,
+    "Verbose": false,
     "LogDirectory": "",
     "Features": {
         "OracleDatabase": {
