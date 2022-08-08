@@ -1,4 +1,4 @@
--- Copyright (c) 2021 Sorint.lab S.p.A.
+-- Copyright (c) 2022 Sorint.lab S.p.A.
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -16,6 +16,6 @@
 set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 
-select name,CREATION_DATE,FAILOVER_METHOD,FAILOVER_TYPE,FAILOVER_RETRIES,FAILOVER_DELAY,ENABLED from dba_services where NAME not in('SYS$BACKGROUND','SYS$USERS');
+select name,FAILOVER_METHOD,FAILOVER_TYPE,FAILOVER_RETRIES,FAILOVER_DELAY,ENABLED from dba_services where NAME not in('SYS$BACKGROUND','SYS$USERS');
 
 exit

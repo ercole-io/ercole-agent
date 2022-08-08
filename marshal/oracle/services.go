@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 		line := scanner.Text()
 
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 7 {
+		if len(splitted) == 6 {
 			if strings.TrimSpace(splitted[0]) != "" {
 				service.Name = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[0]))
 			} else {
@@ -48,27 +48,18 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			}
 
 			if strings.TrimSpace(splitted[1]) != "" {
-				service.CreationDate, err = marshal.TrimParseDatePointer(splitted[1])
-				if err != nil {
-					merr = multierror.Append(merr, ercutils.NewError(err))
-				}
-			} else {
-				service.CreationDate = nil
-			}
-
-			if strings.TrimSpace(splitted[2]) != "" {
 				service.FailoverMethod = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[2]))
 			} else {
 				service.FailoverMethod = nil
 			}
 
-			if strings.TrimSpace(splitted[3]) != "" {
+			if strings.TrimSpace(splitted[2]) != "" {
 				service.FailoverType = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[3]))
 			} else {
 				service.FailoverType = nil
 			}
 
-			if strings.TrimSpace(splitted[4]) != "" {
+			if strings.TrimSpace(splitted[3]) != "" {
 				if service.FailoverRetries, err = marshal.TrimParseIntPointer(splitted[4]); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
@@ -76,7 +67,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 				service.FailoverRetries = nil
 			}
 
-			if strings.TrimSpace(splitted[5]) != "" {
+			if strings.TrimSpace(splitted[4]) != "" {
 				if service.FailoverDelay, err = marshal.TrimParseIntPointer(splitted[5]); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
@@ -84,8 +75,8 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 				service.FailoverDelay = nil
 			}
 
-			if strings.TrimSpace(splitted[6]) != "" {
-				service.Enabled = marshal.TrimParseBoolPointer(splitted[6])
+			if strings.TrimSpace(splitted[5]) != "" {
+				service.Enabled = marshal.TrimParseBoolPointer(splitted[5])
 			} else {
 				service.Enabled = nil
 			}

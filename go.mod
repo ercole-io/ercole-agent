@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent/v2
 go 1.18
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0-20220704133700-605919cf01c9
+	github.com/ercole-io/ercole/v2 v2.0.0-20220808133839-7d3ca261d644
 	github.com/fatih/color v1.13.0
 	github.com/go-co-op/gocron v1.16.2
 	github.com/golang/mock v1.6.0
@@ -26,13 +26,13 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/montanaflynn/stats v0.6.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
