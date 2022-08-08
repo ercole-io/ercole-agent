@@ -40,7 +40,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 		line := scanner.Text()
 
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 7 {
+		if len(splitted) == 6 {
 			if strings.TrimSpace(splitted[0]) != "" {
 				service.Name = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[0]))
 			} else {
@@ -76,7 +76,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			}
 
 			if strings.TrimSpace(splitted[5]) != "" {
-				service.Enabled = marshal.TrimParseBoolPointer(splitted[6])
+				service.Enabled = marshal.TrimParseBoolPointer(splitted[5])
 			} else {
 				service.Enabled = nil
 			}
