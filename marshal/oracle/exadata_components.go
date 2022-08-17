@@ -45,8 +45,16 @@ func ExadataComponent(cmdOutput []byte) ([]model.OracleExadataComponent, error) 
 			device.Model = strings.TrimSpace(splitted[2])
 			device.SwVersion = strings.TrimSpace(splitted[3])
 
+			swReleaseDate := ""
+
 			tmp := strings.Split(device.SwVersion, ".")
-			swReleaseDate := tmp[len(tmp)-1]
+
+			// No break inside the loop because the last detected value must be considered
+			for _, v := range tmp {
+				if len(v) == 6 {
+					swReleaseDate = v
+				}
+			}
 
 			if t, err := time.Parse("060102", swReleaseDate); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
