@@ -156,6 +156,7 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 
 	hostData.AgentVersion = version
 	hostData.SchemaVersion = hostDataSchemaVersion
+	hostData.Period = configuration.Period
 	hostData.Tags = []string{}
 
 	sendData(log, client, configuration, hostData)
