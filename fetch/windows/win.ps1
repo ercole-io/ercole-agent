@@ -42,7 +42,8 @@ param (
 )
 
 
-cd C:\ErcoleAgent
+$pathAgent = Get-Location
+cd $pathAgent\..\..
 
 $constant = .50
 
