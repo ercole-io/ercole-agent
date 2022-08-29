@@ -104,6 +104,8 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/fetch/linux/postgresql/psql.sh
 /opt/ercole-agent/fetch/linux/postgresql/psql_schema.sh
 
+/opt/ercole-agent/fetch/linux/suggest_oratab.sh
+
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/checkpdb.sql
