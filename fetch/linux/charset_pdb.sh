@@ -49,4 +49,4 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-$SQLPLUS_CMD @${ERCOLE_HOME}/sql/size_pdb.sql $PDB
+$SQLPLUS_CMD @${ERCOLE_HOME}/sql/charset_pdb.sql $PDB

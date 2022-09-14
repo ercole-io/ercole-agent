@@ -336,6 +336,8 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	var segmentsSize, datafileSize, allocable, totalSegmentsSize, totalDatafileSize, totalAllocable float64
 
+	var charset string
+
 	if database.IsCDB, err = b.fetcher.GetOracleDatabaseCheckPDB(entry); err != nil {
 		database.IsCDB = false
 
@@ -361,7 +363,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		pdb := &database.PDBs[i]
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			if segmentsSize, datafileSize, allocable, err = b.fetcher.GetOracleDatabasePDBSize(entry); err != nil {
+			if segmentsSize, datafileSize, allocable, err = b.fetcher.GetOracleDatabasePDBSize(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] size", entry.DBName, pdb.Name)
 				errChan <- err
 			}
@@ -374,6 +376,15 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		totalSegmentsSize += segmentsSize
 		totalDatafileSize += datafileSize
 		totalAllocable += allocable
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if charset, err = b.fetcher.GetOracleDatabasePDBCharset(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] charset", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
+
+		pdb.Charset = charset
 
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.Tablespaces, err = b.fetcher.GetOracleDatabasePDBTablespaces(entry, pdb.Name); err != nil {

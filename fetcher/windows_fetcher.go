@@ -315,12 +315,6 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseSchemas(entry agentmodel.OratabEn
 	return marshal_oracle.Schemas(out)
 }
 
-// GetOracleDatabasePDBSize get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry) (float64, float64, float64, error) {
-	wf.log.Error(notImplementedWindows)
-	return 0, 0, 0, ercutils.NewError(notImplementedWindows)
-}
-
 // GetOracleDatabasePatches get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePatches(entry agentmodel.OratabEntry, dbVersion string) ([]model.OracleDatabasePatch, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "patch", entry.DBName, dbVersion, entry.OracleHome)...)
@@ -415,6 +409,18 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.O
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabasePDBSize get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (float64, float64, float64, error) {
+	wf.log.Error(notImplementedWindows)
+	return 0, 0, 0, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabasePDBCharset get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBCharset(entry agentmodel.OratabEntry, pdb string) (string, error) {
+	wf.log.Error(notImplementedWindows)
+	return "", ercutils.NewError(notImplementedWindows)
 }
 
 // GetOracleDatabaseServices get

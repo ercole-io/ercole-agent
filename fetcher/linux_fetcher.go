@@ -465,13 +465,23 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabE
 }
 
 // GetOracleDatabasePDBSize get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry) (float64, float64, float64, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "size_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (float64, float64, float64, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "size_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
 	if err != nil {
 		return 0, 0, 0, ercutils.NewError(err)
 	}
 
 	return marshal_oracle.SizePDB(out)
+}
+
+// GetOracleDatabasePDBCharset get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBCharset(entry agentmodel.OratabEntry, pdb string) (string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "charset_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return "", ercutils.NewError(err)
+	}
+
+	return marshal_oracle.CharsetPDB(out)
 }
 
 // GetOracleDatabaseServices get
