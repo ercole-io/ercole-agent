@@ -18,27 +18,5 @@ set colsep "|||"
 
 alter session set container=&1;
 
-SELECT
-  (
-    SELECT round(sum(bytes/1024/1024/1024))
-    FROM dba_segments
-   ) AS Alloc, 
-   (
-        (SELECT round(sum(bytes/1024/1024/1024))
-        FROM dba_data_files)+
-        (SELECT round(sum(bytes/1024/1024/1024))
-        FROM dba_temp_files)+
-        (SELECT round(sum(bytes/1024/1024/1024))
-        FROM v$log)
-    ),
-    (
-        (SELECT round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024)))
-        FROM dba_data_files)+
-        (SELECT round(sum(bytes/1024/1024/1024))
-        FROM dba_temp_files)+
-        (SELECT round(sum(bytes/1024/1024/1024))
-        FROM v$log)
-    )
-FROM dual;
-
+SELECT value$ FROM sys.props$ WHERE name = 'NLS_CHARACTERSET';
 exit
