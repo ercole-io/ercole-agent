@@ -362,6 +362,10 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	for i := range database.PDBs {
 		pdb := &database.PDBs[i]
 
+		if pdb.Status == "MOUNTED" {
+			continue
+		}
+
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if segmentsSize, datafileSize, allocable, err = b.fetcher.GetOracleDatabasePDBSize(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] size", entry.DBName, pdb.Name)
