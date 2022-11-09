@@ -216,13 +216,12 @@ func getOlvmClustersData(endpoint string, vmType string, username string, passwo
 					return nil, ercutils.NewError(err)
 				}
 
-				cpu += cores
-
 				sockets, err := strconv.Atoi(vH.Cpu.Topology.Sockets)
 				if err != nil {
 					return nil, ercutils.NewError(err)
 				}
 
+				cpu += (cores * sockets)
 				socket += sockets
 			}
 		}
