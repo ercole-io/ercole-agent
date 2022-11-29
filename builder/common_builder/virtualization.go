@@ -50,6 +50,10 @@ type OLVMHost struct {
 			Sockets string `json:"sockets"`
 		}
 	}
+	Hardware_Information struct {
+		Manufacturer string `json:"manufacturer"`
+		ProductName  string `json:"product_name"`
+	}
 	Cluster struct {
 		Id string `json:"id"`
 	}
@@ -290,10 +294,11 @@ func getOlvmVMsData(endpoint string, username string, password string) (map[stri
 						}
 
 						vm := model.VMInfo{
-							Name:               vV.Name,
-							Hostname:           vV.Fqdn,
-							CappedCPU:          vV.Capped,
-							VirtualizationNode: vH.Name,
+							Name:                    vV.Name,
+							Hostname:                vV.Fqdn,
+							CappedCPU:               vV.Capped,
+							VirtualizationNode:      vH.Name,
+							PhysicalServerModelName: vH.Hardware_Information.Manufacturer + " " + vH.Hardware_Information.ProductName,
 						}
 
 						thisVMs := vms[vC.Name]
