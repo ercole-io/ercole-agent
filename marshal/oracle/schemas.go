@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Sorint.lab S.p.A.
+// Copyright (c) 2022 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 
-		if len(splitted) == 8 {
+		if len(splitted) == 9 {
 			schema.User = strings.TrimSpace(splitted[3])
 
 			if schema.Total, err = marshal.TrimParseInt(splitted[4]); err != nil {
@@ -57,6 +57,8 @@ func Schemas(cmdOutput []byte) ([]model.OracleDatabaseSchema, error) {
 			if schema.LOB, err = marshal.TrimParseInt(splitted[7]); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
+
+			schema.AccountStatus = strings.TrimSpace(splitted[8])
 
 			schemas = append(schemas, *schema)
 		}
