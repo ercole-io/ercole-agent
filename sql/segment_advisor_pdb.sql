@@ -22,6 +22,8 @@ col SEGMENT_NAME for a82
 col SEGMENT_TYPE like SEGMENT_OWNER
 col PARTITION_NAME like SEGMENT_OWNER
 
+alter session set container=&1;
+
 set autoprint on timing off
 set lines 900 pages 0
 SET FEEDBACK OFF
@@ -33,8 +35,6 @@ declare
   v_tot_db NUMBER;
   EDITION varchar2(80);
 BEGIN
-
-alter session set container=&1;
 
 select (case when UPPER(banner) like '%EXTREME%' then 'EXTREME' when UPPER(banner) like '%ENTERPRISE%' then 'ENTERPRISE' else 'STANDARD' end) into EDITION from v$version where rownum=1;
 
