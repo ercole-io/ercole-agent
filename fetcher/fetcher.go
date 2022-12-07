@@ -66,6 +66,7 @@ type Fetcher interface {
 	GetOracleDatabasePDBs(entry agentmodel.OratabEntry) ([]model.OracleDatabasePluggableDatabase, error)
 	GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error)
 	GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error)
+	GetOracleDatabasePDBSegmentAdvisors(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSegmentAdvisor, error)
 	GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error)
 	GetOracleDatabaseGrantsDba(entry agentmodel.OratabEntry) ([]model.OracleGrantDba, error)
 	GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (float64, float64, float64, error)
