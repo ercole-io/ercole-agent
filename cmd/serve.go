@@ -225,7 +225,7 @@ func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
 		return
 	}
 
-	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02_15-04-05"))
+	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s-%s.json", os.TempDir(), data.Hostname, time.Now().Local().Format("06-01-02_15-04-05"))
 
 	tmpFile, err := os.Create(filePath)
 	if err != nil {
