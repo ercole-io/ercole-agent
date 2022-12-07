@@ -423,6 +423,12 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBCharset(entry agentmodel.Orata
 	return "", ercutils.NewError(notImplementedWindows)
 }
 
+// GetOracleDatabasePDBSegmentAdvisors get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSegmentAdvisors(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSegmentAdvisor, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabaseServices get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "services", entry.DBName, entry.OracleHome)...)

@@ -405,6 +405,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		}, &wg)
 
 		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.SegmentAdvisors, err = b.fetcher.GetOracleDatabasePDBSegmentAdvisors(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] segment advisors", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.GrantDba, err = b.fetcher.GetOracleDatabaseGrantsDba(entry); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] grants", entry.DBName, pdb.Name)
 				errChan <- err

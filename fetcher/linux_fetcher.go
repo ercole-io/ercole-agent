@@ -484,6 +484,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBCharset(entry agentmodel.OratabE
 	return marshal_oracle.CharsetPDB(out)
 }
 
+// GetOracleDatabasePDBSegmentAdvisors get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBSegmentAdvisors(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSegmentAdvisor, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "segmentadvisor_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.SegmentAdvisor(out)
+}
+
 // GetOracleDatabaseServices get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEntry) ([]model.OracleDatabaseService, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "services", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
