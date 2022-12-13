@@ -86,6 +86,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/rac.sh
 /opt/ercole-agent/fetch/linux/size_pdb.sh
 /opt/ercole-agent/fetch/linux/charset_pdb.sh
+/opt/ercole-agent/fetch/linux/exec_verbose.sh
 /opt/ercole-agent/fetch/linux/vmware.ps1
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
