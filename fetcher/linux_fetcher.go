@@ -504,6 +504,26 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabEnt
 	return marshal_oracle.Services(out)
 }
 
+// GetOracleDatabaseTablespaces get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePartitionings(entry agentmodel.OratabEntry) ([]model.OracleDatabasePartitioning, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "partitioning", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.Partitionings(out)
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBPartitionings(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePartitioning, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "partitioning_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.Partitionings(out)
+}
+
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
 	var out []byte

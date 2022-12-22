@@ -399,8 +399,18 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
-// GetOracleDatabasePDBTablespaces get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
+// GetOracleDatabasePartitionings get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePartitionings(entry agentmodel.OratabEntry) ([]model.OracleDatabasePartitioning, error) {
+	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "partitioning", entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.Partitionings(out)
+}
+
+// GetOracleDatabasePDBPartitionings get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBPartitionings(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePartitioning, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }
@@ -437,6 +447,12 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabE
 	}
 
 	return marshal_oracle.Services(out)
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
 }
 
 // GetMicrosoftSQLServerInstances get
