@@ -175,8 +175,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		return nil, err
 	}
 
-	blockingErrs := make(chan error, 4)    // database errs are serious, must not be returned
-	nonBlockingErrs := make(chan error, 8) // database errs, but not blocking ones
+	blockingErrs := make(chan error, 4)     // database errs are serious, must not be returned
+	nonBlockingErrs := make(chan error, 10) // database errs, but not blocking ones
 
 	statsCtx, cancelStatsCtx := context.WithCancel(context.Background())
 
@@ -292,6 +292,14 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		if database.Services, err = b.fetcher.GetOracleDatabaseServices(entry); err != nil {
 			database.Services = []model.OracleDatabaseService{}
 			b.log.Warnf("Oracle db [%s]: can't get services", entry.DBName)
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.Partitionings, err = b.fetcher.GetOracleDatabasePartitionings(entry); err != nil {
+			database.Partitionings = []model.OracleDatabasePartitioning{}
+			b.log.Warnf("Oracle db [%s]: can't get partitionings", entry.DBName)
 			nonBlockingErrs <- err
 		}
 	}, &wg)
@@ -417,6 +425,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 				errChan <- err
 			}
 		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.Partitionings, err = b.fetcher.GetOracleDatabasePDBPartitionings(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] partitionings", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
 	}
 
 	database.SegmentsSize = totalSegmentsSize
@@ -467,6 +482,7 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 	database.PDBs = []model.OracleDatabasePluggableDatabase{}
 	database.Services = []model.OracleDatabaseService{}
 	database.FeatureUsageStats = []model.OracleDatabaseFeatureUsageStat{}
+	database.Partitionings = []model.OracleDatabasePartitioning{}
 
 	database.Licenses = make([]model.OracleDatabaseLicense, 0)
 	if database.Edition() != model.OracleDatabaseEditionExpress {
