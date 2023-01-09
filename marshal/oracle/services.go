@@ -68,11 +68,7 @@ func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
 			}
 
 			if strings.TrimSpace(splitted[4]) != "" {
-				if service.FailoverDelay, err = marshal.TrimParseIntPointer(splitted[5]); err != nil {
-					merr = multierror.Append(merr, ercutils.NewError(err))
-				}
-			} else {
-				service.FailoverDelay = nil
+				service.FailoverDelay = splitted[5]
 			}
 
 			if strings.TrimSpace(splitted[5]) != "" {
