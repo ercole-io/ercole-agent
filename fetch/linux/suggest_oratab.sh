@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2022 Sorint.lab S.p.A.
+# Copyright (c) 2023 Sorint.lab S.p.A.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ while read i
 do PROC=$(echo $i| awk '{print $2}')
 SID=$(echo $i | awk -F "_" '{print $NF}')
 ENTRY=$(echo "$SID:$(pwdx $PROC| awk -F : '{print $2}')"| tr -d ' ')
-if [[ $(grep $SID "$ORATAB_FILE"|wc -l) -lt 1 ]]; then
+if [[ $(grep $SID "$ORATAB_FILE"|wc -l) -lt 1 ]] || ([[ $(grep "#"$SID "$ORATAB_FILE"|wc -l) -eq 1 ]] && [[ $(grep $SID "$ORATAB_FILE"|wc -l) -lt 2 ]]); then
 	echo ${ENTRY%????}:N
 fi
 done </tmp/listPmonErcole.log
