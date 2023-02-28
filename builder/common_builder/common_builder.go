@@ -105,6 +105,8 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	b.runMySQL(hostData)
 
 	b.runPostgreSQL(hostData)
+
+	b.runMongoDB(hostData)
 }
 
 func (b *CommonBuilder) runCloud(hostData *model.HostData) {
@@ -265,6 +267,29 @@ func (b *CommonBuilder) runPostgreSQL(hostData *model.HostData) {
 	}
 }
 
+func (b *CommonBuilder) runMongoDB(hostData *model.HostData) {
+	if !b.configuration.Features.MongoDB.Enabled {
+		return
+	}
+
+	b.log.Debugf("MongoDB mode enabled")
+
+	if err := b.setOrResetFetcherUser(b.configuration.Features.MongoDB.FetcherUser); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+
+		return
+	}
+
+	lazyInitMongoDBFeature(&hostData.Features)
+
+	var err error
+	if hostData.Features.MongoDB, err = b.getMongoDBFeature(hostData.Hostname); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+	}
+}
+
 func (b *CommonBuilder) setOrResetFetcherUser(user string) error {
 	user = strings.TrimSpace(user)
 
@@ -317,6 +342,12 @@ func lazyInitMicrosoftFeature(fs *model.Features) {
 func lazyInitPostgreSQLFeature(fs *model.Features) {
 	if fs.PostgreSQL == nil {
 		fs.PostgreSQL = new(model.PostgreSQLFeature)
+	}
+}
+
+func lazyInitMongoDBFeature(fs *model.Features) {
+	if fs.MongoDB == nil {
+		fs.MongoDB = new(model.MongoDBFeature)
 	}
 }
 
