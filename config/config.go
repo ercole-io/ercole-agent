@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Sorint.lab S.p.A.
+// Copyright (c) 2023 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ type Features struct {
 	MicrosoftSQLServer MicrosoftSQLServerFeature
 	MySQL              MySQLFeature
 	PostgreSQL         PostgreSQLFeature
+	MongoDB            MongoDBFeatureConnection
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -127,6 +128,16 @@ type PostgreSQLInstanceConnection struct {
 	Port     string
 	User     string
 	Password string
+}
+
+type MongoDBFeatureConnection struct {
+	Enabled          bool
+	FetcherUser      string
+	Host             string
+	Port             string
+	User             string
+	Password         string
+	DirectConnection bool
 }
 
 // ReadConfig reads the configuration file from the current dir
