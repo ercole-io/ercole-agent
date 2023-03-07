@@ -595,8 +595,8 @@ function getDbOpt {
 function getServices {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)]$u,
-		[Parameter(Mandatory=$true)]$p
+		[Parameter(Mandatory=$false)]$u,
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "oracleservice" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
@@ -617,8 +617,8 @@ function getServices {
 function getGrantsDba {
 	param (
 		[Parameter(Mandatory=$true)]$d,
-		[Parameter(Mandatory=$true)]$u,
-		[Parameter(Mandatory=$true)]$p
+		[Parameter(Mandatory=$false)]$u,
+		[Parameter(Mandatory=$false)]$p
 	)
 	if ($d) { $dbs = gwmi -Class Win32_Service | ? { $_.name -match "grant_dba" -and $_.name -match $d } } else { Write-Warning "missing arguments"; throw }
 	if (!$dbs) { Write "" } #wrong or no instance
