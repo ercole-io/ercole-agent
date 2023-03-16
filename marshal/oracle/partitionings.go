@@ -49,7 +49,7 @@ func Partitionings(cmdOutput []byte) ([]model.OracleDatabasePartitioning, error)
 
 			partitioning.SegmentType = strings.TrimSpace(splitted[3])
 
-			if partitioning.Mb, err = marshal.TrimParseFloat64(splitted[4]); err != nil {
+			if partitioning.Mb, err = marshal.TrimParseUnsafeFloat64(splitted[4], marshal.TrimParseFloat64); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
