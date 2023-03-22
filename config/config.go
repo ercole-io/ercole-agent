@@ -54,7 +54,7 @@ type Features struct {
 	MicrosoftSQLServer MicrosoftSQLServerFeature
 	MySQL              MySQLFeature
 	PostgreSQL         PostgreSQLFeature
-	MongoDB            MongoDBFeatureConnection
+	MongoDB            MongoDBFeature
 }
 
 // OracleDatabaseFeature holds oracle database feature params
@@ -130,9 +130,13 @@ type PostgreSQLInstanceConnection struct {
 	Password string
 }
 
-type MongoDBFeatureConnection struct {
-	Enabled          bool
-	FetcherUser      string
+type MongoDBFeature struct {
+	Enabled     bool
+	FetcherUser string
+	Instances   []MongoDBInstanceConnection
+}
+
+type MongoDBInstanceConnection struct {
 	Host             string
 	Port             string
 	User             string
