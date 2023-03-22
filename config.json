@@ -80,11 +80,15 @@
         "MongoDB": {
             "Enabled": false,
             "FetcherUser": "",
-            "Host": "",
-            "Port": "",
-            "User": "",
-            "Password": "",
-            "DirectConnection": false
+            "Instances": [
+                {
+                    "Host": "",
+                    "Port": "",
+                    "User": "",
+                    "Password": "",
+                    "DirectConnection": false
+                }
+            ] 
         }
     }
 }
