@@ -17,7 +17,7 @@ param(
     [Parameter(Mandatory=$false)][string]$instance = $null,
     [Parameter(Mandatory=$false)][string]$sqlDir =".\sql\mssqlserver",
     [Parameter(Mandatory=$false)][string]$agentPath = "C:\ErcoleAgent",
-    [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "edition"
+    [Parameter(Mandatory=$false)][ValidateSet("listInstances", "all","dbmounted", "edition", "licensingInfo", "listDatabases","db", "backup_schedule", "dbstatus", "schema", "ts", "segment_advisor","patches","psu-1","sqlFeatures")][string]$action = "listInstances"
 )
 
 
@@ -323,14 +323,14 @@ function listInstances(){
     $hostname = $(hostname)
     $execResult|ForEach-Object{
         $currItem = $_
-        if ($execResult.Name -eq 'MSSQLSERVER'){
+        if ($currItem.Name -eq 'MSSQLSERVER'){
             $connString = $hostname
         }else{
             $connString = $($currItem.Name.replace('MSSQL$',"$hostname\"))
         }
-        if ($execResult.Status -eq 1){
+        if ($currItem.Status -eq 1 -or $currItem.Status -eq 'Stopped'){
             $statusDesc = 'Stopped'
-        }elseif ($execResult.Status -eq 4){
+        }elseif ($currItem.Status -eq 4 -or $currItem.Status -eq 'Running'){
             $statusDesc = 'Running'
         }else{
             $statusDesc = 'other'
