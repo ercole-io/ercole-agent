@@ -41,10 +41,6 @@ param (
 	[Parameter()][string]$oraclepath
 )
 
-
-$pathAgent = Get-Location
-cd $pathAgent\..\..
-
 $constant = .50
 
 #### DO NOT EDIT BELOW THIS LINE ####
