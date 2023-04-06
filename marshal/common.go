@@ -21,6 +21,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -160,6 +161,17 @@ func TrimParseFloat64PointerSafeComma(s string, nils ...string) (*float64, error
 	}
 
 	return &f, nil
+}
+
+func TrimRoundFloatToInt(s string) (int, error) {
+	s = strings.TrimSpace(s)
+
+	f, err := TrimParseFloat64(s)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(math.Round(f)), nil
 }
 
 func TrimParseBool(s string) bool {

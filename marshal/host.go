@@ -52,7 +52,7 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if m.CoresPerSocket, err = TrimParseInt(data["CoresPerSocket"]); err != nil {
+	if m.CoresPerSocket, err = TrimRoundFloatToInt(data["CoresPerSocket"]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
