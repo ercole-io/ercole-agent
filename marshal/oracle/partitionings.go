@@ -38,18 +38,18 @@ func Partitionings(cmdOutput []byte) ([]model.OracleDatabasePartitioning, error)
 		line := scanner.Text()
 
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 5 {
+		if len(splitted) == 4 {
 			partitioning := model.OracleDatabasePartitioning{}
 
 			partitioning.Owner = strings.TrimSpace(splitted[0])
 
 			partitioning.SegmentName = strings.TrimSpace(splitted[1])
 
-			partitioning.PartitionName = strings.TrimSpace(splitted[2])
+			if partitioning.Count, err = marshal.TrimParseInt(splitted[2]); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
 
-			partitioning.SegmentType = strings.TrimSpace(splitted[3])
-
-			if partitioning.Mb, err = marshal.TrimParseUnsafeFloat64(splitted[4], marshal.TrimParseFloat64); err != nil {
+			if partitioning.Mb, err = marshal.TrimParseUnsafeFloat64(splitted[3], marshal.TrimParseFloat64); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
