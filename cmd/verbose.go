@@ -59,7 +59,7 @@ func manageHostDataVerbose() error {
 	hostData.Period = configuration.Period
 	hostData.Tags = []string{}
 
-	writeHostDataOnTmpFile(hostData, logBuilData)
+	writeDataOnTmpFile(hostData, logBuilData)
 
 	return nil
 }

@@ -29,7 +29,6 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/client"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
-	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/go-co-op/gocron"
 	"github.com/kardianos/service"
@@ -159,10 +158,14 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 	hostData.Period = configuration.Period
 	hostData.Tags = []string{}
 
-	sendData(log, client, configuration, hostData)
+	sendData(log, client, configuration, hostData, "hosts")
+
+	exadata := builder.BuildExadata(configuration, log)
+
+	sendData(log, client, configuration, exadata, "exadatas")
 }
 
-func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data *model.HostData) {
+func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data interface{}, endopoint string) {
 	log.Info("Sending data...")
 
 	dataBytes, err := json.Marshal(data)
@@ -171,13 +174,13 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 		return
 	}
 
-	log.Debugf("Hostdata: %v", string(dataBytes))
+	log.Debugf("Data: %v", string(dataBytes))
 
 	if configuration.Verbose {
-		writeHostDataOnTmpFile(data, log)
+		writeDataOnTmpFile(data, log)
 	}
 
-	resp, err := client.DoRequest("POST", "/hosts", dataBytes)
+	resp, err := client.DoRequest("POST", fmt.Sprintf("/%s", endopoint), dataBytes)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			log.Errorf("Error sending data: unable to reach ercole server in %d seconds", client.Timeout())
@@ -218,29 +221,29 @@ func logResponseBody(log logger.Logger, body io.ReadCloser) {
 	log.Warnf("%s\n%s\n", errFE.Message, errFE.Error)
 }
 
-func writeHostDataOnTmpFile(data *model.HostData, log logger.Logger) {
+func writeDataOnTmpFile(data interface{}, log logger.Logger) {
 	dataBytes, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	filePath := fmt.Sprintf("%s/ercole-agent-hostdata-%s-%s.json", os.TempDir(), data.Hostname, time.Now().Local().Format("06-01-02_15-04-05"))
+	filePath := fmt.Sprintf("%s/ercole-agent-data-%s.json", os.TempDir(), time.Now().Local().Format("06-01-02_15-04-05"))
 
 	tmpFile, err := os.Create(filePath)
 	if err != nil {
-		log.Debugf("Can't create hostdata file: %v", os.TempDir()+filePath)
+		log.Debugf("Can't create data file: %v", os.TempDir()+filePath)
 		return
 	}
 
 	defer tmpFile.Close()
 
 	if _, err := tmpFile.Write(dataBytes); err != nil {
-		log.Debugf("Can't write hostdata in file: %v", os.TempDir()+filePath)
+		log.Debugf("Can't write data in file: %v", os.TempDir()+filePath)
 		return
 	}
 
-	log.Debugf("Hostdata pretty-printed on file: %v", filePath)
+	log.Debugf("Data pretty-printed on file: %v", filePath)
 }
 
 func serve(prg *program) {

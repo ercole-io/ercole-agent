@@ -75,9 +75,7 @@ type Fetcher interface {
 	GetOracleDatabasePDBPartitionings(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePartitioning, error)
 
 	// Oracle/Exadata fetchers
-
 	GetOracleExadataComponents() ([]model.OracleExadataComponent, error)
-	GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error)
 
 	// Microsoft/SQLServer fetchers
 
