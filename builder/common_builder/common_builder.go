@@ -96,8 +96,6 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	b.runOracleDatabase(hostData)
 
-	b.runOracleExadata(hostData)
-
 	b.runMicrosoftSQLServer(hostData)
 
 	b.runVirtualization(hostData)
@@ -139,8 +137,6 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 		return
 	}
 
-	lazyInitOracleFeature(&hostData.Features)
-
 	var err error
 
 	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info, CoreFactor(*hostData))
@@ -149,7 +145,7 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 	}
 }
 
-func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
+func (b *CommonBuilder) RunExadata(exadata *model.OracleExadataInstance) {
 	if !b.configuration.Features.OracleExadata.Enabled {
 		return
 	}
@@ -158,24 +154,25 @@ func (b *CommonBuilder) runOracleExadata(hostData *model.HostData) {
 
 	if err := b.setOrResetFetcherUser(b.configuration.Features.OracleExadata.FetcherUser); err != nil {
 		b.log.Error(err)
-		hostData.AddErrors(err)
-
 		return
 	}
 
 	if err := b.checksToRunExadata(); err != nil {
 		b.log.Error(err)
-		hostData.AddErrors(err)
+		// hostData.AddErrors(err)
 
 		return
 	}
 
-	lazyInitOracleFeature(&hostData.Features)
-
 	var err error
 
-	if hostData.Features.Oracle.Exadata, err = b.getOracleExadataFeature(); err != nil {
-		hostData.AddErrors(err)
+	if exadata.Components, err = b.getOracleExadataComponents(); err != nil {
+		b.log.Error(err)
+		return
+	}
+
+	if len(exadata.Components) > 0 {
+		exadata.RackID = exadata.Components[0].RackID
 	}
 }
 
@@ -325,12 +322,6 @@ func (b *CommonBuilder) setOrResetFetcherUser(user string) error {
 	}
 
 	return nil
-}
-
-func lazyInitOracleFeature(fs *model.Features) {
-	if fs.Oracle == nil {
-		fs.Oracle = new(model.OracleFeature)
-	}
 }
 
 func lazyInitMicrosoftFeature(fs *model.Features) {

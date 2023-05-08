@@ -178,12 +178,6 @@ func (wf *WindowsFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadat
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
-// GetOracleExadataCellDisks get
-func (wf *WindowsFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
-}
-
 // GetClustersMembershipStatus get
 func (wf *WindowsFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error) {
 	cms := model.ClusterMembershipStatus{

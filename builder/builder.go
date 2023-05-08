@@ -35,3 +35,16 @@ func BuildData(configuration config.Configuration, log logger.Logger) *model.Hos
 
 	return hostData
 }
+
+// BuildExadata will build exadata instance
+func BuildExadata(config config.Configuration, log logger.Logger) *model.OracleExadataInstance {
+	exadata := new(model.OracleExadataInstance)
+
+	exadata.Hostname = config.Hostname
+
+	builder := common.NewCommonBuilder(config, log)
+
+	builder.RunExadata(exadata)
+
+	return exadata
+}

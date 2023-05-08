@@ -18,7 +18,6 @@ package common
 import (
 	"runtime"
 
-	"github.com/ercole-io/ercole-agent/v2/agentmodel"
 	"github.com/ercole-io/ercole-agent/v2/utils"
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
@@ -44,35 +43,11 @@ func (b *CommonBuilder) checksToRunExadata() error {
 	return nil
 }
 
-func (b *CommonBuilder) getOracleExadataFeature() (*model.OracleExadataFeature, error) {
-	oracleExadataFeature := new(model.OracleExadataFeature)
-
-	var err error
-
-	oracleExadataFeature.Components, err = b.getOracleExadataComponents()
-	if err != nil {
-		b.log.Error(err)
-		return nil, err
-	}
-
-	return oracleExadataFeature, nil
-}
-
 func (b *CommonBuilder) getOracleExadataComponents() ([]model.OracleExadataComponent, error) {
-	exadataDevices, err := b.fetcher.GetOracleExadataComponents()
+	exadataComponents, err := b.fetcher.GetOracleExadataComponents()
 	if err != nil {
 		return nil, err
 	}
 
-	exadataCellDisks, err := b.fetcher.GetOracleExadataCellDisks()
-	if err != nil {
-		return nil, err
-	}
-
-	for i := range exadataDevices {
-		cellDisks := exadataCellDisks[agentmodel.StorageServerName(exadataDevices[i].Hostname)]
-		exadataDevices[i].CellDisks = &cellDisks
-	}
-
-	return exadataDevices, nil
+	return exadataComponents, nil
 }

@@ -586,25 +586,24 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) (map[string
 	return vms, nil
 }
 
-// GetOracleExadataComponents get
 func (lf *LinuxFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/info")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/new_info")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.ExadataComponent(out)
+	return marshal_oracle.ExadataComponents(out)
 }
 
 // GetOracleExadataCellDisks get
-func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/storage-status")
-	if err != nil {
-		return nil, ercutils.NewError(err)
-	}
+// func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
+// 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/storage-status")
+// 	if err != nil {
+// 		return nil, ercutils.NewError(err)
+// 	}
 
-	return marshal_oracle.ExadataCellDisks(out)
-}
+// 	return marshal_oracle.ExadataCellDisks(out)
+// }
 
 // GetClustersMembershipStatus get
 func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error) {
