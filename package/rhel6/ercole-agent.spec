@@ -92,6 +92,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/vmware.ps1
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
+/opt/ercole-agent/fetch/linux/exadata/new_info.sh
 /opt/ercole-agent/fetch/linux/exadata/storage-status.sh
 
 /opt/ercole-agent/fetch/linux/mysql/mysql_gather.sh
