@@ -17,5 +17,5 @@ SELECT CASE
            WHEN COUNT(*) > 0 THEN 'TRUE'
            WHEN count(*) = 0 THEN 'FALSE'
        END
-FROM v$pdbs;
+FROM v$pdbs where NAME not like 'PDB$SEED' ;
 exit
