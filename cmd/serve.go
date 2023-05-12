@@ -160,9 +160,10 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 
 	sendData(log, client, configuration, hostData, "hosts")
 
-	exadata := builder.BuildExadata(configuration, log)
-
-	sendData(log, client, configuration, exadata, "exadatas")
+	if configuration.Features.OracleExadata.Enabled {
+		exadata := builder.BuildExadata(configuration, log)
+		sendData(log, client, configuration, exadata, "exadatas")
+	}
 }
 
 func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data interface{}, endopoint string) {

@@ -595,16 +595,6 @@ func (lf *LinuxFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataC
 	return marshal_oracle.ExadataComponents(out)
 }
 
-// GetOracleExadataCellDisks get
-// func (lf *LinuxFetcherImpl) GetOracleExadataCellDisks() (map[agentmodel.StorageServerName][]model.OracleExadataCellDisk, error) {
-// 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/storage-status")
-// 	if err != nil {
-// 		return nil, ercutils.NewError(err)
-// 	}
-
-// 	return marshal_oracle.ExadataCellDisks(out)
-// }
-
 // GetClustersMembershipStatus get
 func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "cluster_membership_status")
