@@ -139,10 +139,12 @@ func (b *CommonBuilder) runOracleDatabase(hostData *model.HostData) {
 
 	var err error
 
-	hostData.Features.Oracle.Database, err = b.getOracleDatabaseFeature(hostData.Info, CoreFactor(*hostData))
+	database, err := b.getOracleDatabaseFeature(hostData.Info, CoreFactor(*hostData))
 	if err != nil {
 		hostData.AddErrors(err)
 	}
+
+	hostData.Features.Oracle = &model.OracleFeature{Database: database}
 }
 
 func (b *CommonBuilder) RunExadata(exadata *model.OracleExadataInstance) {
@@ -159,7 +161,6 @@ func (b *CommonBuilder) RunExadata(exadata *model.OracleExadataInstance) {
 
 	if err := b.checksToRunExadata(); err != nil {
 		b.log.Error(err)
-		// hostData.AddErrors(err)
 
 		return
 	}
