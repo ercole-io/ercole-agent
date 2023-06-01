@@ -41,6 +41,8 @@ func BuildExadata(config config.Configuration, log logger.Logger) *model.OracleE
 	exadata := new(model.OracleExadataInstance)
 
 	exadata.Hostname = config.Hostname
+	exadata.Environment = config.Environment
+	exadata.Location = config.Location
 
 	builder := common.NewCommonBuilder(config, log)
 
