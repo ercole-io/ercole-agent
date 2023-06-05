@@ -1,9 +1,10 @@
-# !/bin/bash
+#!/bin/bash
 # Author: Attilio Seghezzi
 # Date: 31st March 2023
 # 20230403: added X9M support and automatic platform detection. Added also VM check function
 # 20230418: added check on configuration files' content to ensure they're not empty
 # 20230505: enhanced cell entities and added RACK_ID to all physical components
+# 20230601: corrected function HostGetDetails to retrieve the correct amount of memory from dom0 type hosts
 
 ### Variables
 APP_DIR=/tmp
@@ -142,9 +143,14 @@ function HostGetDetails {
             MODEL="Exadata Database Machine X9M-2"
         else
             MODEL=$MODEL_APP
-        fi        
-        MEMORY_KB=$(dcli -c $NHOST -l root "cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
-        MEMORY_GB=$(expr $MEMORY_KB / 1048576)
+        fi
+        if [[ "$HOST_TYPE" == "DOM0" ]]; then
+            MEMORY_MB=$(dcli -c $NHOST -l root "xm info|grep total_memory"|awk '{print $4}')
+            MEMORY_GB=$(expr $MEMORY_MB / 1024)
+        else
+            MEMORY_KB=$(dcli -c $NHOST -l root "cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
+            MEMORY_GB=$(expr $MEMORY_KB / 1048576)
+        fi               
         echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS||$RS"
     done < $DBS_LST
 }
