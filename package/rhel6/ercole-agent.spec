@@ -44,6 +44,9 @@ install -m 644 package/rhel6/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 
 %post
 chkconfig ercole-agent on
+'' >> /opt/ercole-agent/.dbs_group
+'' >> /opt/ercole-agent/.cell_group
+'' >> /opt/ercole-agent/.ibs_group
 
 %files
 %dir /opt/ercole-agent
