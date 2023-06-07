@@ -151,7 +151,7 @@ function HostGetDetails {
             MEMORY_KB=$(dcli -c $NHOST -l root "cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
             MEMORY_GB=$(expr $MEMORY_KB / 1048576)
         fi               
-        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS||$RS"
+        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS|||$RS"
     done < $DBS_LST
 }
 
@@ -195,7 +195,7 @@ function CellGetDetails {
         CELLSRV=$(echo $INFO|awk '{print $8}')
         MS=$(echo $INFO|awk '{print $9}')
         RS=$(echo $INFO_APP|awk '{print $1}')
-        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$CELLSRV|||$MS||$RS"
+        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$CELLSRV|||$MS|||$RS"
         echo " "; echo "TYPE|||CELLDISK|||CELL|||SIZE|||FREESPACE|||STATUS|||ERROR_COUNT"
         for CDISK in $CDISKS
         do
@@ -253,7 +253,7 @@ function vmGetDetails {
         IMAGEVERSION=$(echo $INFO|awk '{print $3}')
         MS=$(echo $INFO|awk '{print $4}')
         RS=$(echo $INFO|awk '{print $5}')
-        echo "$HOST_TYPE|||$HOST|||$IMAGEVERSION|||$KERNEL|||$MS||$RS"
+        echo "$HOST_TYPE|||$HOST|||$IMAGEVERSION|||$KERNEL|||$MS|||$RS"
     done < $DBS_LST
 }
 

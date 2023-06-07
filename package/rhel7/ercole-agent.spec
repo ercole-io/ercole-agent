@@ -48,6 +48,9 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 
 %post
 /usr/bin/systemctl preset %{name}.service >/dev/null 2>&1 ||:
+'' >> /opt/ercole-agent/.dbs_group
+'' >> /opt/ercole-agent/.cell_group
+'' >> /opt/ercole-agent/.ibs_group
 
 %preun
 /usr/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
