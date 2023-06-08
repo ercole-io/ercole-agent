@@ -152,7 +152,7 @@ func associateExadataVm(components []model.OracleExadataComponent, vms []model.O
 
 	for _, component := range components {
 		for _, vm := range vms {
-			if component.HostType == "KVM_HOST" && component.Hostname == vm.PhysicalHost {
+			if (component.HostType == "KVM_HOST" || component.HostType == "DOM0") && component.Hostname == vm.PhysicalHost {
 				component.VMs = append(component.VMs, vm)
 			}
 		}
