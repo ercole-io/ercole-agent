@@ -449,6 +449,18 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.O
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
+// GetOracleDatabaseStorageProvisionings get
+func (wf *WindowsFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentmodel.OratabEntry) ([]model.StorageProvisioning, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioning, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetMicrosoftSQLServerInstances get
 func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "ercoleAgentMsSQLServer-Gather.ps1", "-action", "listInstances")
