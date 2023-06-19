@@ -524,6 +524,26 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBPartitionings(entry agentmodel.O
 	return marshal_oracle.Partitionings(out)
 }
 
+// GetOracleDatabaseStorageProvisionings get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentmodel.OratabEntry) ([]model.StorageProvisioning, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "cdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.StorageProvisionings(out)
+}
+
+// GetOracleDatabasePDBTablespaces get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioning, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.StorageProvisionings(out)
+}
+
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
 	var out []byte
