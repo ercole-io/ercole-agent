@@ -15,6 +15,7 @@
 
 define SNAPDAYS = 30;
 define MONTH = 30;
+define WEEKS_NUMBER = 4;
 define WEEK = 7;
 define MONTH_SOFT_LIMIT = 15;
 define WEEK_SOFT_LIMIT = 4;
@@ -53,10 +54,13 @@ SELECT dbid FROM v$database;
 SELECT instance_number FROM v$instance;
 
 declare
+current_day_difference number := 0;
+--Monthly
 snap_count_month number := 0;
 day_month_count number := 0;
---Old date used to have a check
-current_date_changed_month date := trunc(to_date('01/01/2000', 'dd/mm/yyyy'));
+--"Old date" used to have a comparison value
+reference_date date := trunc(to_date('01/01/2000', 'dd/mm/yyyy'));
+current_date_changed_month date := reference_date;
 current_date_month date;
 v_cpu_db_month_avg number := 0;
 v_cpu_db_month_max number := 0;
@@ -64,26 +68,28 @@ v_IOPS_month_avg number := 0;
 v_IOMB_month_avg number := 0;
 v_IOMB_month_max number := 0;
 --Weekly
-snap_count_week number := 0;
-day_week_count number := 0;
---Old date used to have a check
-current_date_changed_week date := trunc(to_date('01/01/2000', 'dd/mm/yyyy'));
+type arrayOfNumber_weeks is VARRAY(4) of number;
+type arrayOfDates_weeks is VARRAY(4) of date;
 current_date_week date;
-v_cpu_db_week_avg number := 0;
-v_cpu_db_week_max number := 0;
-v_IOPS_week_avg number := 0;
-v_IOMB_week_avg number := 0;
-v_IOMB_week_max number := 0; 
+--Positional array for the last 4 weeks
+current_date_changed_week arrayOfDates_weeks := arrayOfDates_weeks(reference_date,reference_date,reference_date,reference_date);
+day_week_count arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+snap_count_week arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+v_cpu_db_weekly_avg arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+v_cpu_db_weekly_max arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+v_IOPS_weekly_avg arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+v_IOMB_weekly_avg arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
+v_IOMB_weekly_max arrayOfNumber_weeks := arrayOfNumber_weeks(0,0,0,0);
 --Weekly averages
-type arrayOfNumber is VARRAY(7) of number;
-day_number number := 0;
---Positional array for weekly days (snapshot number for each day)
-daily_count arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
-v_cpu_db_daily_avg arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
-v_cpu_db_daily_max arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
-v_IOPS_daily_avg arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
-v_IOMB_daily_avg arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
-v_IOMB_daily_max arrayOfNumber := arrayOfNumber(0,0,0,0,0,0,0);
+type arrayOfNumber_days is VARRAY(7) of number;
+current_week number := -1;
+--Positional array for each day of the last week
+daily_count arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
+v_cpu_db_daily_avg arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
+v_cpu_db_daily_max arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
+v_IOPS_daily_avg arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
+v_IOMB_daily_avg arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
+v_IOMB_daily_max arrayOfNumber_days := arrayOfNumber_days(0,0,0,0,0,0,0);
 --Daily series
 time_series_count number := 0;
 TYPE arrayOfClob_table IS TABLE OF clob;
@@ -145,16 +151,17 @@ begin
 			order by snap_id
 		)
 		
-		loop			
+		loop	
+			current_day_difference := trunc(sysdate)-trunc(metric_row.end_time);
 			--Calculating monthly averages and maximums
-			if trunc(sysdate)-trunc(metric_row.end_time) < &&MONTH then
+			if current_day_difference < &&MONTH then
 				--Counter to know how many effective days have snapshots (it could be the case that in 30 days interval, snapshots are not available for x days?)
 				current_date_month := trunc(metric_row.end_time);
 				if current_date_changed_month != current_date_month then
 					current_date_changed_month := current_date_month;
 					day_month_count := day_month_count+1;
 				end if;
-				
+				--number of snapshot considered during last month
 				snap_count_month := snap_count_month + 1;
 				v_cpu_db_month_avg := v_cpu_db_month_avg + nvl(round(metric_row.cpu_per_s,2),0);		
 				v_IOPS_month_avg := v_IOPS_month_avg + nvl(round((metric_row.pdb_iops),2),0);		
@@ -167,40 +174,43 @@ begin
 				end if;
 			end if;
 			
-			--Calculating weekly averages and maximums
-			if trunc(sysdate)-trunc(metric_row.end_time) < &&WEEK then
-				--Counter to know how many effective days have snapshots (it could be the case that in 7 days interval, snapshots are not available for x days?)
+			--Integer that represents the week number (0 current, 1 next week, ..., 3)
+			current_week := trunc(current_day_difference/&&WEEK);
+			--Consider only last 4 weeks
+			if current_week < &&WEEKS_NUMBER then
+				--Counter to know how many effective days have snapshots (it could be the case that in 7 days interval, snapshots are not available for x days?)				
 				current_date_week := trunc(metric_row.end_time);
-				if current_date_changed_week != current_date_week then
-					current_date_changed_week := current_date_week;
-					day_week_count := day_week_count+1;
-				end if;
-				
-				snap_count_week := snap_count_week + 1;
-				v_cpu_db_week_avg := v_cpu_db_week_avg + nvl(round(metric_row.cpu_per_s,2),0);				
-				v_IOPS_week_avg := v_IOPS_week_avg + nvl(round((metric_row.pdb_iops),2),0);		
-				v_IOMB_week_avg := v_IOMB_week_avg + nvl(round((metric_row.read_mb_s+metric_row.write_mb_s),2),0);			
-				if(metric_row.cpu_per_s_max>=v_cpu_db_week_max) then 
-					v_cpu_db_week_max := round(metric_row.cpu_per_s_max,2); 
+				if current_date_changed_week(current_week+1) != current_date_week then
+					current_date_changed_week(current_week+1) := current_date_week;
+					day_week_count(current_week+1) := day_week_count(current_week+1)+1;
+				end if;	
+				--number of snapshot considered during the current week		
+				snap_count_week(current_week+1) := snap_count_week(current_week+1) + 1;				
+				v_cpu_db_weekly_avg(current_week+1) := v_cpu_db_weekly_avg(current_week+1) + nvl(round(metric_row.cpu_per_s,2),0);
+				v_IOPS_weekly_avg(current_week+1) := v_IOPS_weekly_avg(current_week+1) + nvl(round((metric_row.pdb_iops),2),0);
+				v_IOMB_weekly_avg(current_week+1) := v_IOMB_weekly_avg(current_week+1) + nvl(round(metric_row.read_mb_s+metric_row.write_mb_s,2),0);		
+				if(metric_row.cpu_per_s_max>=v_cpu_db_weekly_max(current_week+1)) then 
+					v_cpu_db_weekly_max(current_week+1) := round(metric_row.cpu_per_s_max,2); 
 				end if;				
-				if((metric_row.read_mb_s_max+metric_row.write_mb_s_max)>=v_IOMB_week_max) then
-					v_IOMB_week_max := round((metric_row.read_mb_s_max+metric_row.write_mb_s_max),2);
+				if((metric_row.read_mb_s_max+metric_row.write_mb_s_max)>=v_IOMB_weekly_max(current_week+1)) then
+					v_IOMB_weekly_max(current_week+1) := round((metric_row.read_mb_s_max+metric_row.write_mb_s_max),2);
 				end if;			
-				
-				--Calculating daily averages and highs for the last 7 days
-				--If the snapshot is from the last 7 days (today->day_number=0)
-				day_number := trunc(sysdate)-trunc(metric_row.end_time);
-				if day_number<7 then 
+			end if;
+			
+			--Calculating daily averages and highs for the last 7 days
+			--If the snapshot is from the last 7 days (today->day_number=0)
+			if current_day_difference < &&WEEK then		
+				if current_day_difference<7 then 
 					--the array starts from position 1 (today->position 1 in the array, 7 days ago->position 7 in the array)
-					daily_count(day_number+1) := daily_count(day_number+1) + 1;
-					v_cpu_db_daily_avg(day_number+1) := v_cpu_db_daily_avg(day_number+1) + nvl(round(metric_row.cpu_per_s,2),0);					
-					v_IOPS_daily_avg(day_number+1) := v_IOPS_daily_avg(day_number+1) + nvl(round(metric_row.pdb_iops,2),0);
-					v_IOMB_daily_avg(day_number+1) := v_IOMB_daily_avg(day_number+1) + nvl(round(metric_row.read_mb_s+metric_row.write_mb_s,2),0);					
-					if(metric_row.cpu_per_s_max>=v_cpu_db_daily_max(day_number+1)) then
-						v_cpu_db_daily_max(day_number+1) := round(metric_row.cpu_per_s_max,2); 
+					daily_count(current_day_difference+1) := daily_count(current_day_difference+1) + 1;
+					v_cpu_db_daily_avg(current_day_difference+1) := v_cpu_db_daily_avg(current_day_difference+1) + nvl(round(metric_row.cpu_per_s,2),0);					
+					v_IOPS_daily_avg(current_day_difference+1) := v_IOPS_daily_avg(current_day_difference+1) + nvl(round((metric_row.pdb_iops),2),0);
+					v_IOMB_daily_avg(current_day_difference+1) := v_IOMB_daily_avg(current_day_difference+1) + nvl(round(metric_row.read_mb_s+metric_row.write_mb_s,2),0);					
+					if(metric_row.cpu_per_s_max>=v_cpu_db_daily_max(current_day_difference+1)) then
+						v_cpu_db_daily_max(current_day_difference+1) := round(metric_row.cpu_per_s_max,2); 
 					end if;
-					if(metric_row.read_mb_s_max+metric_row.write_mb_s_max>=v_IOMB_daily_max(day_number+1)) then
-						v_IOMB_daily_max(day_number+1) := round(metric_row.read_mb_s_max+metric_row.write_mb_s_max,2);
+					if(metric_row.read_mb_s_max+metric_row.write_mb_s_max>=v_IOMB_daily_max(current_day_difference+1)) then
+						v_IOMB_daily_max(current_day_difference+1) := round(metric_row.read_mb_s_max+metric_row.write_mb_s_max,2);
 					end if;
 				end if;
 			end if;
@@ -237,19 +247,25 @@ begin
 			DBMS_OUTPUT.PUT_LINE('N/A|||N/A|||N/A|||N/A|||N/A');
 		end if;
 		
-		--Weekly output (show only if the number of days for which you have snapshots is greater than WEEK_SOFT_LIMIT [arbitrarily decided soft limit])
-		if(day_week_count>=&&WEEK_SOFT_LIMIT) then
-			--Avg calculated on weekly snapshot number.
-			if(snap_count_week>0) then
-				v_cpu_db_week_avg := round((v_cpu_db_week_avg / snap_count_week),2);
-				v_IOPS_week_avg := round((v_IOPS_week_avg / snap_count_week),2);
-				v_IOMB_week_avg := round((v_IOMB_week_avg / snap_count_week),2);
+		--Output last 4 weeks averages and maximums
+		--Loops over weeks
+		for w_index in day_week_count.FIRST..day_week_count.LAST
+		LOOP
+			--Weekly output (show only if the number of days for which you have snapshots is greater than WEEK_SOFT_LIMIT [arbitrarily decided soft limit])
+			if (day_week_count(w_index)>=&&WEEK_SOFT_LIMIT) THEN
+				if  (snap_count_week(w_index)>0) THEN
+					v_cpu_db_weekly_avg(w_index) := round((v_cpu_db_weekly_avg(w_index) / snap_count_week(w_index)),2);
+					v_IOPS_weekly_avg(w_index) := round((v_IOPS_weekly_avg(w_index) / snap_count_week(w_index)),2);
+					v_IOMB_weekly_avg(w_index) := round((v_IOMB_weekly_avg(w_index) / snap_count_week(w_index)),2);
+					--v_cpu_db_weekly_avg(w_index),v_cpu_db_weekly_max(w_index),v_IOPS_weekly_avg(w_index),v_IOMB_weekly_avg(w_index),v_IOMB_weekly_max(w_index)
+					DBMS_OUTPUT.PUT_LINE(v_cpu_db_weekly_avg(w_index) || '|||' || v_cpu_db_weekly_max(w_index) || '|||' || v_IOPS_weekly_avg(w_index) || '|||' || v_IOMB_weekly_avg(w_index) || '|||' || v_IOMB_weekly_max(w_index));
+				ELSE
+					DBMS_OUTPUT.PUT_LINE('N/A|||N/A|||N/A|||N/A|||N/A');
+				end if;
+			ELSE
+				DBMS_OUTPUT.PUT_LINE('N/A|||N/A|||N/A|||N/A|||N/A');
 			end if;
-			--v_cpu_db_week_avg,v_cpu_db_week_max,v_IOPS_week_avg,v_IOMB_week_avg,v_IOMB_week_max
-			DBMS_OUTPUT.PUT_LINE(v_cpu_db_week_avg || '|||' || v_cpu_db_week_max || '|||' || v_IOPS_week_avg || '|||' || v_IOMB_week_avg || '|||' || v_IOMB_week_max);
-		else
-			DBMS_OUTPUT.PUT_LINE('N/A|||N/A|||N/A|||N/A|||N/A');
-		end if;
+		END LOOP;
 	
 		--Output daily averages last week
 		--Daily averages, loops over days

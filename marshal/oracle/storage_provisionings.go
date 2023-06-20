@@ -66,51 +66,71 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 				start = &s
 				end = &currentTime
 			case 2:
+				s := currentTime.AddDate(0, 0, -14)
+				start = &s
+				e := currentTime.AddDate(0, 0, -8)
+				end = &e
+			case 3:
+				s := currentTime.AddDate(0, 0, -21)
+				start = &s
+				e := currentTime.AddDate(0, 0, -15)
+				end = &e
+			case 4:
+				s := currentTime.AddDate(0, 0, -28)
+				start = &s
+				e := currentTime.AddDate(0, 0, -22)
+				end = &e
+			case 5:
 				start = &currentTime
 				end = nil
-			case 3:
+			case 6:
 				s := currentTime.AddDate(0, 0, -1)
 				start = &s
-				end = nil
-			case 4:
+				end = &currentTime
+			case 7:
 				s := currentTime.AddDate(0, 0, -2)
 				start = &s
-				end = nil
-			case 5:
+				e := currentTime.AddDate(0, 0, -1)
+				end = &e
+			case 8:
 				s := currentTime.AddDate(0, 0, -3)
 				start = &s
-				end = nil
-			case 6:
+				e := currentTime.AddDate(0, 0, -2)
+				end = &e
+			case 9:
 				s := currentTime.AddDate(0, 0, -4)
 				start = &s
-				end = nil
-			case 7:
+				e := currentTime.AddDate(0, 0, -3)
+				end = &e
+			case 10:
 				s := currentTime.AddDate(0, 0, -5)
 				start = &s
-				end = nil
-			case 8:
+				e := currentTime.AddDate(0, 0, -4)
+				end = &e
+			case 11:
 				s := currentTime.AddDate(0, 0, -6)
 				start = &s
-				end = nil
+				e := currentTime.AddDate(0, 0, -5)
+				end = &e
 			}
 
 			sp, err := parseValues(splitted)
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
-			
+
 			sp.TimeStart = start
 			sp.TimeEnd = end
 
 			res = append(res, sp)
 		}
 
-		if i > 8 {
+		if i > 11 {
 			sp, err := parseTimeSeries(splitted)
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
-			
+
 			res = append(res, sp)
 		}
 
