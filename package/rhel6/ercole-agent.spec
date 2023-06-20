@@ -142,7 +142,6 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/partitioning_pdb.sql
 /opt/ercole-agent/sql/pdb_cpu_iops.sql
 /opt/ercole-agent/sql/cdb_cpu_iops.sql
-/opt/ercole-agent/sql/sar_cpu_only_linux.sql
 
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.backup_schedule.sql
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.db.10.sql
