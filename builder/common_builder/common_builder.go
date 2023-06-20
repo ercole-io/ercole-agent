@@ -92,6 +92,11 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.ClusterMembershipStatus = *cms
 	}
 
+	if hostData.Consumptions, err = b.fetcher.GetCpuConsumption(); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+	}
+
 	b.runCloud(hostData)
 
 	b.runOracleDatabase(hostData)

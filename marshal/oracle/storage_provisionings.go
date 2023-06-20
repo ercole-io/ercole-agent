@@ -27,8 +27,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-var currentTime = time.Now()
-
 // StorageProvisionings returns information about database Input / Output Operations Per Second
 func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error) {
 	res := make([]model.StorageProvisioning, 0)
