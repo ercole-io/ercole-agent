@@ -93,6 +93,8 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/partitioning.sh
 /opt/ercole-agent/fetch/linux/partitioning_pdb.sh
 /opt/ercole-agent/fetch/linux/vmware.ps1
+/opt/ercole-agent/fetch/linux/cdb_cpu_iops.sh
+/opt/ercole-agent/fetch/linux/pdb_cpu_iops.sh
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/new_info.sh
@@ -137,6 +139,8 @@ chkconfig ercole-agent on
 /opt/ercole-agent/sql/charset_pdb.sql
 /opt/ercole-agent/sql/partitioning.sql
 /opt/ercole-agent/sql/partitioning_pdb.sql
+/opt/ercole-agent/sql/pdb_cpu_iops.sql
+/opt/ercole-agent/sql/cdb_cpu_iops.sql
 
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.backup_schedule.sql
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.db.10.sql
