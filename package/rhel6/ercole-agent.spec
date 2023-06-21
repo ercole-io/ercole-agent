@@ -95,6 +95,7 @@ chkconfig ercole-agent on
 /opt/ercole-agent/fetch/linux/vmware.ps1
 /opt/ercole-agent/fetch/linux/cdb_cpu_iops.sh
 /opt/ercole-agent/fetch/linux/pdb_cpu_iops.sh
+/opt/ercole-agent/fetch/linux/sar_cpu_only_linux.sh
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/new_info.sh
