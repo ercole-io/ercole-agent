@@ -461,7 +461,7 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentm
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioning, error) {
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioningPdb, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }

@@ -110,6 +110,22 @@ func TrimParseUnsafeFloat64(s string, trim func(string) (float64, error)) (float
 	return trim(s)
 }
 
+func TrimParseUnsafeFloat64Pointer(s string, trim func(string) (float64, error)) (*float64, error) {
+	s = strings.TrimSpace(s)
+
+	if s == "N/A" {
+		return nil, nil
+	}
+
+	s = fmt.Sprintf("0%s", s)
+
+	s = strings.Replace(s, ",", ".", 1)
+
+	res, err := trim(s)
+
+	return &res, err
+}
+
 func TrimParseFloat64SafeComma(s string) (float64, error) {
 	s = strings.TrimSpace(s)
 

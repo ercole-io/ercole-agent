@@ -3,7 +3,7 @@ module github.com/ercole-io/ercole-agent/v2
 go 1.18
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0-20230620124431-22569739ec8a
+	github.com/ercole-io/ercole/v2 v2.0.0-20230717134445-da1ccc1f385c
 	github.com/fatih/color v1.15.0
 	github.com/go-co-op/gocron v1.18.0
 	github.com/golang/mock v1.6.0
