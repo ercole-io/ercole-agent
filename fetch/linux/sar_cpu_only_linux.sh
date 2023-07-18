@@ -21,6 +21,7 @@ os_system=`uname -a | awk '{print $1}' | tr '[:upper:]' '[:lower:]'`
 month_soft_limit=15;
 week_soft_limit=4;
 today=`date '+%d'`
+yesterday=`date --date="1 day ago" '+%d'`
 #Now (time includes) in seconds
 now_saved_time=`date '+%s'`
 #Today (time 00:00:00) in seconds
@@ -60,7 +61,7 @@ if [ $os_system == 'linux' ]
 			done
 		done
 		
-		for file in `ls -rt /var/log/sa/sa$today /var/log/sa/sa$((today-1))`
+		for file in `ls -rt /var/log/sa/sa$today /var/log/sa/sa$yesterday`
 		do
 			unset sar_array_average
 			#Each line contained in the sar files (considering the awk filter) is "saved" in an array (to avoid opening the file n times to read cell by cell)
