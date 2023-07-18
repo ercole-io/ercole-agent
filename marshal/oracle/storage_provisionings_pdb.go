@@ -36,10 +36,23 @@ func StorageProvisioningsPdb(cmdOutput []byte) ([]model.StorageProvisioningPdb, 
 
 	i := 0
 
+	// check if the current line is in the designed marker or not
+	isBegin := false
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if line == "BEGINOUTPUT" || line == "ENDOUTPUT" || line == "" || line == "PL/SQL procedure successfully completed." {
+		if line == "BEGINOUTPUT" {
+			isBegin = true
+			continue
+		}
+
+		if line == "ENDOUTPUT" {
+			isBegin = false
+			continue
+		}
+
+		if !isBegin {
 			continue
 		}
 
