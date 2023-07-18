@@ -544,13 +544,13 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentmod
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioning, error) {
+func (lf *LinuxFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioningPdb, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.StorageProvisionings(out)
+	return marshal_oracle.StorageProvisioningsPdb(out)
 }
 
 // GetClusters return VMWare clusters from the given hyperVisor

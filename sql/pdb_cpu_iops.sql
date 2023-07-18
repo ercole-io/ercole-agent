@@ -40,7 +40,7 @@ alter session set container=&1;
 set serveroutput on
 
 --Retrieve min and max snap_id to use considering only SNAPDAYS days
-SELECT MIN(snap_id) bid, MAX(snap_id) eid, extract(day from MAX(END_INTERVAL_TIME)-MIN(BEGIN_INTERVAL_TIME)) snapdaysretrieved
+SELECT nvl(MIN(snap_id),0) bid, nvl(MAX(snap_id),0) eid, nvl(extract(day from MAX(END_INTERVAL_TIME)-MIN(BEGIN_INTERVAL_TIME)),0) snapdaysretrieved
 FROM dba_hist_snapshot
 WHERE BEGIN_INTERVAL_TIME > trunc(sysdate-&&SNAPDAYS) 
 AND instance_number =
@@ -97,8 +97,8 @@ v_time_series_table arrayOfClob_table := arrayOfClob_table();
 v_time_series_element clob := '';
 
 begin
-	--if the DIAGNOSTIC PACK HAS ALREADY BEEN USED
-	if (&V_diagnostic_pack_utilizations>0) then
+	--if the DIAGNOSTIC PACK HAS ALREADY BEEN USED AND THE DB HAS AT LEAST 1 DAY OF SNAPSHOTS
+	if (&V_diagnostic_pack_utilizations>0 AND &V_SNAP_DAYS_RETRIEVED>0) then
 		for metric_row in (
 			select snap_id, max(end_time) end_time,
 			nvl(max(decode(metric_name, 'CPU Usage Per Sec', round(average/100,2),null)), 0) cpu_per_s,

@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-// StorageProvisionings returns information about database Input / Output Operations Per Second
-func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error) {
-	res := make([]model.StorageProvisioning, 0)
+// StorageProvisioningsPdb returns information about pluggable database Input / Output Operations Per Second
+func StorageProvisioningsPdb(cmdOutput []byte) ([]model.StorageProvisioningPdb, error) {
+	res := make([]model.StorageProvisioningPdb, 0)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr error
@@ -56,7 +56,7 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 			continue
 		}
 
-		if len(splitted) == 8 {
+		if len(splitted) == 5 {
 			var start *time.Time
 
 			var end *time.Time
@@ -119,7 +119,7 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 				end = &e
 			}
 
-			sp, err := parseValues(splitted)
+			sp, err := parseValuesPdb(splitted)
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
@@ -131,7 +131,7 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 		}
 
 		if i > 11 {
-			sp, err := parseTimeSeries(splitted)
+			sp, err := parseTimeSeriesPdb(splitted)
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
@@ -149,10 +149,10 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 	return res, nil
 }
 
-func parseValues(lines []string) (model.StorageProvisioning, error) {
+func parseValuesPdb(lines []string) (model.StorageProvisioningPdb, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioning{}
+	sp := model.StorageProvisioningPdb{}
 
 	if sp.CpuDbAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[0], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
@@ -162,37 +162,25 @@ func parseValues(lines []string) (model.StorageProvisioning, error) {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.CpuHostAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[2], marshal.TrimParseFloat64); err != nil {
+	if sp.IopsAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[2], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.CpuHostMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[3], marshal.TrimParseFloat64); err != nil {
+	if sp.IombAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[3], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.IopsAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[4], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IopsMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[5], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IombAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[6], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IombMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[7], marshal.TrimParseFloat64); err != nil {
+	if sp.IombMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[4], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
 	return sp, merr
 }
 
-func parseTimeSeries(lines []string) (model.StorageProvisioning, error) {
+func parseTimeSeriesPdb(lines []string) (model.StorageProvisioningPdb, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioning{TimeEnd: nil}
+	sp := model.StorageProvisioningPdb{TimeEnd: nil}
 
 	start, errStart := time.Parse("020115:04", strings.TrimSpace(lines[0]))
 	if errStart != nil {
@@ -210,27 +198,15 @@ func parseTimeSeries(lines []string) (model.StorageProvisioning, error) {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.CpuHostAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[3], marshal.TrimParseFloat64); err != nil {
+	if sp.IopsAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[3], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.CpuHostMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[4], marshal.TrimParseFloat64); err != nil {
+	if sp.IombAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[4], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if sp.IopsAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[5], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IopsMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[6], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IombAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[7], marshal.TrimParseFloat64); err != nil {
-		merr = multierror.Append(merr, ercutils.NewError(err))
-	}
-
-	if sp.IombMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[8], marshal.TrimParseFloat64); err != nil {
+	if sp.IombMax, err = marshal.TrimParseUnsafeFloat64Pointer(lines[5], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
