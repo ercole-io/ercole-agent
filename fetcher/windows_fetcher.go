@@ -215,6 +215,11 @@ func (wf *WindowsFetcherImpl) GetCpuConsumption() ([]model.Consumption, error) {
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
+func (wf *WindowsFetcherImpl) GetDiskConsumption() ([]model.DiskConsumption, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabaseOratabEntries get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseOratabEntries() ([]agentmodel.OratabEntry, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", "-s", "oratab", wf.configuration.Features.OracleDatabase.Oratab)

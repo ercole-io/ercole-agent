@@ -219,6 +219,15 @@ func (lf *LinuxFetcherImpl) GetCpuConsumption() ([]model.Consumption, error) {
 	return marshal.Consumption(out)
 }
 
+func (lf *LinuxFetcherImpl) GetDiskConsumption() ([]model.DiskConsumption, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "sar_disks_only_linux")
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal.DiskConsumption(out)
+}
+
 func (lf *LinuxFetcherImpl) GetOracleDatabaseGrantsDba(entry agentmodel.OratabEntry) ([]model.OracleGrantDba, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "grant_dba", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {

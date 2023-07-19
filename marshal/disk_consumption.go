@@ -26,12 +26,10 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-var currentTime = time.Now()
-
-// Consumption returns information about host CPU consumption extracted
-// from the sar_cpu_only_linux fetcher command output.
-func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
-	res := []model.Consumption{}
+// DiskConsumption returns information about host disk consumption extracted
+// from the sar_disks_only_linux fetcher command output.
+func DiskConsumption(cmdOutput []byte) ([]model.DiskConsumption, error) {
+	res := []model.DiskConsumption{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr, err error
@@ -40,7 +38,7 @@ func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		c := model.Consumption{}
+		c := model.DiskConsumption{}
 
 		splitted := strings.Split(line, "|||")
 
@@ -61,7 +59,7 @@ func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
 
 		var end *time.Time
 
-		if len(splitted) == 1 {
+		if len(splitted) == 2 {
 			switch i {
 			case 0:
 				s := currentTime.AddDate(0, 0, -30)
@@ -134,12 +132,16 @@ func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
 			c.TimeStart = start
 			c.TimeEnd = end
 
-			if c.CpuAvg, err = TrimParseUnsafeFloat64Pointer(splitted[0], TrimParseFloat64); err != nil {
+			if c.IopsHostDayAvg, err = TrimParseUnsafeFloat64Pointer(splitted[0], TrimParseFloat64); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+
+			if c.IombHostDayAvg, err = TrimParseUnsafeFloat64Pointer(splitted[1], TrimParseFloat64); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 		}
 
-		if len(splitted) == 2 {
+		if len(splitted) == 3 {
 			start, errStart := time.Parse("020115:04", strings.TrimSpace(splitted[0]))
 			if errStart != nil {
 				merr = multierror.Append(merr, ercutils.NewError(errStart))
@@ -149,7 +151,11 @@ func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
 			c.TimeStart = &start
 			c.TimeEnd = nil
 
-			if c.CpuAvg, err = TrimParseUnsafeFloat64Pointer(splitted[1], TrimParseFloat64); err != nil {
+			if c.IopsHostDayAvg, err = TrimParseUnsafeFloat64Pointer(splitted[1], TrimParseFloat64); err != nil {
+				merr = multierror.Append(merr, ercutils.NewError(err))
+			}
+
+			if c.IombHostDayAvg, err = TrimParseUnsafeFloat64Pointer(splitted[2], TrimParseFloat64); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 		}
