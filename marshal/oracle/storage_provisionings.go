@@ -61,7 +61,9 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 		// skip row only if all splitted values are N/A
 		isValidRow := false
 		for _, v := range splitted {
-			isValidRow = v != "N/A"
+			if !isValidRow {
+				isValidRow = v != "N/A"
+			}
 		}
 
 		if !isValidRow {

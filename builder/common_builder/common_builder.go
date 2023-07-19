@@ -97,6 +97,11 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.AddErrors(err)
 	}
 
+	if hostData.DiskConsumptions, err = b.fetcher.GetDiskConsumption(); err != nil {
+		b.log.Error(err)
+		hostData.AddErrors(err)
+	}
+
 	b.runCloud(hostData)
 
 	b.runOracleDatabase(hostData)

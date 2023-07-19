@@ -38,6 +38,7 @@ type Fetcher interface {
 	GetFilesystems() ([]model.Filesystem, error)
 	GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error)
 	GetCpuConsumption() ([]model.Consumption, error)
+	GetDiskConsumption() ([]model.DiskConsumption, error)
 
 	// Virtualization fetcher
 
