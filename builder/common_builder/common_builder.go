@@ -92,7 +92,7 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 		hostData.ClusterMembershipStatus = *cms
 	}
 
-	if hostData.Consumptions, err = b.fetcher.GetCpuConsumption(); err != nil {
+	if hostData.CpuConsumptions, err = b.fetcher.GetCpuConsumption(); err != nil {
 		b.log.Error(err)
 		hostData.AddErrors(err)
 	}

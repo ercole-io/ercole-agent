@@ -305,8 +305,8 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 	}, &wg)
 
 	utils.RunRoutineInGroup(b.configuration, func() {
-		if database.StorageProvisionings, err = b.fetcher.GetOracleDatabaseStorageProvisionings(entry); err != nil {
-			database.StorageProvisionings = []model.StorageProvisioning{}
+		if database.CpuDiskConsumptions, err = b.fetcher.GetOracleDatabaseCpuDiskConsumptions(entry); err != nil {
+			database.CpuDiskConsumptions = []model.CpuDiskConsumption{}
 			b.log.Warnf("Oracle db [%s]: can't get storage provisionings", entry.DBName)
 			nonBlockingErrs <- err
 		}
@@ -442,7 +442,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		}, &wg)
 
 		utils.RunRoutineInGroup(b.configuration, func() {
-			if pdb.StorageProvisionings, err = b.fetcher.GetOracleDatabasePDBStorageProvisionings(entry, pdb.Name); err != nil {
+			if pdb.CpuDiskConsumptionPdbs, err = b.fetcher.GetOracleDatabaseCpuDiskConsumptionPdbs(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] storage provisionings", entry.DBName, pdb.Name)
 				errChan <- err
 			}

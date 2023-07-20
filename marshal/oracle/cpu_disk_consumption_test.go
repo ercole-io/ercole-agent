@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testStorageProvisioningData = `BEGINOUTPUT
+const testCpuDiskConsumptionData = `BEGINOUTPUT
 N/A|||N/A|||N/A|||N/A|||N/A|||N/A|||N/A|||N/A
 .21|||4.41|||6.59|||26.65|||407.68|||19431.85|||164.88|||11712.28
 .21|||4.41|||6.59|||26.65|||407.68|||19431.85|||164.88|||11712.28
@@ -42,7 +42,7 @@ N/A|||N/A|||N/A|||N/A|||N/A|||N/A|||N/A|||N/A
 150611:59|||.43|||.7|||10.84|||16.21|||449.94|||5855.83|||162.22|||3757.54
 ENDOUTPUT`
 
-func TestStorageProvisionings(t *testing.T) {
+func TestCpuDiskConsumptions(t *testing.T) {
 	currentTime = time.Now()
 	t2 := currentTime.AddDate(0, 0, -7)
 	t3 := currentTime.AddDate(0, 0, -14)
@@ -77,7 +77,7 @@ func TestStorageProvisionings(t *testing.T) {
 	}
 	t18 = t18.AddDate(time.Now().Year(), 0, 0)
 
-	expected := []model.StorageProvisioning{
+	expected := []model.CpuDiskConsumption{
 		{
 			TimeStart:  &t2,
 			TimeEnd:    &currentTime,
@@ -253,7 +253,7 @@ func TestStorageProvisionings(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, err := StorageProvisionings([]byte(testStorageProvisioningData))
+	actual, err := CpuDiskConsumptions([]byte(testCpuDiskConsumptionData))
 	assert.Nil(t, err)
 
 	actualJSON, err := json.Marshal(actual)

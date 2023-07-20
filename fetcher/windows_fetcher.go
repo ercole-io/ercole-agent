@@ -210,7 +210,7 @@ func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	return marshal.Filesystems(out)
 }
 
-func (wf *WindowsFetcherImpl) GetCpuConsumption() ([]model.Consumption, error) {
+func (wf *WindowsFetcherImpl) GetCpuConsumption() ([]model.CpuConsumption, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }
@@ -460,13 +460,13 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.O
 }
 
 // GetOracleDatabaseStorageProvisionings get
-func (wf *WindowsFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentmodel.OratabEntry) ([]model.StorageProvisioning, error) {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptions(entry agentmodel.OratabEntry) ([]model.CpuDiskConsumption, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioningPdb, error) {
+func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }

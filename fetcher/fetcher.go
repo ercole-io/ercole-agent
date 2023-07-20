@@ -37,7 +37,7 @@ type Fetcher interface {
 	GetHost() (*model.Host, error)
 	GetFilesystems() ([]model.Filesystem, error)
 	GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error)
-	GetCpuConsumption() ([]model.Consumption, error)
+	GetCpuConsumption() ([]model.CpuConsumption, error)
 	GetDiskConsumption() ([]model.DiskConsumption, error)
 
 	// Virtualization fetcher
@@ -75,8 +75,8 @@ type Fetcher interface {
 	GetOracleDatabasePDBCharset(entry agentmodel.OratabEntry, pdb string) (string, error)
 	GetOracleDatabasePartitionings(entry agentmodel.OratabEntry) ([]model.OracleDatabasePartitioning, error)
 	GetOracleDatabasePDBPartitionings(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePartitioning, error)
-	GetOracleDatabaseStorageProvisionings(entry agentmodel.OratabEntry) ([]model.StorageProvisioning, error)
-	GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioningPdb, error)
+	GetOracleDatabaseCpuDiskConsumptions(entry agentmodel.OratabEntry) ([]model.CpuDiskConsumption, error)
+	GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error)
 
 	// Oracle/Exadata fetchers
 	GetOracleExadataComponents() ([]model.OracleExadataComponent, error)

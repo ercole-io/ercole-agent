@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testStorageProvisioningPdbData = `BEGINOUTPUT
+const testCpuDiskConsumptionsPdbData = `BEGINOUTPUT
 N/A|||N/A|||N/A|||N/A|||N/A
 1.02|||5.37|||0|||30.11|||73130.31
 N/A|||N/A|||N/A|||N/A|||N/A
@@ -47,7 +47,7 @@ func float64ToPointer(f float64) *float64 {
 	return &f
 }
 
-func TestStorageProvisioningsPdb(t *testing.T) {
+func TestCpuDiskConsumptionsPdb(t *testing.T) {
 	currentTime = time.Now()
 	t2 := currentTime.AddDate(0, 0, -7)
 	t9 := currentTime.AddDate(0, 0, -1)
@@ -63,7 +63,7 @@ func TestStorageProvisioningsPdb(t *testing.T) {
 	}
 	t16 = t16.AddDate(time.Now().Year(), 0, 0)
 
-	expected := []model.StorageProvisioningPdb{
+	expected := []model.CpuDiskConsumptionPdb{
 		{
 			TimeStart: &t2,
 			TimeEnd:   &currentTime,
@@ -152,7 +152,7 @@ func TestStorageProvisioningsPdb(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, err := StorageProvisioningsPdb([]byte(testStorageProvisioningPdbData))
+	actual, err := CpuDiskConsumptionsPdb([]byte(testCpuDiskConsumptionsPdbData))
 	assert.Nil(t, err)
 
 	actualJSON, err := json.Marshal(actual)

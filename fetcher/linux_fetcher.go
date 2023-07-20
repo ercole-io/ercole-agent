@@ -210,13 +210,13 @@ func (lf *LinuxFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	return marshal.Filesystems(out)
 }
 
-func (lf *LinuxFetcherImpl) GetCpuConsumption() ([]model.Consumption, error) {
+func (lf *LinuxFetcherImpl) GetCpuConsumption() ([]model.CpuConsumption, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "sar_cpu_only_linux")
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal.Consumption(out)
+	return marshal.CpuConsumption(out)
 }
 
 func (lf *LinuxFetcherImpl) GetDiskConsumption() ([]model.DiskConsumption, error) {
@@ -543,23 +543,23 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePDBPartitionings(entry agentmodel.O
 }
 
 // GetOracleDatabaseStorageProvisionings get
-func (lf *LinuxFetcherImpl) GetOracleDatabaseStorageProvisionings(entry agentmodel.OratabEntry) ([]model.StorageProvisioning, error) {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptions(entry agentmodel.OratabEntry) ([]model.CpuDiskConsumption, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "cdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.StorageProvisionings(out)
+	return marshal_oracle.CpuDiskConsumptions(out)
 }
 
 // GetOracleDatabasePDBTablespaces get
-func (lf *LinuxFetcherImpl) GetOracleDatabasePDBStorageProvisionings(entry agentmodel.OratabEntry, pdb string) ([]model.StorageProvisioningPdb, error) {
+func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
 
-	return marshal_oracle.StorageProvisioningsPdb(out)
+	return marshal_oracle.CpuDiskConsumptionsPdb(out)
 }
 
 // GetClusters return VMWare clusters from the given hyperVisor

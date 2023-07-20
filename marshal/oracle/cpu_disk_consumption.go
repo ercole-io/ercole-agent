@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-// StorageProvisionings returns information about database Input / Output Operations Per Second
-func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error) {
-	res := make([]model.StorageProvisioning, 0)
+// CpuDiskConsumptions returns information about database Input / Output Operations Per Second
+func CpuDiskConsumptions(cmdOutput []byte) ([]model.CpuDiskConsumption, error) {
+	res := make([]model.CpuDiskConsumption, 0)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr error
@@ -164,10 +164,10 @@ func StorageProvisionings(cmdOutput []byte) ([]model.StorageProvisioning, error)
 	return res, nil
 }
 
-func parseValues(lines []string) (model.StorageProvisioning, error) {
+func parseValues(lines []string) (model.CpuDiskConsumption, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioning{}
+	sp := model.CpuDiskConsumption{}
 
 	if sp.CpuDbAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[0], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
@@ -204,10 +204,10 @@ func parseValues(lines []string) (model.StorageProvisioning, error) {
 	return sp, merr
 }
 
-func parseTimeSeries(lines []string) (model.StorageProvisioning, error) {
+func parseTimeSeries(lines []string) (model.CpuDiskConsumption, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioning{TimeEnd: nil}
+	sp := model.CpuDiskConsumption{TimeEnd: nil}
 
 	start, errStart := time.Parse("020115:04", strings.TrimSpace(lines[0]))
 	if errStart != nil {
