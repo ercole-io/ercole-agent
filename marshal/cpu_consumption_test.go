@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testConsumptionsData string = `7.27
+var testCpuConsumptionData string = `7.27
 7.20
 6.88
 7.29
@@ -39,7 +39,7 @@ var testConsumptionsData string = `7.27
 190611:00|||10.93
 190611:10|||13.96`
 
-func TestConsumption(t *testing.T) {
+func TestCpuConsumption(t *testing.T) {
 	currentTime = time.Now()
 	t1 := currentTime.AddDate(0, 0, -30)
 	t2 := currentTime.AddDate(0, 0, -7)
@@ -68,9 +68,9 @@ func TestConsumption(t *testing.T) {
 	}
 	t16 = t16.AddDate(time.Now().Year(), 0, 0)
 
-	cmdOutput := []byte(testConsumptionsData)
+	cmdOutput := []byte(testCpuConsumptionData)
 
-	expected := []model.Consumption{
+	expected := []model.CpuConsumption{
 		{
 			TimeStart: &t1,
 			TimeEnd:   &currentTime,
@@ -149,7 +149,7 @@ func TestConsumption(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, err := Consumption(cmdOutput)
+	actual, err := CpuConsumption(cmdOutput)
 	assert.Nil(t, err)
 
 	actualJSON, err := json.Marshal(actual)

@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-// StorageProvisioningsPdb returns information about pluggable database Input / Output Operations Per Second
-func StorageProvisioningsPdb(cmdOutput []byte) ([]model.StorageProvisioningPdb, error) {
-	res := make([]model.StorageProvisioningPdb, 0)
+// CpuDiskConsumptionsPdb returns information about pluggable database Input / Output Operations Per Second
+func CpuDiskConsumptionsPdb(cmdOutput []byte) ([]model.CpuDiskConsumptionPdb, error) {
+	res := make([]model.CpuDiskConsumptionPdb, 0)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr error
@@ -164,10 +164,10 @@ func StorageProvisioningsPdb(cmdOutput []byte) ([]model.StorageProvisioningPdb, 
 	return res, nil
 }
 
-func parseValuesPdb(lines []string) (model.StorageProvisioningPdb, error) {
+func parseValuesPdb(lines []string) (model.CpuDiskConsumptionPdb, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioningPdb{}
+	sp := model.CpuDiskConsumptionPdb{}
 
 	if sp.CpuDbAvg, err = marshal.TrimParseUnsafeFloat64Pointer(lines[0], marshal.TrimParseFloat64); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
@@ -192,10 +192,10 @@ func parseValuesPdb(lines []string) (model.StorageProvisioningPdb, error) {
 	return sp, merr
 }
 
-func parseTimeSeriesPdb(lines []string) (model.StorageProvisioningPdb, error) {
+func parseTimeSeriesPdb(lines []string) (model.CpuDiskConsumptionPdb, error) {
 	var err, merr error
 
-	sp := model.StorageProvisioningPdb{TimeEnd: nil}
+	sp := model.CpuDiskConsumptionPdb{TimeEnd: nil}
 
 	start, errStart := time.Parse("020115:04", strings.TrimSpace(lines[0]))
 	if errStart != nil {

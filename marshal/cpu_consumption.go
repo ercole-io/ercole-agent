@@ -28,10 +28,10 @@ import (
 
 var currentTime = time.Now()
 
-// Consumption returns information about host CPU consumption extracted
+// CpuConsumption returns information about host CPU consumption extracted
 // from the sar_cpu_only_linux fetcher command output.
-func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
-	res := []model.Consumption{}
+func CpuConsumption(cmdOutput []byte) ([]model.CpuConsumption, error) {
+	res := []model.CpuConsumption{}
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr, err error
@@ -40,7 +40,7 @@ func Consumption(cmdOutput []byte) ([]model.Consumption, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		c := model.Consumption{}
+		c := model.CpuConsumption{}
 
 		splitted := strings.Split(line, "|||")
 
