@@ -67,68 +67,80 @@ func CpuConsumption(cmdOutput []byte) ([]model.CpuConsumption, error) {
 				s := currentTime.AddDate(0, 0, -30)
 				start = &s
 				end = &currentTime
+				c.Target = "m"
 
 			case 1:
 				s := currentTime.AddDate(0, 0, -7)
 				start = &s
 				end = &currentTime
+				c.Target = "w4"
 
 			case 2:
 				s := currentTime.AddDate(0, 0, -14)
 				start = &s
 				e := currentTime.AddDate(0, 0, -8)
 				end = &e
+				c.Target = "w3"
 
 			case 3:
 				s := currentTime.AddDate(0, 0, -21)
 				start = &s
 				e := currentTime.AddDate(0, 0, -15)
 				end = &e
+				c.Target = "w2"
 
 			case 4:
 				s := currentTime.AddDate(0, 0, -28)
 				start = &s
 				e := currentTime.AddDate(0, 0, -22)
 				end = &e
+				c.Target = "w1"
 
 			case 5:
 				start = &currentTime
 				end = nil
+				c.Target = "d7"
 
 			case 6:
 				s := currentTime.AddDate(0, 0, -1)
 				start = &s
 				end = &currentTime
+				c.Target = "d6"
 
 			case 7:
 				s := currentTime.AddDate(0, 0, -2)
 				start = &s
 				e := currentTime.AddDate(0, 0, -1)
 				end = &e
+				c.Target = "d5"
 
 			case 8:
 				s := currentTime.AddDate(0, 0, -3)
 				start = &s
 				e := currentTime.AddDate(0, 0, -2)
 				end = &e
+				c.Target = "d4"
 
 			case 9:
 				s := currentTime.AddDate(0, 0, -4)
 				start = &s
 				e := currentTime.AddDate(0, 0, -3)
 				end = &e
+				c.Target = "d3"
 
 			case 10:
 				s := currentTime.AddDate(0, 0, -5)
 				start = &s
 				e := currentTime.AddDate(0, 0, -4)
 				end = &e
+				c.Target = "d2"
 
 			case 11:
 				s := currentTime.AddDate(0, 0, -6)
 				start = &s
 				e := currentTime.AddDate(0, 0, -5)
 				end = &e
+				c.Target = "d1"
 			}
 
 			c.TimeStart = start
