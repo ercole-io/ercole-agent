@@ -32,7 +32,7 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 	vms := make([]model.OracleExadataVM, 0)
 	cells := make([]model.OracleExadataStorageCell, 0)
 	grids := make([]model.OracleExadataGridDisk, 0)
-	database := new(model.OracleExadataDatabase)
+	databases := make([]model.OracleExadataDatabase, 0)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr error
@@ -98,7 +98,10 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 			}
 		case "DATABASE":
 			if len(splitted) == 7 {
+				var database *model.OracleExadataDatabase
+
 				database, merr = parseDatabase(splitted)
+				databases = append(databases, *database)
 			}
 		}
 	}
@@ -113,16 +116,18 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 		associateGridToCellDisk(
 			grids,
 			associateDbToStorageCell(
-				*database,
+				databases,
 				cells))), nil
 }
 
-func associateDbToStorageCell(db model.OracleExadataDatabase, storageCells []model.OracleExadataStorageCell) []model.OracleExadataStorageCell {
+func associateDbToStorageCell(dbs []model.OracleExadataDatabase, storageCells []model.OracleExadataStorageCell) []model.OracleExadataStorageCell {
 	res := make([]model.OracleExadataStorageCell, 0, len(storageCells))
 
 	for _, sc := range storageCells {
-		if sc.Cell == db.Cell {
-			sc.Database = db
+		for _, db := range dbs {
+			if sc.Cell == db.Cell {
+				sc.Databases = append(sc.Databases, db)
+			}
 		}
 
 		res = append(res, sc)
