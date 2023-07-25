@@ -141,7 +141,7 @@ func associateGridToCellDisk(grids []model.OracleExadataGridDisk, cells []model.
 
 	for _, cell := range cells {
 		for _, grid := range grids {
-			if cell.Hostname == grid.Hostname {
+			if cell.CellDisk == grid.CellDisk {
 				cell.GridDisks = append(cell.GridDisks, grid)
 			}
 		}
