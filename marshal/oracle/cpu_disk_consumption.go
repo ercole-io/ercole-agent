@@ -88,40 +88,40 @@ func CpuDiskConsumptions(cmdOutput []byte) ([]model.CpuDiskConsumption, error) {
 				s := currentTime.AddDate(0, 0, -7)
 				start = &s
 				end = &currentTime
-				target = "w4"
+				target = "w1"
 			case 2:
 				s := currentTime.AddDate(0, 0, -14)
 				start = &s
 				e := currentTime.AddDate(0, 0, -8)
 				end = &e
-				target = "w3"
+				target = "w2"
 			case 3:
 				s := currentTime.AddDate(0, 0, -21)
 				start = &s
 				e := currentTime.AddDate(0, 0, -15)
 				end = &e
-				target = "w2"
+				target = "w3"
 			case 4:
 				s := currentTime.AddDate(0, 0, -28)
 				start = &s
 				e := currentTime.AddDate(0, 0, -22)
 				end = &e
-				target = "w1"
+				target = "w4"
 			case 5:
 				start = &currentTime
 				end = nil
-				target = "d7"
+				target = "d1"
 			case 6:
 				s := currentTime.AddDate(0, 0, -1)
 				start = &s
 				end = &currentTime
-				target = "d6"
+				target = "d2"
 			case 7:
 				s := currentTime.AddDate(0, 0, -2)
 				start = &s
 				e := currentTime.AddDate(0, 0, -1)
 				end = &e
-				target = "d5"
+				target = "d3"
 			case 8:
 				s := currentTime.AddDate(0, 0, -3)
 				start = &s
@@ -133,19 +133,19 @@ func CpuDiskConsumptions(cmdOutput []byte) ([]model.CpuDiskConsumption, error) {
 				start = &s
 				e := currentTime.AddDate(0, 0, -3)
 				end = &e
-				target = "d3"
+				target = "d5"
 			case 10:
 				s := currentTime.AddDate(0, 0, -5)
 				start = &s
 				e := currentTime.AddDate(0, 0, -4)
 				end = &e
-				target = "d2"
+				target = "d6"
 			case 11:
 				s := currentTime.AddDate(0, 0, -6)
 				start = &s
 				e := currentTime.AddDate(0, 0, -5)
 				end = &e
-				target = "d1"
+				target = "d7"
 			}
 
 			sp, err := parseValues(splitted)
