@@ -153,6 +153,19 @@ SELECT 'Tuning Pack'                                         , 'SQL Tuning Advis
 SELECT 'Tuning Pack'                                         , 'SQL Tuning Set (user)'                                   , '^1[289]\.|^2[0-9]\.'                          , 'INVALID' from dual union all -- no longer part of Tuning Pack
 SELECT 'Tuning Pack'                                         , 'Tuning Pack'                                             , '^11\.2'                                       , ' '       from dual union all
 SELECT '.WebLogic Server Management Pack Enterprise Edition' , 'EM AS Provisioning and Patch Automation Pack'            , '^11\.2'                                       , ' '       from dual union all
+--added by SORINT, particular license not needed but Enterprise Version license is needed to use them 
+SELECT 'Enterprise Edition'					 				 , 'Application Express'									 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'				 	 				 , 'Editioning Views'									 	 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'				 	 				 , 'Fine Grained Audit'									 	 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'					 				 , 'In-Memory Column Store'									 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'					 				 , 'Oracle In-Database Hadoop'								 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'					 				 , 'Java Virtual Machine (user)'							 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'				 	 				 , 'Real Application Security'								 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'		 	 		 				 , 'Resource Manager'								 	     , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'	 	 		 	 				 , 'Shard Database'								 	     	 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'					 				 , 'Virtual Private Database (VPD)'							 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'					 				 , 'Parallel SQL Query Execution'							 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
+SELECT 'Enterprise Edition'			 		 				 , 'Online Redefinition'							 		 , '^11\.2|^1[289]\.|^2[0-9]\.'					  , ' '       from dual union all
 select '' PRODUCT, '' FEATURE, '' MVERSION, '' CONDITION from dual
 ),
 FUS as (
@@ -301,5 +314,3 @@ select
   where USAGE in ('4.PAST_USAGE', '5.PAST_OR_CURRENT_USAGE', '6.CURRENT_USAGE')  -- ignore '1.NO_PAST_USAGE'
 order by CON_ID, decode(substr(PRODUCT, 1, 1), '.', 2, 1), PRODUCT, FEATURE_BEING_USED, LAST_SAMPLE_DATE desc, PFUS.USAGE
 ;
-
-exit 
