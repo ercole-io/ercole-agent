@@ -81,43 +81,43 @@ func TestCpuConsumption(t *testing.T) {
 
 			TimeStart: &t2,
 			TimeEnd:   &currentTime,
-			Target:    "w4",
+			Target:    "w1",
 			CpuAvg:    getPointerToFloat(7.20),
 		},
 		{
 			TimeStart: &t3,
 			TimeEnd:   &t4,
-			Target:    "w3",
+			Target:    "w2",
 			CpuAvg:    getPointerToFloat(6.88),
 		},
 		{
 			TimeStart: &t5,
 			TimeEnd:   &t6,
-			Target:    "w2",
+			Target:    "w3",
 			CpuAvg:    getPointerToFloat(7.29),
 		},
 		{
 			TimeStart: &t7,
 			TimeEnd:   &t8,
-			Target:    "w1",
+			Target:    "w4",
 			CpuAvg:    getPointerToFloat(7.39),
 		},
 		{
 			TimeStart: &currentTime,
 			TimeEnd:   nil,
-			Target:    "d7",
+			Target:    "d1",
 			CpuAvg:    getPointerToFloat(10.10),
 		},
 		{
 			TimeStart: &t9,
 			TimeEnd:   &currentTime,
-			Target:    "d6",
+			Target:    "d2",
 			CpuAvg:    getPointerToFloat(8.27),
 		},
 		{
 			TimeStart: &t10,
 			TimeEnd:   &t9,
-			Target:    "d5",
+			Target:    "d3",
 			CpuAvg:    getPointerToFloat(4.92),
 		},
 		{
@@ -129,19 +129,19 @@ func TestCpuConsumption(t *testing.T) {
 		{
 			TimeStart: &t12,
 			TimeEnd:   &t11,
-			Target:    "d3",
+			Target:    "d5",
 			CpuAvg:    getPointerToFloat(7.68),
 		},
 		{
 			TimeStart: &t13,
 			TimeEnd:   &t12,
-			Target:    "d2",
+			Target:    "d6",
 			CpuAvg:    getPointerToFloat(7.83),
 		},
 		{
 			TimeStart: &t14,
 			TimeEnd:   &t13,
-			Target:    "d1",
+			Target:    "d7",
 			CpuAvg:    getPointerToFloat(8.33),
 		},
 		{

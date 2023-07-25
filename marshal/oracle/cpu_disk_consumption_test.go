@@ -81,7 +81,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t2,
 			TimeEnd:    &currentTime,
-			Target:     "w4",
+			Target:     "w1",
 			CpuDbAvg:   float64ToPointer(0.21),
 			CpuDbMax:   float64ToPointer(4.41),
 			CpuHostAvg: float64ToPointer(6.59),
@@ -94,7 +94,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t3,
 			TimeEnd:    &t4,
-			Target:     "w3",
+			Target:     "w2",
 			CpuDbAvg:   float64ToPointer(0.21),
 			CpuDbMax:   float64ToPointer(4.41),
 			CpuHostAvg: float64ToPointer(6.59),
@@ -107,7 +107,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t5,
 			TimeEnd:    &t6,
-			Target:     "w2",
+			Target:     "w3",
 			CpuDbAvg:   float64ToPointer(0.08),
 			CpuDbMax:   float64ToPointer(0.75),
 			CpuHostAvg: float64ToPointer(7.21),
@@ -120,7 +120,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t7,
 			TimeEnd:    &t8,
-			Target:     "w1",
+			Target:     "w4",
 			CpuDbAvg:   float64ToPointer(0.21),
 			CpuDbMax:   float64ToPointer(4.41),
 			CpuHostAvg: float64ToPointer(6.59),
@@ -133,7 +133,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &currentTime,
 			TimeEnd:    nil,
-			Target:     "d7",
+			Target:     "d1",
 			CpuDbAvg:   float64ToPointer(0.21),
 			CpuDbMax:   float64ToPointer(4.41),
 			CpuHostAvg: float64ToPointer(6.59),
@@ -146,7 +146,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t9,
 			TimeEnd:    &currentTime,
-			Target:     "d6",
+			Target:     "d2",
 			CpuDbAvg:   float64ToPointer(0.21),
 			CpuDbMax:   float64ToPointer(2.87),
 			CpuHostAvg: float64ToPointer(7.57),
@@ -159,7 +159,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t10,
 			TimeEnd:    &t9,
-			Target:     "d5",
+			Target:     "d3",
 			CpuDbAvg:   float64ToPointer(0.33),
 			CpuDbMax:   float64ToPointer(4.41),
 			CpuHostAvg: float64ToPointer(8.06),
@@ -185,7 +185,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t12,
 			TimeEnd:    &t11,
-			Target:     "d3",
+			Target:     "d5",
 			CpuDbAvg:   float64ToPointer(0.31),
 			CpuDbMax:   float64ToPointer(3.21),
 			CpuHostAvg: float64ToPointer(7.4),
@@ -198,7 +198,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t13,
 			TimeEnd:    &t12,
-			Target:     "d2",
+			Target:     "d6",
 			CpuDbAvg:   float64ToPointer(0.08),
 			CpuDbMax:   float64ToPointer(2.14),
 			CpuHostAvg: float64ToPointer(4.31),
@@ -211,7 +211,7 @@ func TestCpuDiskConsumptions(t *testing.T) {
 		{
 			TimeStart:  &t14,
 			TimeEnd:    &t13,
-			Target:     "d1",
+			Target:     "d7",
 			CpuDbAvg:   float64ToPointer(0.08),
 			CpuDbMax:   float64ToPointer(2.39),
 			CpuHostAvg: float64ToPointer(4.3),
