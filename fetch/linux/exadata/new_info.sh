@@ -5,6 +5,7 @@
 # 20230418: added check on configuration files' content to ensure they're not empty
 # 20230505: enhanced cell entities and added RACK_ID to all physical components
 # 20230601: corrected function HostGetDetails to retrieve the correct amount of memory from dom0 type hosts
+# 20230727: fixed function CellGetDetails to display the correct storage server name in despite of the network alias used by the utility
 
 ### Variables
 APP_DIR=/tmp
@@ -207,7 +208,7 @@ function CellGetDetails {
             CD_FREESPACE=$(echo $CD_INFO|awk '{print $3}')
             CD_SIZE=$(echo $CD_INFO|awk '{print $4}')
             CD_STATUS=$(echo $CD_INFO|awk '{print $5}')
-            echo "$TYPE|||$CD_NAME|||$CELL|||$CD_SIZE|||$CD_FREESPACE|||$CD_STATUS|||$CD_ERRCOUNT"
+            echo "$TYPE|||$CD_NAME|||$HOST|||$CD_SIZE|||$CD_FREESPACE|||$CD_STATUS|||$CD_ERRCOUNT"
             echo "TYPE|||GRIDDISK|||CELLDISK|||SIZE|||STATUS|||ERROR_COUNT|||CACHING_POLICY|||ASMDISK_NAME|||ASM_DIKSKGROUP|||ASKDISK_SIZE|||ASMDISK_STATUS"
             for GDISK in $GDISKS
             do
@@ -235,7 +236,7 @@ function CellGetDetails {
             DB_FCLIMIT=$(echo $DB_INFO|awk '{print $3}')
             DB_IORMSHARE=$(echo $DB_INFO|awk '{print $4}')
             DB_LASTREQ=$(echo $DB_INFO|awk '{print $5}')
-            echo "$TYPE|||$DB_NAME|||$CELL|||$DB_ID|||$DB_FCLIMIT|||$DB_IORMSHARE|||$DB_LASTREQ"
+            echo "$TYPE|||$DB_NAME|||$HOST|||$DB_ID|||$DB_FCLIMIT|||$DB_IORMSHARE|||$DB_LASTREQ"
         done; echo " "
     done < $CELL_LST
 }

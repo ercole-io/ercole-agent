@@ -50,7 +50,7 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 		}
 
 		switch splitted[0] {
-		case "KVM_HOST", "DOM0":
+		case "KVM_HOST", "DOM0", "BARE_METAL":
 			if len(splitted) == 15 {
 				component, merr = parseKvmHost(splitted)
 				components = append(components, *component)
@@ -157,7 +157,7 @@ func associateExadataVm(components []model.OracleExadataComponent, vms []model.O
 
 	for _, component := range components {
 		for _, vm := range vms {
-			if (component.HostType == "KVM_HOST" || component.HostType == "DOM0") && component.Hostname == vm.PhysicalHost {
+			if (component.HostType == "KVM_HOST" || component.HostType == "DOM0" || component.HostType == "BARE_METAL") && component.Hostname == vm.PhysicalHost {
 				component.VMs = append(component.VMs, vm)
 			}
 		}
