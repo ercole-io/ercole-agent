@@ -23,6 +23,7 @@ define WEEK_SOFT_LIMIT = 4;
 column bid new_value V_BID noprint
 column eid new_value V_EID noprint
 column dbid new_value V_DBID noprint
+column con_id new_value V_CONID noprint
 column instance_number new_value V_INSTANCE_NUMBER noprint
 column snapdaysretrieved new_value V_SNAP_DAYS_RETRIEVED noprint
 column diagnostic_pack_utilizations new_value V_diagnostic_pack_utilizations noprint
@@ -35,23 +36,33 @@ from DBA_FEATURE_USAGE_STATISTICS
 where name in ('ADDM','AWR Baseline','AWR Baseline Template','AWR Report','Automatic Workload Repository','Baseline Adaptive Thresholds',
 'Baseline Static Computations','Diagnostic Pack','EM Performance Page') and dbid=&V_DBID;
 
-alter session set container=&1;
+alter session set container=ORCLPDB;
 
 set serveroutput on
+
+--Fetch the database dbid
+SELECT instance_number FROM v$instance;
+
+--Consering that DBA_HIST_CON_SYSMETRIC_SUMM and DBA_HIST_RSRC_PDB_METRIC tables contains records referenced to the pdb metric both with dbid of the CDB and dbid of the PDB
+--(rows duplicated) will be used the dbid that owns more snapshot (it depends on the retention period, sometimes different from CDB and PDB and on awr_pdb_autoflush_enabled, 
+--if not TRUE, snapshot with PDB dbid won't be present)
+select dbid from 
+(
+	select dbid,count(*) from dba_hist_snapshot 
+	where BEGIN_INTERVAL_TIME > trunc(sysdate-30) 
+	group by dbid
+	order by count(*) desc
+)
+where rownum = 1;
+
+--On DBA_HIST_CON_SYSMETRIC_SUMM and DBA_HIST_RSRC_PDB_METRIC even if it is possible to use dbid referred to the CDB the CON_ID must be the one referred to the PDB
+SELECT SYS_CONTEXT('USERENV','CON_ID') con_id FROM dual;
 
 --Retrieve min and max snap_id to use considering only SNAPDAYS days
 SELECT nvl(MIN(snap_id),0) bid, nvl(MAX(snap_id),0) eid, nvl(extract(day from MAX(END_INTERVAL_TIME)-MIN(BEGIN_INTERVAL_TIME)),0) snapdaysretrieved
 FROM dba_hist_snapshot
 WHERE BEGIN_INTERVAL_TIME > trunc(sysdate-&&SNAPDAYS) 
-AND instance_number =
-	(
-		SELECT instance_number
-		FROM v$instance
-	);
-
---Fetch the database dbid
-SELECT dbid FROM v$database;
-SELECT instance_number FROM v$instance;
+AND instance_number = &V_INSTANCE_NUMBER AND dbid=&V_DBID;
 
 declare
 current_day_difference number := 0;
@@ -122,7 +133,7 @@ begin
 			from(
 					select snap_id, end_time, metric_name, average, maxval
 					from DBA_HIST_CON_SYSMETRIC_SUMM
-					where dbid = &V_DBID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER 
+					where dbid = &V_DBID and con_id = &V_CONID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER 
 					and	metric_name in ('CPU Usage Per Sec','Host CPU Usage Per Sec','Physical Read Total Bytes Per Sec',
 					'Physical Read Total IO Requests Per Sec','Physical Write Total Bytes Per Sec','Physical Write Total IO Requests Per Sec')
 					--Part dedicated to PDB 
@@ -130,17 +141,17 @@ begin
 						select snap_id, cast(end_time as DATE), metric_name, round(metric_value,1) average, null maxval
 						from
 						(  
-							select snap_id, dbid, end_time,instance_number, 'PDB_IOPS' metric_name, IOPS metric_value from DBA_HIST_RSRC_PDB_METRIC 
+							select snap_id, dbid, con_id, end_time,instance_number, 'PDB_IOPS' metric_name, IOPS metric_value from DBA_HIST_RSRC_PDB_METRIC 
 							--union all
 							--select snap_id, dbid, end_time,instance_number, 'PDB_IOMBPS' metric_name, IOMBPS metric_value from DBA_HIST_RSRC_PDB_METRIC 
 							--union all
-							--select snap_id, dbid, end_time,instance_number, 'PDB_CPU_USAGE_PER_S' metric_name, CPU_CONSUMED_TIME/INTSIZE_CSEC/10 metric_value from DBA_HIST_RSRC_PDB_METRIC 
+							--select snap_id, dbid, end_time,instance_number, 'PDB_CPU_USAGE_PER_S' metric_name, CPU_CONSUMED_TIME/INTSIZE_CSEC/10 metric_value from DBA_HIST_RSRC_PDB_METRIC 							
 						)
-						where dbid = &V_DBID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER 
+						where dbid = &V_DBID and con_id = &V_CONID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER						
 						and snap_id -1 not in 
 							(
 								select max(snap_id) last_snap_before_seq_chg from DBA_HIST_RSRC_PDB_METRIC
-								where dbid = &V_DBID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER
+								where dbid = &V_DBID and con_id = &V_CONID and snap_id between &V_BID and &V_EID and instance_number=&V_INSTANCE_NUMBER
 								group by sequence#
 								--PDB_IOPS and PDB_IOMBPS are wrong when sequence changes in DBA_HIST_RSRC_PDB_METRIC
 								--remove those snapshot right after a change in sequence (this is the "snap_id -1 not in" subquery)
