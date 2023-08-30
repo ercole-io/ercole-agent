@@ -175,6 +175,19 @@ func (b *CommonBuilder) RunExadata(exadata *model.OracleExadataInstance) {
 		return
 	}
 
+	if b.configuration.Hostname != "default" {
+		exadata.Hostname = b.configuration.Hostname
+	} else {
+		h, err := b.fetcher.GetHost()
+		if err != nil {
+			b.log.Error(err)
+
+			return
+		}
+
+		exadata.Hostname = h.Hostname
+	}
+
 	var err error
 
 	if exadata.Components, err = b.getOracleExadataComponents(); err != nil {
