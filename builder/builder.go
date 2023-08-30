@@ -16,6 +16,8 @@
 package builder
 
 import (
+	"time"
+
 	common "github.com/ercole-io/ercole-agent/v2/builder/common_builder"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
@@ -40,9 +42,11 @@ func BuildData(configuration config.Configuration, log logger.Logger) *model.Hos
 func BuildExadata(config config.Configuration, log logger.Logger) *model.OracleExadataInstance {
 	exadata := new(model.OracleExadataInstance)
 
-	exadata.Hostname = config.Hostname
 	exadata.Environment = config.Environment
 	exadata.Location = config.Location
+
+	t := time.Now()
+	exadata.CreatedAt = &t
 
 	builder := common.NewCommonBuilder(config, log)
 
