@@ -32,6 +32,7 @@ import (
 // Configuration holds the agent configuration options
 type Configuration struct {
 	Hostname               string
+	ExadataName            string
 	Environment            string
 	Location               string
 	DataserviceURL         string

@@ -1,5 +1,6 @@
 {
     "Hostname": "default",
+    "ExadataName": "default",
     "Environment": "TST",
     "Location": "Italy",
     "DataserviceURL": "http://ercole/data",

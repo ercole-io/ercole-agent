@@ -175,8 +175,8 @@ func (b *CommonBuilder) RunExadata(exadata *model.OracleExadataInstance) {
 		return
 	}
 
-	if b.configuration.Hostname != "default" {
-		exadata.Hostname = b.configuration.Hostname
+	if b.configuration.ExadataName != "default" {
+		exadata.Hostname = b.configuration.ExadataName
 	} else {
 		h, err := b.fetcher.GetHost()
 		if err != nil {
