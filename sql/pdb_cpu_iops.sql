@@ -36,7 +36,7 @@ from DBA_FEATURE_USAGE_STATISTICS
 where name in ('ADDM','AWR Baseline','AWR Baseline Template','AWR Report','Automatic Workload Repository','Baseline Adaptive Thresholds',
 'Baseline Static Computations','Diagnostic Pack','EM Performance Page') and dbid=&V_DBID;
 
-alter session set container=ORCLPDB;
+alter session set container=&1;
 
 set serveroutput on
 
