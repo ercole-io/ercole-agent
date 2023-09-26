@@ -107,6 +107,8 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/fetch/linux/pdb_cpu_iops.sh
 /opt/ercole-agent/fetch/linux/sar_cpu_only_linux.sh
 /opt/ercole-agent/fetch/linux/sar_disks_only_linux.sh
+/opt/ercole-agent/fetch/linux/to_postgresql.sh
+/opt/ercole-agent/fetch/linux/to_postgresql_pluggable.sh
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/new_info.sh
@@ -153,6 +155,7 @@ install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/6
 /opt/ercole-agent/sql/partitioning_pdb.sql
 /opt/ercole-agent/sql/pdb_cpu_iops.sql
 /opt/ercole-agent/sql/cdb_cpu_iops.sql
+/opt/ercole-agent/sql/to_postgresql.sql
 
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.backup_schedule.sql
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.db.10.sql

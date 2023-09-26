@@ -465,8 +465,20 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptions(entry agentmo
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
+// GetOracleDatabasePgsqlMigrability get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePgsqlMigrability(entry agentmodel.OratabEntry) ([]model.PgsqlMigrability, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabasePDBTablespaces get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabasePgsqlMigrabilityPdbs get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.PgsqlMigrability, error) {
 	wf.log.Error(notImplementedWindows)
 	return nil, ercutils.NewError(notImplementedWindows)
 }
