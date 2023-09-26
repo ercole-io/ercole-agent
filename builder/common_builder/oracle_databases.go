@@ -312,6 +312,13 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		}
 	}, &wg)
 
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.PgsqlMigrability, err = b.fetcher.GetOracleDatabasePgsqlMigrability(entry); err != nil {
+			b.log.Warnf("Oracle db [%s]: can't get postgres migrability", entry.DBName)
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
 	wg.Wait()
 	close(blockingErrs)
 	close(nonBlockingErrs)
@@ -444,6 +451,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.CpuDiskConsumptionPdbs, err = b.fetcher.GetOracleDatabaseCpuDiskConsumptionPdbs(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] storage provisionings", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.PgsqlMigrability, err = b.fetcher.GetOracleDatabasePgsqlMigrabilityPdbs(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] postgres migrability", entry.DBName, pdb.Name)
 				errChan <- err
 			}
 		}, &wg)

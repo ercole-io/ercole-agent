@@ -33,6 +33,8 @@ github.com/ercole-io/ercole/v2 v2.0.0-20230724073410-12220f13259e h1:PhLU4lJ2XGk
 github.com/ercole-io/ercole/v2 v2.0.0-20230724073410-12220f13259e/go.mod h1:TZp7B24+V/oI+xwZha9sb4pwvp/kK6Ux7BX00hHnFyI=
 github.com/ercole-io/ercole/v2 v2.0.0-20230724124132-0257e04522ef h1:nbYfE09xXTWCjJRR83mOcI7HpSp50veDCSFm157fPpg=
 github.com/ercole-io/ercole/v2 v2.0.0-20230724124132-0257e04522ef/go.mod h1:AUvxLHznGrl4cLo5p5W7teTx2NTkDqhn5eWk0PhC/GY=
+github.com/ercole-io/ercole/v2 v2.0.0-20230925123032-bc05f600f5e3 h1:GrBXu2kCPihDc1pOtt8rF4s/t9k2oF3pToYHHpF2Tag=
+github.com/ercole-io/ercole/v2 v2.0.0-20230925123032-bc05f600f5e3/go.mod h1:AUvxLHznGrl4cLo5p5W7teTx2NTkDqhn5eWk0PhC/GY=
 github.com/etcd-io/etcd v3.3.17+incompatible/go.mod h1:cdZ77EstHBwVtD6iTgzgvogwcjo9m4iOqoijouPJ4bs=
 github.com/fatih/color v1.15.0 h1:kOqh6YHBtK8aywxGerMG2Eq3H6Qgoqeo13Bk2Mv/nBs=
 github.com/fatih/color v1.15.0/go.mod h1:0h5ZqXfHYED7Bhv2ZJamyIOUej9KtShiJESRwBDUSsw=

@@ -552,6 +552,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptions(entry agentmode
 	return marshal_oracle.CpuDiskConsumptions(out)
 }
 
+// GetOracleDatabasePgsqlMigrability get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePgsqlMigrability(entry agentmodel.OratabEntry) ([]model.PgsqlMigrability, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "to_postgresql", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.PostgresMigrability(out)
+}
+
 // GetOracleDatabasePDBTablespaces get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
@@ -560,6 +570,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentm
 	}
 
 	return marshal_oracle.CpuDiskConsumptionsPdb(out)
+}
+
+// GetOracleDatabasePgsqlMigrabilityPdbs get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.PgsqlMigrability, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "to_postgresql_pluggable", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.PostgresMigrability(out)
 }
 
 // GetClusters return VMWare clusters from the given hyperVisor
