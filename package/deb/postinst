@@ -34,7 +34,7 @@ echo "/var/log/ercole-agent.log {
 
 '' >> /opt/ercole-agent/.dbs_group
 '' >> /opt/ercole-agent/.cell_group
-'' >> /opt/ercole-agent/.ibs_group
+'' >> /opt/ercole-agent/.ibs_group_EMPTY
 
 systemctl start ercole-agent.service ;
 systemctl enable ercole-agent.service ;
