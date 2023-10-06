@@ -645,7 +645,7 @@ func (lf *LinuxFetcherImpl) GetVirtualMachines(hv config.Hypervisor) (map[string
 }
 
 func (lf *LinuxFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/new_info")
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "exadata/new_info", lf.configuration.Features.OracleExadata.FetcherUser)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
