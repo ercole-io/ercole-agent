@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testExadataComponentData string = `HOST_TYPE|||RACK_ID|||HOSTNAME|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS
-KVM_HOST|||AK00467954|||exafakedatav01|||96|||96|||1510|||21.2.12.0.0.220513|||4.14.35-2047.511.5.5.1.el7uek.x86_64|||Exadata Database Machine X8M-2|||16|||16|||2|||2|||running|||running`
+const testExadataComponentData string = `HOST_TYPE|||RACK_ID|||HOSTNAME|||HOST_ID|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS
+KVM_HOST|||AK00467954|||exafakedatav01|||2043XCB05P|||96|||96|||1510|||21.2.12.0.0.220513|||4.14.35-2047.511.5.5.1.el7uek.x86_64|||Exadata Database Machine X8M-2|||16|||16|||2|||2|||running|||running`
 
 func TestExadataComponents(t *testing.T) {
 	expected := []model.OracleExadataComponent{
@@ -31,6 +31,7 @@ func TestExadataComponents(t *testing.T) {
 			HostType:     "KVM_HOST",
 			RackID:       "AK00467954",
 			Hostname:     "exafakedatav01",
+			HostID: "2043XCB05P",
 			CPUEnabled:   96,
 			TotalCPU:     96,
 			Memory:       1510,
