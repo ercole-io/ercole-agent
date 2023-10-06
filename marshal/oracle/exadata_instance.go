@@ -51,12 +51,12 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 
 		switch splitted[0] {
 		case "KVM_HOST", "DOM0", "BARE_METAL":
-			if len(splitted) == 15 {
+			if len(splitted) == 16 {
 				component, merr = parseKvmHost(splitted)
 				components = append(components, *component)
 			}
 		case "STORAGE_CELL":
-			if len(splitted) == 16 {
+			if len(splitted) == 17 {
 				component, merr = parseStorageCell(splitted)
 				components = append(components, *component)
 			}
@@ -182,41 +182,42 @@ func parseKvmHost(sl []string) (*model.OracleExadataComponent, error) {
 	res.HostType = strings.TrimSpace(sl[0])
 	res.RackID = strings.TrimSpace(sl[1])
 	res.Hostname = strings.TrimSpace(sl[2])
+	res.HostID = strings.TrimSpace(sl[3])
 
-	if res.CPUEnabled, err = marshal.TrimParseInt(sl[3]); err != nil {
+	if res.CPUEnabled, err = marshal.TrimParseInt(sl[4]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.TotalCPU, err = marshal.TrimParseInt(sl[4]); err != nil {
+	if res.TotalCPU, err = marshal.TrimParseInt(sl[5]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.Memory, err = marshal.TrimParseInt(sl[5]); err != nil {
+	if res.Memory, err = marshal.TrimParseInt(sl[6]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	res.ImageVersion = strings.TrimSpace(sl[6])
-	res.Kernel = strings.TrimSpace(sl[7])
-	res.Model = strings.TrimSpace(sl[8])
+	res.ImageVersion = strings.TrimSpace(sl[7])
+	res.Kernel = strings.TrimSpace(sl[8])
+	res.Model = strings.TrimSpace(sl[9])
 
-	if res.FanUsed, err = marshal.TrimParseInt(sl[9]); err != nil {
+	if res.FanUsed, err = marshal.TrimParseInt(sl[10]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.FanTotal, err = marshal.TrimParseInt(sl[10]); err != nil {
+	if res.FanTotal, err = marshal.TrimParseInt(sl[11]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.PsuUsed, err = marshal.TrimParseInt(sl[11]); err != nil {
+	if res.PsuUsed, err = marshal.TrimParseInt(sl[12]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.PsuTotal, err = marshal.TrimParseInt(sl[12]); err != nil {
+	if res.PsuTotal, err = marshal.TrimParseInt(sl[13]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	res.MsStatus = strings.TrimSpace(sl[13])
-	res.RsStatus = strings.TrimSpace(sl[14])
+	res.MsStatus = strings.TrimSpace(sl[14])
+	res.RsStatus = strings.TrimSpace(sl[15])
 
 	return res, merr
 }
@@ -229,42 +230,43 @@ func parseStorageCell(sl []string) (*model.OracleExadataComponent, error) {
 	res.HostType = strings.TrimSpace(sl[0])
 	res.RackID = strings.TrimSpace(sl[1])
 	res.Hostname = strings.TrimSpace(sl[2])
+	res.HostID = strings.TrimSpace(sl[3])
 
-	if res.CPUEnabled, err = marshal.TrimParseInt(sl[3]); err != nil {
+	if res.CPUEnabled, err = marshal.TrimParseInt(sl[4]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.TotalCPU, err = marshal.TrimParseInt(sl[4]); err != nil {
+	if res.TotalCPU, err = marshal.TrimParseInt(sl[5]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.Memory, err = marshal.TrimParseInt(sl[5]); err != nil {
+	if res.Memory, err = marshal.TrimParseInt(sl[6]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	res.ImageVersion = strings.TrimSpace(sl[6])
-	res.Kernel = strings.TrimSpace(sl[7])
-	res.Model = strings.TrimSpace(sl[8])
+	res.ImageVersion = strings.TrimSpace(sl[7])
+	res.Kernel = strings.TrimSpace(sl[8])
+	res.Model = strings.TrimSpace(sl[9])
 
-	if res.FanUsed, err = marshal.TrimParseInt(sl[9]); err != nil {
+	if res.FanUsed, err = marshal.TrimParseInt(sl[10]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.FanTotal, err = marshal.TrimParseInt(sl[10]); err != nil {
+	if res.FanTotal, err = marshal.TrimParseInt(sl[11]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.PsuUsed, err = marshal.TrimParseInt(sl[11]); err != nil {
+	if res.PsuUsed, err = marshal.TrimParseInt(sl[12]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	if res.PsuTotal, err = marshal.TrimParseInt(sl[12]); err != nil {
+	if res.PsuTotal, err = marshal.TrimParseInt(sl[13]); err != nil {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
-	res.CellServiceStatus = strings.TrimSpace(sl[13])
-	res.MsStatus = strings.TrimSpace(sl[14])
-	res.RsStatus = strings.TrimSpace(sl[15])
+	res.CellServiceStatus = strings.TrimSpace(sl[14])
+	res.MsStatus = strings.TrimSpace(sl[15])
+	res.RsStatus = strings.TrimSpace(sl[16])
 
 	return res, merr
 }
