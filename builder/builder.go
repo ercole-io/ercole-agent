@@ -45,8 +45,7 @@ func BuildExadata(config config.Configuration, log logger.Logger) *model.OracleE
 	exadata.Environment = config.Environment
 	exadata.Location = config.Location
 
-	t := time.Now()
-	exadata.CreatedAt = &t
+	exadata.CreatedAt = time.Now()
 
 	builder := common.NewCommonBuilder(config, log)
 
