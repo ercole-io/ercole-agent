@@ -32,9 +32,9 @@ echo "/var/log/ercole-agent.log {
     monthly
 }" > /etc/logrotate.d/ercole-agent
 
-'' >> /opt/ercole-agent/.dbs_group
-'' >> /opt/ercole-agent/.cell_group
-'' >> /opt/ercole-agent/.ibs_group_EMPTY
+echo '' >> /opt/ercole-agent/.dbs_group
+echo '' >> /opt/ercole-agent/.cell_group
+echo '' >> /opt/ercole-agent/.ibs_group_EMPTY
 
 systemctl start ercole-agent.service ;
 systemctl enable ercole-agent.service ;
