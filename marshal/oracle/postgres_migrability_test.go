@@ -23,7 +23,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testPostgresMigrabilityData = `PLSQL LINES           |||      6212
+const testPostgresMigrabilityData = `
+
+PLSQL LINES           |||      6212
 PARTITIONED TABLES    |||         0
 PARTITIONED INDEXES   |||         0
 PROCEDURES            |||         1
@@ -35,7 +37,10 @@ MVIEWS REWRITE ENABLED|||         0
 VDP POLICIES          |||         0
 PERFSTAT                      |||PACKAGE     |||       348
 PERFSTAT                      |||PACKAGE BODY|||      5817
-PERFSTAT                      |||PROCEDURE   |||        47`
+PERFSTAT                      |||PROCEDURE   |||        47
+
+
+`
 
 func TestPostgresMigrability(t *testing.T) {
 
@@ -52,9 +57,9 @@ func TestPostgresMigrability(t *testing.T) {
 	s10 := "PERFSTAT"
 	s11 := "PERFSTAT"
 	s12 := "PERFSTAT"
-	o0:= "PACKAGE"
-	o1:= "PACKAGE BODY"
-	o2:= "PROCEDURE"
+	o0 := "PACKAGE"
+	o1 := "PACKAGE BODY"
+	o2 := "PROCEDURE"
 
 	expected := []model.PgsqlMigrability{
 		{
@@ -99,19 +104,19 @@ func TestPostgresMigrability(t *testing.T) {
 		},
 
 		{
-			Schema: &s10,
+			Schema:     &s10,
 			ObjectType: &o0,
-			Count:  348,
+			Count:      348,
 		},
 		{
-			Schema: &s11,
+			Schema:     &s11,
 			ObjectType: &o1,
-			Count:  5817,
+			Count:      5817,
 		},
 		{
-			Schema: &s12,
+			Schema:     &s12,
 			ObjectType: &o2,
-			Count:  47,
+			Count:      47,
 		},
 	}
 
