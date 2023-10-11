@@ -40,6 +40,11 @@ func PostgresMigrability(cmdOutput []byte) ([]model.PgsqlMigrability, error) {
 
 		splitted := strings.Split(line, "|||")
 
+		// skip possible empty lines without increasing i
+		if len(splitted) < 2 {
+			continue
+		}
+
 		if i < 10 {
 			count, err := marshal.TrimParseInt(splitted[1])
 

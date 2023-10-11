@@ -32,7 +32,7 @@ func (b *CommonBuilder) checksToRunExadata() error {
 		return err
 	}
 
-	if !utils.IsRunnigAsRootInLinux() && b.configuration.Features.OracleExadata.FetcherUser != "" {
+	if !utils.IsRunnigAsRootInLinux() && b.configuration.Features.OracleExadata.FetcherUser == "" {
 		err := ercutils.NewErrorf("You must be root to run in exadata mode")
 
 		b.log.Error(err)
