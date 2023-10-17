@@ -13,6 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set lines 8000 pages 0
+
 define SNAPDAYS = 30;
 define MONTH = 30;
 define WEEKS_NUMBER = 4;
