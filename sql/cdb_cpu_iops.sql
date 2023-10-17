@@ -14,6 +14,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set serveroutput on
+set lines 8000 pages 0
 
 define SNAPDAYS = 30;
 define MONTH = 30;
