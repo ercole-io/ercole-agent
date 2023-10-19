@@ -44,9 +44,24 @@ install -m 644 package/rhel6/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/ercole-ag
 
 %post
 chkconfig ercole-agent on
-echo '' >> /opt/ercole-agent/.dbs_group
-echo '' >> /opt/ercole-agent/.cell_group
-echo '' >> /opt/ercole-agent/.ibs_group_EMPTY
+if [ -e /opt/ercole-agent/.dbs_group ]; then
+  echo "File already exists. Do not overwrite."
+else
+  echo "File does not exist. Creating an empty file."
+  touch /opt/ercole-agent/.dbs_group
+fi
+if [ -e /opt/ercole-agent/.cell_group ]; then
+  echo "File already exists. Do not overwrite."
+else
+  echo "File does not exist. Creating an empty file."
+  touch /opt/ercole-agent/.cell_group
+fi
+if [ -e /opt/ercole-agent/.ibs_group_EMPTY ]; then
+  echo "File already exists. Do not overwrite."
+else
+  echo "File does not exist. Creating an empty file."
+  touch /opt/ercole-agent/.ibs_group_EMPTY
+fi
 
 %files
 %dir /opt/ercole-agent
