@@ -75,9 +75,6 @@ fi
 if [ -f /etc/systemd/system/ercole-agent.service ]; then 
     sed -i -e "s=$DEF_PATH=$CST_PATH=g" /etc/systemd/system/ercole-agent.service
 fi
-if [ -f /usr/lib/systemd/system/ercole-agent.service ]; then 
-    sed -i -e "s=$DEF_PATH=$CST_PATH=g" /usr/lib/systemd/system/ercole-agent.service
-fi
 if [ -f /etc/logrotate.d/ercole-agent ]; then
     sed -i -e "s=/var/log/ercole-agent.log=$CST_LOGS=g" /etc/logrotate.d/ercole-agent
 fi
