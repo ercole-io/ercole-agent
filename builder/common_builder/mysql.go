@@ -16,6 +16,7 @@
 package common
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -65,6 +66,14 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 				continue
 			}
 		} else {
+			pattern := "enterprise"
+			regex := regexp.MustCompile(pattern)
+			match := regex.FindString(strings.ToLower(instance.Version))
+
+			if match != "" {
+				instance.Edition = model.MySQLEditionEnterprise
+			}
+
 			instance, errInstance = b.fetcher.GetMySQLOldInstance(conf)
 			if errInstance != nil {
 				b.log.Errorf("Can't get MySQL old instance: %s", conf.Host)
