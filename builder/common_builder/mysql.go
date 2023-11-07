@@ -17,12 +17,12 @@ package common
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-version"
 )
 
 func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
@@ -46,37 +46,25 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 			continue
 		}
 
-		isOld, err := isOldVersion(version)
+		isold := b.isOldVersion(version)
 
-		if err != nil {
-			b.log.Errorf("Can't verify if MySQL is an old version: %s", conf.Host)
-
-			merr = multierror.Append(merr, ercutils.NewError(err))
-
-			continue
-		}
-
-		if !isOld {
-			instance, errInstance = b.fetcher.GetMySQLInstance(conf)
+		if isold {
+			instance, errInstance = b.fetcher.GetMySQLOldInstance(conf)
 			if errInstance != nil {
-				b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
+				b.log.Errorf("Can't get MySQL old instance: %s", conf.Host)
 
 				merr = multierror.Append(merr, ercutils.NewError(err))
 
 				continue
 			}
-		} else {
-			pattern := "enterprise"
-			regex := regexp.MustCompile(pattern)
-			match := regex.FindString(strings.ToLower(instance.Version))
 
-			if match != "" {
+			if strings.Contains(strings.ToLower(version), "enterprise") {
 				instance.Edition = model.MySQLEditionEnterprise
 			}
-
-			instance, errInstance = b.fetcher.GetMySQLOldInstance(conf)
+		} else {
+			instance, errInstance = b.fetcher.GetMySQLInstance(conf)
 			if errInstance != nil {
-				b.log.Errorf("Can't get MySQL old instance: %s", conf.Host)
+				b.log.Errorf("Can't get MySQL instance: %s", conf.Host)
 
 				merr = multierror.Append(merr, ercutils.NewError(err))
 
@@ -146,34 +134,26 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 	return mysql, merr
 }
 
-func isOldVersion(version string) (bool, error) {
-	var ver1, ver2 = 0, 0
+func (b *CommonBuilder) isOldVersion(dbversion string) bool {
+	re := regexp.MustCompile(`\b\d+(\.\d+)*\b`)
+	matches := re.FindStringSubmatch(dbversion)
 
-	var err error
-
-	res := strings.Split(version, ".")
-
-	for i, v := range res {
-		if i == 0 {
-			ver1, err = strconv.Atoi(v)
-			if err != nil {
-				return false, err
-			}
-		} else if i == 1 {
-			ver2, err = strconv.Atoi(v)
-			if err != nil {
-				return false, err
-			}
-		} else {
-			break
-		}
+	if len(matches) == 0 {
+		b.log.Error("cannot find matches in db version")
+		return false
 	}
 
-	if ver1 == 5 && ver2 < 7 {
-		return true, nil
-	} else if ver1 < 5 {
-		return true, nil
-	} else {
-		return false, nil
+	v, err := version.NewVersion(matches[0])
+	if err != nil {
+		b.log.Error(err)
+		return false
 	}
+
+	constraints, err := version.NewConstraint("< 5.7")
+	if err != nil {
+		b.log.Error(err)
+		return false
+	}
+
+	return constraints.Check(v)
 }
