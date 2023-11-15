@@ -43,7 +43,7 @@ install -d %{buildroot}/etc/systemd/system
 install -d %{buildroot}/opt/ercole-agent/run
 install -d %{buildroot}%{_unitdir} 
 install -d %{buildroot}%{_presetdir}
-agentinstall -m 0644 -C package/rhel7/ercole-agent.service %{buildroot}%{_unitdir}/%{name}.service
+install -m 0644 -C package/rhel7/ercole-agent.service %{buildroot}%{_unitdir}/%{name}.service
 install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/60-%{name}.preset
 
 %post
