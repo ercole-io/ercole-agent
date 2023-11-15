@@ -43,7 +43,7 @@ install -d %{buildroot}/etc/systemd/system
 install -d %{buildroot}/opt/ercole-agent/run
 install -d %{buildroot}%{_unitdir} 
 install -d %{buildroot}%{_presetdir}
-install -m 0644 package/rhel7/ercole-agent.service %{buildroot}%{_unitdir}/%{name}.service
+install -m 0644 -C package/rhel7/ercole-agent.service %{buildroot}%{_unitdir}/%{name}.service
 install -m 0644 package/rhel7/60-ercole-agent.preset %{buildroot}%{_presetdir}/60-%{name}.preset
 
 %post
@@ -207,7 +207,7 @@ fi
 /opt/ercole-agent/sql/postgresql/n_info.sql
 /opt/ercole-agent/sql/postgresql/n_info_v10.sql
 
-%{_unitdir}/ercole-agent.service
+%config(noreplace) %{_unitdir}/ercole-agent.service
 %{_presetdir}/60-ercole-agent.preset
 
 %changelog
