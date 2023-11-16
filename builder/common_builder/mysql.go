@@ -80,7 +80,7 @@ func (b *CommonBuilder) getMySQLFeature() (*model.MySQLFeature, error) {
 			continue
 		}
 
-		if instance.UUID, err = b.fetcher.GetMySQLUUID(); err != nil {
+		if instance.UUID, err = b.fetcher.GetMySQLUUID(conf.DataDirectory); err != nil {
 			b.log.Warnf("Can't get MySQL UUID: %s", conf.Host)
 		}
 

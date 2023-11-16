@@ -1,6 +1,9 @@
 #!/bin/bash
 while [ "$1" != "" ]; do
     case $1 in
+        -S | --socket )           shift
+                                socket=$1
+                                ;;
         -h | --host )           shift
                                 host=$1
                                 ;;
@@ -65,7 +68,7 @@ else
 fi
 
 if [ -z "$loginPath" ]; then
-        mysql -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        mysql -S "$socket" -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 else
         mysql --login-path="$loginPath" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 fi

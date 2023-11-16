@@ -63,7 +63,9 @@
                     "Host": "",
                     "Port": "",
                     "User": "",
-                    "Password": ""
+                    "Password": "",
+                    "DataDirectory": "/var/lib/mysql",
+                    "Socket": "/var/lib/mysql/mysql.sock"
                 }
             ]
         },
