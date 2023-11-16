@@ -117,6 +117,8 @@ type MySQLInstanceConnection struct {
 	Port     string
 	User     string
 	Password string
+	DataDirectory string
+	Socket string
 }
 
 type PostgreSQLFeature struct {

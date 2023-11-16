@@ -626,7 +626,7 @@ func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLIn
 	return false, ercutils.NewError(notImplementedWindows)
 }
 
-func (wf *WindowsFetcherImpl) GetMySQLUUID() (string, error) {
+func (wf *WindowsFetcherImpl) GetMySQLUUID(dataDirectory string) (string, error) {
 	wf.log.Error(notImplementedWindows)
 	return "", ercutils.NewError(notImplementedWindows)
 }

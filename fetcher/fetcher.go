@@ -105,7 +105,7 @@ type Fetcher interface {
 	GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error)
 	GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error)
 	GetMySQLHighAvailability(connection config.MySQLInstanceConnection) (bool, error)
-	GetMySQLUUID() (string, error)
+	GetMySQLUUID(dataDirectory string) (string, error)
 	GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string, error)
 	GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string, error)
 
