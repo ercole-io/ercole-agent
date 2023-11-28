@@ -74,7 +74,11 @@ local task_pkg_build_deb() = {
       name: 'version',
       command: |||
         if [ -z ${AGOLA_GIT_TAG} ] || [[ ${AGOLA_GIT_TAG} == *-* ]]; then 
-          export VERSION=latest
+          if [[ ${AGOLA_GIT_TAG} == *-rc.* ]]; then
+            export VERSION=$(echo $AGOLA_GIT_TAG | sed 's/-/_/g')
+          else
+            export VERSION=latest
+          fi
         else
           export VERSION=${AGOLA_GIT_TAG}
         fi
@@ -133,7 +137,11 @@ local task_pkg_build_rhel(setup) = {
       name: 'version',
       command: |||
         if [ -z ${AGOLA_GIT_TAG} ] || [[ ${AGOLA_GIT_TAG} == *-* ]]; then 
-          export VERSION=latest
+          if [[ ${AGOLA_GIT_TAG} == *-rc.* ]]; then
+            export VERSION=$(echo $AGOLA_GIT_TAG | sed 's/-/_/g')
+          else
+            export VERSION=latest
+          fi
         else
           export VERSION=${AGOLA_GIT_TAG}
         fi
@@ -319,8 +327,12 @@ steps: [
               type: 'run',
               name: 'version',
               command: |||
-                if [ -z ${AGOLA_GIT_TAG} ] || [[ ${AGOLA_GIT_TAG} == *-* ]]; then
-                  export VERSION=latest
+                if [ -z ${AGOLA_GIT_TAG} ] || [[ ${AGOLA_GIT_TAG} == *-* ]]; then 
+                  if [[ ${AGOLA_GIT_TAG} == *-rc.* ]]; then
+                    export VERSION=$(echo $AGOLA_GIT_TAG | sed 's/-/_/g')
+                  else
+                    export VERSION=latest
+                  fi
                 else
                   export VERSION=${AGOLA_GIT_TAG}
                 fi
