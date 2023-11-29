@@ -80,9 +80,9 @@ local task_pkg_build_deb() = {
             export VERSION=latest
           fi
         else
-          export VERSION=${AGOLA_GIT_TAG}
+          export VERSION=$(echo $AGOLA_GIT_TAG | sed 's/-/_/g')
         fi
-        echo VERSION: ${VERSION}
+        echo "VERSION: ${VERSION}"
         echo "export VERSION=${VERSION}" > /tmp/variables
       |||,
     },
