@@ -56,7 +56,9 @@ if [ $os_system == 'linux' ]
 				do
 					sar_array_average[${#sar_array_average[@]}]=$line
 				#Retrieve only first row and average rows for only sd* or xvd* disks
-				done < <(sar -dp -f $file | awk 'NR==1 || ((/sd/ || /xvd/) && /Average/)')
+				done < <(sar -dp -f $file | awk 'NR==1 || ((/sd/ || /xvd/) && /Average/) || /RESTART/')
+				restart_line_number=0
+				first_average_for_this_iteration=0
 				for i in ${!sar_array_average[@]}
 				do
 					#Retrieve data from current file
@@ -68,14 +70,33 @@ if [ $os_system == 'linux' ]
 						#For each file an element in each array will be inserted date, tps (sum over different disks), iomb (rd_sec/s+wr_sec/s sum over different disks)
 						stringaprova=`(echo ${sar_array_average[$i]} | awk '{print $3"|"$4"|"$5}')`			
 						IFS="|" read -r -a myarray <<< "$stringaprova"
-						if [ $i == 1 ] 
+										
+						#if it's a restart line continue with the next iteration						
+						if [ `(echo ${sar_array_average[$i]} | awk '/RESTART/' | wc -l)` -gt 0 ]
 						then
-							#Line 1, arrays created
-							dates_array+=($dates_second)
-							tps_array+=(${myarray[0]}) 
-							iomb_array+=($(echo "scale=2;(${myarray[1]}+${myarray[2]})*$sector_size/1024" | bc))
-						else
-							#Line > 1 update last line
+							restart_line_number=$i
+							continue
+						fi
+						
+						#If is the first line after date line and not a restart line OR the first line after a restart line
+						if [[ $i == 1 && $i -ne $restart_line_number ]] || [[ $i == $(($restart_line_number+1)) ]]
+						then
+							#Is the first iteration for this file, initialize arrays with the first values
+							if [ $first_average_for_this_iteration == 0 ] 
+							then
+								first_average_for_this_iteration=1
+								#Array creation
+								dates_array+=($dates_second)
+								tps_array+=(${myarray[0]}) 
+								iomb_array+=($(echo "scale=2;(${myarray[1]}+${myarray[2]})*$sector_size/1024" | bc))
+							#Is an average line after the restart line, arrays have to be reinitialized with the current values
+							else
+								(( last_index=${#dates_array[@]}-1 ))
+								tps_array[$last_index]=$(echo "scale=2;${myarray[0]}" | bc)
+								iomb_array[$last_index]=$(echo "scale=2;(${myarray[1]}+${myarray[2]})*$sector_size/1024" | bc)
+							fi				
+						else					
+							#Other lines to be summarized to the initialized line
 							(( last_index=${#dates_array[@]}-1 ))
 							tps_array[$last_index]=$(echo "scale=2;${tps_array[$last_index]}+${myarray[0]}" | bc)
 							iomb_array[$last_index]=$(echo "scale=2;${iomb_array[$last_index]}+((${myarray[1]}+${myarray[2]})*$sector_size/1024)" | bc)
