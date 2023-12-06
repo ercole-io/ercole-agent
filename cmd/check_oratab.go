@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -53,7 +54,15 @@ func checkOratab(filePath string) error {
 }
 
 func suggestEntry(filePath string) error {
-	cmd := exec.CommandContext(context.TODO(), "fetch/linux/suggest_oratab.sh", filePath)
+	exepath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+
+	// Get the directory of the executable
+	exedir := filepath.Dir(exepath)
+
+	cmd := exec.CommandContext(context.TODO(), filepath.Join(exedir, "fetch/linux/suggest_oratab.sh"), filePath)
 
 	stdout, err := cmd.Output()
 	if err != nil {
