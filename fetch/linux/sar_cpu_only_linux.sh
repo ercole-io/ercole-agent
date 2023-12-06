@@ -42,7 +42,7 @@ if [ $os_system == 'linux' ]
 			while read line
 			do
 				sar_array_average[${#sar_array_average[@]}]=$line
-			#Retrieve only first row and average rows for only sd* or xvd* disks
+			#Retrieve only first row and average rows 
 			done < <(sar -f $file | awk 'NR==1 || /Average/')
 			for i in ${!sar_array_average[@]}
 			do
@@ -52,13 +52,12 @@ if [ $os_system == 'linux' ]
 					file_date=`(echo ${sar_array_average[$i]} | awk '{print $4'})`
 					dates_second=(`date -d "$file_date" +%s`)
 				else
-					#For each file an element in each array will be inserted date, tps (sum over different disks), iomb (rd_sec/s+wr_sec/s sum over different disks)
+					#If more than an Average is present (due to host restart) only the last one will be considered
 					cpu_column=`(echo ${sar_array_average[$i]} | awk '{print $8'})`	
-					#Line 1, arrays created
-					dates_array+=($dates_second)
-					cpu_array+=($cpu_column) 												
-				fi
+				fi	
 			done
+			dates_array+=($dates_second)
+			cpu_array+=($cpu_column) 
 		done
 		
 		for file in `ls -rt /var/log/sa/sa$today /var/log/sa/sa$yesterday`
