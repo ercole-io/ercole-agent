@@ -68,7 +68,11 @@ else
 fi
 
 if [ -z "$loginPath" ]; then
-        mysql -S "$socket" -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        if [ -z "$socket" ];then
+                mysql -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        else
+                mysql -S "$socket" -h "$host" --port="$port" --user="$user" --password="$password" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
+        fi
 else
         mysql --login-path="$loginPath" --skip-column-names --database="$database" -B <"$query"| sed "s/'/\'/;s/\t/\";\"/g;s/^/\"/;s/$/\"/;s/\n//g"
 fi

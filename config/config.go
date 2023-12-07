@@ -113,12 +113,12 @@ type MySQLFeature struct {
 }
 
 type MySQLInstanceConnection struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
+	Host          string
+	Port          string
+	User          string
+	Password      string
 	DataDirectory string
-	Socket string
+	Socket        string
 }
 
 type PostgreSQLFeature struct {
@@ -201,6 +201,7 @@ func checkConfiguration(log logger.Logger, config *Configuration) {
 
 	checkFeatureOracleDatabase(log, config)
 	checkFeatureVirtualization(log, config)
+	checkMySQLFeature(log, config)
 }
 
 func checkPeriod(log logger.Logger, config *Configuration) {
@@ -268,6 +269,14 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 		}
 
 		hv.Type = correctType
+	}
+}
+
+func checkMySQLFeature(log logger.Logger, config *Configuration) {
+	for i, instance := range config.Features.MySQL.Instances {
+		if instance.DataDirectory == "" {
+			config.Features.MySQL.Instances[i].DataDirectory = "/var/lib/mysql"
+		}
 	}
 }
 
