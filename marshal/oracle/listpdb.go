@@ -44,7 +44,7 @@ func ListPDB(cmdOutput []byte) ([]model.OracleDatabasePluggableDatabase, error) 
 		pdb.Name = strings.TrimSpace(iter())
 		pdb.Status = strings.TrimSpace(iter())
 
-		pdb.Services = []model.OracleDatabaseService{}
+		pdb.Services = []model.OracleDatabasePdbService{}
 
 		pdbs = append(pdbs, *pdb)
 	}

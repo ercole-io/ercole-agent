@@ -17,6 +17,7 @@
 
 SID=$1
 HOME=$2
+PDB=$3
 
 if [ -z "$SID" ]; then
   >&2 echo "Missing SID parameter"
@@ -26,9 +27,13 @@ if [ -z "$HOME" ]; then
   >&2 echo "Missing ORACLE_HOME parameter"
   exit 1
 fi
+if [ -z "$PDB" ]; then
+  >&2 echo "Missing PDB parameter"
+  exit 1
+fi
 
-USER=$3
-PASSWORD=$4
+USER=$4
+PASSWORD=$5
 if [ -z "$USER" ] && [ -z "$PASSWORD" ]; then
   SQLPLUS_CMD="sqlplus -S / as sysdba"
 else
@@ -44,4 +49,4 @@ export ORACLE_SID=$SID
 export ORACLE_HOME=$HOME
 export PATH=$HOME/bin:$PATH
 
-$SQLPLUS_CMD @${ERCOLE_HOME}/sql/services.sql 
+$SQLPLUS_CMD @${ERCOLE_HOME}/sql/services_pdb.sql $PDB
