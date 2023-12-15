@@ -471,6 +471,12 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePgsqlMigrability(entry agentmodel
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
+// GetOracleDatabasePdbServices get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabasePDBTablespaces get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	wf.log.Error(notImplementedWindows)

@@ -583,6 +583,17 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmod
 	return marshal_oracle.PostgresMigrability(out)
 }
 
+
+// GetOracleDatabasePdbServices get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "services_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.ServicesPdb(out)
+}
+
 // GetClusters return VMWare clusters from the given hyperVisor
 func (lf *LinuxFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
 	var out []byte

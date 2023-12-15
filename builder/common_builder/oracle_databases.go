@@ -461,6 +461,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 				errChan <- err
 			}
 		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.Services, err = b.fetcher.GetOracleDatabasePdbServices(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] services", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
 	}
 
 	database.SegmentsSize = totalSegmentsSize

@@ -36,14 +36,14 @@ func TestListPDB(t *testing.T) {
 			Status:      "READ WRITE",
 			Tablespaces: nil,
 			Schemas:     nil,
-			Services:    []model.OracleDatabaseService{},
+			Services:    []model.OracleDatabasePdbService{},
 		},
 		{
 			Name:        "TDPRO01",
 			Status:      "READ WRITE",
 			Tablespaces: nil,
 			Schemas:     nil,
-			Services:    []model.OracleDatabaseService{},
+			Services:    []model.OracleDatabasePdbService{},
 		},
 	}
 

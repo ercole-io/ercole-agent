@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Sorint.lab S.p.A.
+// Copyright (c) 2023 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,55 +26,50 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-// Services returns information about database services extracted
-// from the services fetcher command output.
-
-func Services(cmdOutput []byte) ([]model.OracleDatabaseService, error) {
-	services := []model.OracleDatabaseService{}
+func ServicesPdb(cmdOutput []byte) ([]model.OracleDatabasePdbService, error) {
+	services := make([]model.OracleDatabasePdbService, 0)
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
 	var merr, err error
 
 	for scanner.Scan() {
-		service := new(model.OracleDatabaseService)
+		service := new(model.OracleDatabasePdbService)
 		line := scanner.Text()
 
 		splitted := strings.Split(line, "|||")
-		if len(splitted) == 7 {
-			service.ContainerName = strings.TrimSpace(splitted[0])
-
-			if strings.TrimSpace(splitted[1]) != "" {
-				service.Name = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[1]))
+		if len(splitted) == 6 {
+			if strings.TrimSpace(splitted[0]) != "" {
+				service.Name = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[0]))
 			} else {
 				service.Name = nil
 			}
 
-			if strings.TrimSpace(splitted[2]) != "" {
-				service.FailoverMethod = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[2]))
+			if strings.TrimSpace(splitted[1]) != "" {
+				service.FailoverMethod = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[1]))
 			} else {
 				service.FailoverMethod = nil
 			}
 
-			if strings.TrimSpace(splitted[3]) != "" {
-				service.FailoverType = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[3]))
+			if strings.TrimSpace(splitted[2]) != "" {
+				service.FailoverType = marshal.TrimParseStringPointer(strings.TrimSpace(splitted[2]))
 			} else {
 				service.FailoverType = nil
 			}
 
-			if strings.TrimSpace(splitted[4]) != "" {
-				if service.FailoverRetries, err = marshal.TrimParseIntPointer(splitted[4]); err != nil {
+			if strings.TrimSpace(splitted[3]) != "" {
+				if service.FailoverRetries, err = marshal.TrimParseIntPointer(splitted[3]); err != nil {
 					merr = multierror.Append(merr, ercutils.NewError(err))
 				}
 			} else {
 				service.FailoverRetries = nil
 			}
 
-			if strings.TrimSpace(splitted[5]) != "" {
-				service.FailoverDelay = splitted[5]
+			if strings.TrimSpace(splitted[4]) != "" {
+				service.FailoverDelay = splitted[4]
 			}
 
-			if strings.TrimSpace(splitted[6]) != "" {
-				service.Enabled = marshal.TrimParseBoolPointer(splitted[6])
+			if strings.TrimSpace(splitted[5]) != "" {
+				service.Enabled = marshal.TrimParseBoolPointer(splitted[5])
 			} else {
 				service.Enabled = nil
 			}
