@@ -71,6 +71,8 @@ func Host(cmdOutput []byte) (*model.Host, error) {
 		merr = multierror.Append(merr, ercutils.NewError(err))
 	}
 
+	m.ClusterwareVersion = strings.TrimSpace(data["CWVersion"])
+
 	if merr != nil {
 		return nil, merr
 	}
