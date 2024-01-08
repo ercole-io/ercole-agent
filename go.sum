@@ -8,8 +8,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/ercole-io/ercole/v2 v2.0.0-20231211134154-43f2c6c5bbeb h1:3LjoN7/Xb1pUoWaQD3r3o0nnUHx9d6/gKhaQEYRmPe0=
-github.com/ercole-io/ercole/v2 v2.0.0-20231211134154-43f2c6c5bbeb/go.mod h1:3M8/wVRYn70MNxgF4O/htlKx2viEmqwImrN81C+g+zg=
+github.com/ercole-io/ercole/v2 v2.0.0-20231219113830-022c92ba76cd h1:rma/5ZIusHFpFDz1g1n7+DzhKan55PZxZVqpcJIIRrk=
+github.com/ercole-io/ercole/v2 v2.0.0-20231219113830-022c92ba76cd/go.mod h1:3M8/wVRYn70MNxgF4O/htlKx2viEmqwImrN81C+g+zg=
 github.com/etcd-io/etcd v3.3.17+incompatible/go.mod h1:cdZ77EstHBwVtD6iTgzgvogwcjo9m4iOqoijouPJ4bs=
 github.com/fatih/color v1.15.0 h1:kOqh6YHBtK8aywxGerMG2Eq3H6Qgoqeo13Bk2Mv/nBs=
 github.com/fatih/color v1.15.0/go.mod h1:0h5ZqXfHYED7Bhv2ZJamyIOUej9KtShiJESRwBDUSsw=
