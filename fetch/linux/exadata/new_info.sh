@@ -7,6 +7,7 @@
 # 20230601: corrected function HostGetDetails to retrieve the correct amount of memory from dom0 type hosts
 # 20230727: fixed function CellGetDetails to display the correct storage server name in despite of the network alias used by the utility
 # 20231003: added configuration to allow the script to be executed as non-root user. Added summary function fullRun. Added field 'HOST_ID' for both cells and dbnodes
+# 20231122: modified checks on non-root users to allow even LDAP managed users to be used
 
 ### Variables
 APP_DIR=/tmp
@@ -150,6 +151,7 @@ function HostGetDetails {
         if [[ "$HOST_TYPE" == "DOM0" ]]; then
             MEMORY_MB=$(dcli -c $NHOST -l $NONROOT "sudo xm info|grep total_memory"|awk '{print $4}')
             MEMORY_GB=$(expr $MEMORY_MB / 1024)
+            
         else
             MEMORY_KB=$(dcli -c $NHOST -l $NONROOT "sudo cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
             MEMORY_GB=$(expr $MEMORY_KB / 1048576)
@@ -251,7 +253,7 @@ function vmGetDetails {
     echo "HOST_TYPE|||HOSTNAME|||IMAGEVERSION|||KERNEL|||MS_STATUS|||RS_STATUS"
     while read NHOST
     do
-        INFO=$(dcli -c $NHOST -l ercole "sudo dbmcli -e list dbserver attributes name,kernelVersion,releaseVersion,msStatus,rsStatus"| sed "s/${NHOST}: //g")
+        INFO=$(dcli -c $NHOST -l $NONROOT "sudo dbmcli -e list dbserver attributes name,kernelVersion,releaseVersion,msStatus,rsStatus"| sed "s/${NHOST}: //g")
         HOST=$(echo $INFO|awk '{print $1}')
         KERNEL=$(echo $INFO|awk '{print $2}')
         IMAGEVERSION=$(echo $INFO|awk '{print $3}')
@@ -400,10 +402,11 @@ case $1 in
     ;;
     *)
         export NONROOT=$1
-        CHECKUSR=$(grep $NONROOT /etc/passwd|wc -l)
+        CHECKUSR=$(id $NONROOT 2>/dev/null|wc -l)
         if [[ "$CHECKUSR" == "1" ]]; then
-            CHECKSUDO=$(sudo cat /etc/sudoers|wc -l)
-            if [[ "$CHECKSUDO" == "0" ]]; then
+            export SUDO_ASKPASS=false
+            CHECKSUDO=$(sudo -A dmidecode 1>/dev/null; echo $?)
+            if [[ "$CHECKSUDO" == "1" ]]; then
                 echo " --> ERROR: the specified username exists, but does not have sudo permissions"
                 echo "            Please make sure $NONROOT has the correct sudo permissions on all the hosts specified in $DBS_LST"
                 echo " --> Exiting..."
