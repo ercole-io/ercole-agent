@@ -15,6 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#Notes
+
+#tps: indicate the number of transfers per second that were issued to the device.
+#rd_sec/s: number of sectors read from the device. The size of a sector is 512 bytes.
+#wr_sec/s: number of sectors written to the device. The size of a sector is 512 bytes.
+
+#IOMB = (rd_sec/s + wr_sec/s) * 512 / (1024 * 1024 ) -> MB/s
+
+#Needed for AM/PM in the sar output
+export LC_ALL=en_US.UTF-8
+
 #Retrieve os (linux, aix, sunos)
 inizio=`date`
 os_system=`uname -a | awk '{print $1}' | tr '[:upper:]' '[:lower:]'`
@@ -88,18 +99,18 @@ if [ $os_system == 'linux' ]
 								#Array creation
 								dates_array+=($dates_second)
 								tps_array+=(${myarray[0]}) 
-								iomb_array+=($(echo "scale=2;(${myarray[1]}+${myarray[2]})*$sector_size/1024" | bc))
+								iomb_array+=($(echo "scale=2;(${myarray[1]}+${myarray[2]})" | bc))
 							#Is an average line after the restart line, arrays have to be reinitialized with the current values
 							else
 								(( last_index=${#dates_array[@]}-1 ))
 								tps_array[$last_index]=$(echo "scale=2;${myarray[0]}" | bc)
-								iomb_array[$last_index]=$(echo "scale=2;(${myarray[1]}+${myarray[2]})*$sector_size/1024" | bc)
+								iomb_array[$last_index]=$(echo "scale=2;(${myarray[1]}+${myarray[2]})" | bc)
 							fi				
 						else					
 							#Other lines to be summarized to the initialized line
 							(( last_index=${#dates_array[@]}-1 ))
 							tps_array[$last_index]=$(echo "scale=2;${tps_array[$last_index]}+${myarray[0]}" | bc)
-							iomb_array[$last_index]=$(echo "scale=2;${iomb_array[$last_index]}+((${myarray[1]}+${myarray[2]})*$sector_size/1024)" | bc)
+							iomb_array[$last_index]=$(echo "scale=2;${iomb_array[$last_index]}+((${myarray[1]}+${myarray[2]}))" | bc)
 						fi														
 					fi
 				done
@@ -129,7 +140,7 @@ if [ $os_system == 'linux' ]
 							hour_column="${myarray[0]}" 
 							ampm_column="${myarray[1]}" 
 							tps_column="${myarray[2]}" 
-							iomb_column=$(echo "scale=2;(${myarray[3]}+${myarray[4]})*$sector_size/1024" | bc) 		
+							iomb_column=$(echo "scale=2;(${myarray[3]}+${myarray[4]})" | bc) 		
 							#Current line datetime in seconds
 							current_line_datetime=(`date -d "$file_date $hour_column$ampm_column" +%s`)
 							#if last element datetime = current element datetime -> sum tps and iomb (two or more different disks -> sum values)

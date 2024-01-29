@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#Needed for AM/PM in the sar output
+export LC_ALL=en_US.UTF-8
+
 #Retrieve os (linux, aix, sunos)
 inizio=`date`
 os_system=`uname -a | awk '{print $1}' | tr '[:upper:]' '[:lower:]'`
