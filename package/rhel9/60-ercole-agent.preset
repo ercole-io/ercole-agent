@@ -1,1 +1,1 @@
-enable ercole-agent.service
+systemctl enable ercole-agent.service
