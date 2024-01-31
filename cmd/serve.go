@@ -29,6 +29,7 @@ import (
 	"github.com/ercole-io/ercole-agent/v2/client"
 	"github.com/ercole-io/ercole-agent/v2/config"
 	"github.com/ercole-io/ercole-agent/v2/logger"
+	"github.com/ercole-io/ercole-agent/v2/queue"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
 	"github.com/go-co-op/gocron"
 	"github.com/kardianos/service"
@@ -77,23 +78,41 @@ func (p *program) run() {
 		log.Fatal("Can't initialize AGENT logger: ", err)
 	}
 
-	client, err := client.NewClient(
-		client.EnableServerValidation(configuration.EnableServerValidation),
-		client.SetAuthentication(configuration.AgentUser, configuration.AgentPassword),
-		client.SetBaseUrl(configuration.DataserviceURL),
-	)
-	if err != nil {
-		log.Fatal("Can't initialize AGENT client: ", err)
+	clients := make([]*client.Client, 0, len(configuration.Queue.DataServices))
+
+	for _, dataservice := range configuration.Queue.DataServices {
+		client, err := client.NewClient(
+			client.EnableServerValidation(dataservice.EnableServerValidation),
+			client.SetAuthentication(dataservice.AgentUser, dataservice.AgentPassword),
+			client.SetBaseUrl(dataservice.Url),
+		)
+		if err != nil {
+			log.Fatal("Can't initialize AGENT client: ", err)
+			continue
+		}
+
+		ping(p.log, client)
+
+		clients = append(clients, client)
 	}
 
-	ping(p.log, client)
-
 	uptime(p.log)
+
+	wk := queue.NewWorker("api-worker")
+
+	waitingTimeDuration, err := time.ParseDuration(fmt.Sprintf("%dm", configuration.Queue.WaitingTime))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tk := queue.NewConsumer("host-sender", waitingTimeDuration, configuration.Queue.RetryLimit, sendData)
 
 	scheduler := gocron.NewScheduler(time.UTC)
 
 	_, err = scheduler.Every(int(configuration.Period)).Hour().Do(func() {
-		doBuildAndSend(p.log, client, configuration)
+		for _, c := range clients {
+			doBuildAndSend(p.log, c, configuration, wk, tk)
+		}
 	})
 	if err != nil {
 		p.log.Fatal("Error scheduling Ercole agent", err)
@@ -150,7 +169,7 @@ func ping(log logger.Logger, client *client.Client) {
 	log.Debug("Ping OK")
 }
 
-func doBuildAndSend(log logger.Logger, client *client.Client, configuration config.Configuration) {
+func doBuildAndSend(log logger.Logger, client *client.Client, configuration config.Configuration, wk queue.Worker, tk queue.Consumer) {
 	hostData := builder.BuildData(configuration, log)
 
 	hostData.AgentVersion = version
@@ -158,21 +177,29 @@ func doBuildAndSend(log logger.Logger, client *client.Client, configuration conf
 	hostData.Period = configuration.Period
 	hostData.Tags = []string{}
 
-	sendData(log, client, configuration, hostData, "hosts")
+	tMessageHost := tk.NewMessage(context.Background(), log, client, configuration, hostData, "hosts")
+
+	if err := wk.Add(tMessageHost); err != nil {
+		log.Error(err)
+	}
 
 	if configuration.Features.OracleExadata.Enabled {
 		exadata := builder.BuildExadata(configuration, log)
-		sendData(log, client, configuration, exadata, "exadatas")
+
+		tMessageExa := tk.NewMessage(context.Background(), log, client, configuration, exadata, "exadatas")
+		if err := wk.Add(tMessageExa); err != nil {
+			log.Error(err)
+		}
 	}
 }
 
-func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data interface{}, endopoint string) {
+func sendData(log logger.Logger, client *client.Client, configuration config.Configuration, data interface{}, endopoint string) error {
 	log.Info("Sending data...")
 
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
 		log.Error(err)
-		return
+		return err
 	}
 
 	log.Debugf("Data: %v", string(dataBytes))
@@ -191,7 +218,7 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 
 		log.Warn("Sending result: FAILED")
 
-		return
+		return err
 	}
 
 	defer resp.Body.Close()
@@ -203,7 +230,11 @@ func sendData(log logger.Logger, client *client.Client, configuration config.Con
 		log.Warnf("Response status: %s", resp.Status)
 		logResponseBody(log, resp.Body)
 		log.Warn("Sending result: FAILED")
+
+		return errors.New("failed send data to ercole data-service")
 	}
+
+	return nil
 }
 
 func logResponseBody(log logger.Logger, body io.ReadCloser) {

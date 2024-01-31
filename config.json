@@ -3,11 +3,19 @@
     "ExadataName": "default",
     "Environment": "TST",
     "Location": "Italy",
-    "DataserviceURL": "http://ercole/data",
-    "AgentUser": "user",
-    "AgentPassword": "password",
+    "Queue":{
+        "Dataservices": [
+            {
+                "url": "http://ercole/data",
+                "AgentUser": "user",
+                "AgentPassword": "password",
+                "EnableServerValidation": false
+            }
+        ],
+        "WaitingTime": 30,
+        "RetryLimit": 3
+    },
     "Period": 24,
-    "EnableServerValidation": false,
     "ForcePwshVersion": "0",
     "ParallelizeRequests": false,
     "Verbose": false,

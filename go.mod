@@ -14,6 +14,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.2
+	github.com/vmihailenco/taskq/v3 v3.2.9
 	go.mongodb.org/mongo-driver v1.11.3
 	go.uber.org/mock v0.3.0
 	golang.org/x/sys v0.13.0
@@ -21,12 +22,20 @@ require (
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
+	github.com/bsm/redislock v0.7.2 // indirect
+	github.com/capnm/sysinfo v0.0.0-20130621111458-5909a53897f3 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
+	github.com/go-redis/redis_rate/v9 v9.1.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
@@ -42,6 +51,8 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
