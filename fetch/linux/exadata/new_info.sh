@@ -8,6 +8,7 @@
 # 20230727: fixed function CellGetDetails to display the correct storage server name in despite of the network alias used by the utility
 # 20231003: added configuration to allow the script to be executed as non-root user. Added summary function fullRun. Added field 'HOST_ID' for both cells and dbnodes
 # 20231122: modified checks on non-root users to allow even LDAP managed users to be used
+# 20240131: fix call to vm_maker (with sudo) and inverted RACK_ID-HOST_TYPE in nodes output
 
 ### Variables
 APP_DIR=/tmp
@@ -70,7 +71,7 @@ function getRackID {
 function checkVM {
     MANUFACTURER=$(sudo dmidecode -s system-manufacturer)
     if [[ "$MANUFACTURER" == "Oracle Corporation" ]]; then
-        vm_maker --list-domains 2> /dev/null 1> /dev/null
+        sudo vm_maker --list-domains 2> /dev/null 1> /dev/null
         RC_VMMAKER=$?
         if [[ "$RC_VMMAKER" != "0" ]]; then
             which xm 2> /dev/null 1> /dev/null
@@ -156,7 +157,7 @@ function HostGetDetails {
             MEMORY_KB=$(dcli -c $NHOST -l $NONROOT "sudo cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
             MEMORY_GB=$(expr $MEMORY_KB / 1048576)
         fi               
-        echo "$RACK_ID|||$HOST_TYPE|||$HOST|||$HOSTID|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS|||$RS"
+        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$HOSTID|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS|||$RS"
     done < $DBS_LST
 }
 
