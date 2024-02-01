@@ -31,20 +31,17 @@ import (
 
 // Configuration holds the agent configuration options
 type Configuration struct {
-	Hostname               string
-	ExadataName            string
-	Environment            string
-	Location               string
-	DataserviceURL         string
-	AgentUser              string
-	AgentPassword          string
-	EnableServerValidation bool
-	ForcePwshVersion       string
-	Period                 uint
-	Verbose                bool
-	ParallelizeRequests    bool
-	LogDirectory           string
-	Features               Features
+	Hostname            string
+	ExadataName         string
+	Environment         string
+	Location            string
+	Queue               Queue
+	ForcePwshVersion    string
+	Period              uint
+	Verbose             bool
+	ParallelizeRequests bool
+	LogDirectory        string
+	Features            Features
 }
 
 // Features holds features params
@@ -145,6 +142,19 @@ type MongoDBInstanceConnection struct {
 	User             string
 	Password         string
 	DirectConnection bool
+}
+
+type Queue struct {
+	DataServices []DataService
+	WaitingTime  int
+	RetryLimit   int
+}
+
+type DataService struct {
+	Url                    string
+	AgentUser              string
+	AgentPassword          string
+	EnableServerValidation bool
 }
 
 // ReadConfig reads the configuration file from the current dir
