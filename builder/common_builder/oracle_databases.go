@@ -42,7 +42,7 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor
 
 	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
 
-	oracleDatabaseFeature.Databases, err = b.getOracleDBs(uniqueOratabEntries, host, hostCoreFactor)
+	oracleDatabaseFeature.Databases, oracleDatabaseFeature.UnretrievedDatabases, err = b.getOracleDBs(uniqueOratabEntries, host, hostCoreFactor)
 
 	return oracleDatabaseFeature, err
 }
@@ -71,9 +71,10 @@ func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.O
 }
 
 func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, host model.Host, hostCoreFactor float64,
-) ([]model.OracleDatabase, error) {
+) ([]model.OracleDatabase, []string, error) {
 	databaseChan := make(chan *model.OracleDatabase, len(oratabEntries))
 	errChan := make(chan error, len(oratabEntries))
+	unretrievedDbs := make([]string, 0)
 
 	for i := range oratabEntries {
 		entry := oratabEntries[i]
@@ -85,6 +86,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 				b.log.Errorf("Oracle db, blocking error (db discarded): %s\n Errors: %s\n", entry, err)
 				errChan <- err
 				databaseChan <- nil
+				unretrievedDbs = append(unretrievedDbs, entry.DBName)
 				return
 			} else if err != nil {
 				b.log.Warnf("Oracle db, non-blocking error: %s\n Errors: %s\n", entry, err)
@@ -109,7 +111,7 @@ func (b *CommonBuilder) getOracleDBs(oratabEntries []agentmodel.OratabEntry, hos
 		merr = multierror.Append(merr, <-errChan)
 	}
 
-	return databases, merr
+	return databases, unretrievedDbs, merr
 }
 
 func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Host, hostCoreFactor float64) (*model.OracleDatabase, error) {
