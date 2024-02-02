@@ -19,8 +19,8 @@ github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 h1:fAjc9m62+UWV/WA
 github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
-github.com/ercole-io/ercole/v2 v2.0.0-20231219113830-022c92ba76cd h1:rma/5ZIusHFpFDz1g1n7+DzhKan55PZxZVqpcJIIRrk=
-github.com/ercole-io/ercole/v2 v2.0.0-20231219113830-022c92ba76cd/go.mod h1:3M8/wVRYn70MNxgF4O/htlKx2viEmqwImrN81C+g+zg=
+github.com/ercole-io/ercole/v2 v2.0.0-20240130151440-4cc88b14322f h1:xAoGxLDt+dcG17frDcYE0nRezdyHiBXZJkhKhLUV3b0=
+github.com/ercole-io/ercole/v2 v2.0.0-20240130151440-4cc88b14322f/go.mod h1:3M8/wVRYn70MNxgF4O/htlKx2viEmqwImrN81C+g+zg=
 github.com/etcd-io/etcd v3.3.17+incompatible/go.mod h1:cdZ77EstHBwVtD6iTgzgvogwcjo9m4iOqoijouPJ4bs=
 github.com/fatih/color v1.15.0 h1:kOqh6YHBtK8aywxGerMG2Eq3H6Qgoqeo13Bk2Mv/nBs=
 github.com/fatih/color v1.15.0/go.mod h1:0h5ZqXfHYED7Bhv2ZJamyIOUej9KtShiJESRwBDUSsw=
