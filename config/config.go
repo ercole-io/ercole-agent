@@ -31,17 +31,22 @@ import (
 
 // Configuration holds the agent configuration options
 type Configuration struct {
-	Hostname            string
-	ExadataName         string
-	Environment         string
-	Location            string
-	Queue               Queue
-	ForcePwshVersion    string
-	Period              uint
-	Verbose             bool
-	ParallelizeRequests bool
-	LogDirectory        string
-	Features            Features
+	Hostname               string
+	ExadataName            string
+	Environment            string
+	Location               string
+	DataserviceURL         string
+	AgentUser              string
+	AgentPassword          string
+	EnableServerValidation bool
+	ForcePwshVersion       string
+	Period                 uint
+	Verbose                bool
+	ParallelizeRequests    bool
+	LogDirectory           string
+	Features               Features
+	// Keep separate Queue from DataserviceURL because the old agent configuration compatibilities
+	Queue Queue
 }
 
 // Features holds features params

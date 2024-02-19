@@ -21,17 +21,29 @@ running on the local machine and send information to a central server
 
 %pre
 getent passwd ercole >/dev/null || \
-    useradd -r -g oinstall -G oinstall,dba -d /home/ercole-agent -m -s /bin/bash \
+    useradd -r -d /home/ercole-agent -m -s /bin/bash \
     -c "Ercole agent user" ercole
 getent passwd ercole >/dev/null || \
-    useradd -r -g dba -d /home/ercole-agent -m -s /bin/bash \
+    useradd -r -d /home/ercole-agent -m -s /bin/bash \
     -c "Ercole agent user" ercole
 getent passwd ercole >/dev/null || \
-    useradd -r -g oinstall -d /home/ercole-agent -m -s /bin/bash \
+    useradd -r -d /home/ercole-agent -m -s /bin/bash \
     -c "Ercole agent user" ercole
 getent passwd ercole >/dev/null || \
-    useradd -r -g mysql -d /home/ercole-agent -m -s /bin/bash \
+    useradd -r -d /home/ercole-agent -m -s /bin/bash \
     -c "Ercole agent user" ercole
+
+if getent group oinstall >/dev/null; then
+    usermod -aG oinstall ercole
+fi
+
+if getent group dba >/dev/null; then
+    usermod -aG dba ercole
+fi
+
+if getent group mysql >/dev/null; then
+    usermod -aG mysql ercole
+fi
 exit 0
 
 %prep

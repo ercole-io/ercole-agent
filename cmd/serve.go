@@ -80,6 +80,16 @@ func (p *program) run() {
 
 	clients := make([]*client.Client, 0, len(configuration.Queue.DataServices))
 
+	// old configuration must be supported
+	if configuration.DataserviceURL != "" {
+		configuration.Queue.DataServices = append(configuration.Queue.DataServices, config.DataService{
+			Url:                    configuration.DataserviceURL,
+			AgentUser:              configuration.AgentUser,
+			AgentPassword:          configuration.AgentPassword,
+			EnableServerValidation: configuration.EnableServerValidation,
+		})
+	}
+
 	for _, dataservice := range configuration.Queue.DataServices {
 		client, err := client.NewClient(
 			client.EnableServerValidation(dataservice.EnableServerValidation),
