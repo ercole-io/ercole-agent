@@ -330,7 +330,7 @@ then
  	        	         then ''||';'
                      else to_char(((to_number(usage,'99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';' 
  	        	     end
-           when LTRIM(product,'.') like 'Advanced Compression' and usage is NULL and ((select count(*) from &&DFUS.tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from &&DFUS.tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from &&DFUS.tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0)
+           when LTRIM(product,'.') like 'Advanced Compression' and usage is NULL and ((select count(*) from &&DFUS.tables where owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select count(*) from &&DFUS.tab_partitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0 or (select /*+opt_param('_px_cdb_view_enabled', 'false') */ count(*) from &&DFUS.tab_subpartitions where table_owner not in('SYS','SYSMAN','SYSTEM','APEX%') and compress_for not in ('NULL','BASIC'))>0)
            then 
 		          to_char(((to_number('1','99999.99',' NLS_NUMERIC_CHARACTERS = '',.''')*&1)*&2),'990.0')||';'
            when LTRIM(product,'.') like 'Partitioning' and usage is NULL and (select count(*) from &&DFUS.tables where partitioned = 'YES' and owner not in ('SYS','SYSTEM','AUDSYS','MDSYS'))>0
