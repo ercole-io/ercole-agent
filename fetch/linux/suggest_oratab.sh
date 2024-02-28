@@ -21,7 +21,7 @@ ps -ef | grep pmon | grep -v grep| grep -v ASM| grep -v APX| grep -v FOMUT0_U| g
 
 while read i
 do PROC=$(echo $i| awk '{print $2}')
-SID=$(echo $i | awk -F "_" '{print $NF}')
+SID=$(echo $i | awk -F "ora_pmon_" '{print $NF}')
 ENTRY=$(echo "$SID:$(pwdx $PROC| awk -F : '{print $2}')"| tr -d ' ')
 if [[ $(grep $SID "$ORATAB_FILE"|wc -l) -lt 1 ]] || ([[ $(grep "#"$SID "$ORATAB_FILE"|wc -l) -eq 1 ]] && [[ $(grep $SID "$ORATAB_FILE"|wc -l) -lt 2 ]]); then
 	echo ${ENTRY%????}:N
