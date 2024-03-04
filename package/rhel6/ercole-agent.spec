@@ -75,7 +75,6 @@ else
   echo "File does not exist. Creating an empty file."
   touch /opt/ercole-agent/.ibs_group_EMPTY
 fi
-systemctl enable ercole-agent.service
 
 %files
 %dir /opt/ercole-agent
