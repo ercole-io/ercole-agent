@@ -78,12 +78,16 @@ else
   echo "File does not exist. Creating an empty file."
   touch /opt/ercole-agent/.ibs_group_EMPTY
 fi
+/usr/bin/systemctl enable %{name}.service >/dev/null 2>&1 || :
 
 %preun
+/usr/bin/systemctl enable %{name}.service >/dev/null 2>&1 || :
+#/usr/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
 /usr/bin/systemctl stop %{name}.service >/dev/null 2>&1 ||:
 
 %postun
 /usr/bin/systemctl daemon-reload >/dev/null 2>&1 ||:
+/usr/bin/systemctl enable %{name}.service >/dev/null 2>&1 || :
 
 %files
 %attr(-,ercole,-) /opt/ercole-agent/run
