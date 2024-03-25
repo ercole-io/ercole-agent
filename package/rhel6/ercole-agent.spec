@@ -128,6 +128,7 @@ fi
 /opt/ercole-agent/fetch/linux/sar_disks_only_linux.sh
 /opt/ercole-agent/fetch/linux/to_postgresql.sh
 /opt/ercole-agent/fetch/linux/to_postgresql_pluggable.sh
+/opt/ercole-agent/fetch/linux/memory_pga_sga_advisory.sh
 
 /opt/ercole-agent/fetch/linux/exadata/info.sh
 /opt/ercole-agent/fetch/linux/exadata/new_info.sh
@@ -176,6 +177,7 @@ fi
 /opt/ercole-agent/sql/pdb_cpu_iops.sql
 /opt/ercole-agent/sql/cdb_cpu_iops.sql
 /opt/ercole-agent/sql/to_postgresql.sql
+/opt/ercole-agent/sql/memory_pga_sga_advisory.sql
 
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.backup_schedule.sql
 /opt/ercole-agent/sql/mssqlserver/mssqlserver.db.10.sql
