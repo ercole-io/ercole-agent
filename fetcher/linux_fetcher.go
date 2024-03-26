@@ -563,6 +563,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePgsqlMigrability(entry agentmodel.O
 	return marshal_oracle.PostgresMigrability(out)
 }
 
+// GetOracleDatabasePgsqlMigrability get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseMemoryAdvisor(entry agentmodel.OratabEntry) (*model.OracleDatabaseMemoryAdvisor, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "memory_pga_sga_advisory", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.MemoryAdvisor(out)
+}
+
 // GetOracleDatabasePDBTablespaces get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
@@ -582,7 +592,6 @@ func (lf *LinuxFetcherImpl) GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmod
 
 	return marshal_oracle.PostgresMigrability(out)
 }
-
 
 // GetOracleDatabasePdbServices get
 func (lf *LinuxFetcherImpl) GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error) {

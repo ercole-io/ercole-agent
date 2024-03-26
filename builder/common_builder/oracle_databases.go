@@ -321,6 +321,13 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		}
 	}, &wg)
 
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.OracleDatabaseMemoryAdvisor, err = b.fetcher.GetOracleDatabaseMemoryAdvisor(entry); err != nil {
+			b.log.Warnf("Oracle db [%s]: can't get memory pgs & sga advisor", entry.DBName)
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
 	wg.Wait()
 	close(blockingErrs)
 	close(nonBlockingErrs)
