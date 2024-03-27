@@ -100,11 +100,26 @@ func (b *CommonBuilder) getMongoDBFeature(hostname string) (*model.MongoDBFeatur
 		statusConnection.Current = conn["current"].(int32)
 		statusConnection.Available = conn["available"].(int32)
 		statusConnection.TotalCreated = conn["totalCreated"].(int32)
-		statusConnection.Active = conn["active"].(int32)
-		statusConnection.Threaded = conn["threaded"].(int32)
-		statusConnection.ExhaustIsMaster = conn["exhaustIsMaster"].(int32)
-		statusConnection.ExhaustHello = conn["exhaustHello"].(int32)
-		statusConnection.AwaitingTopologyChanges = conn["awaitingTopologyChanges"].(int32)
+
+		if v, ok := conn["active"]; ok {
+			statusConnection.Active = v.(int32)
+		}
+
+		if v, ok := conn["threaded"]; ok {
+			statusConnection.Threaded = v.(int32)
+		}
+
+		if v, ok := conn["exhaustIsMaster"]; ok {
+			statusConnection.ExhaustIsMaster = v.(int32)
+		}
+
+		if v, ok := conn["exhaustHello"]; ok {
+			statusConnection.ExhaustHello = v.(int32)
+		}
+
+		if v, ok := conn["awaitingTopologyChanges"]; ok {
+			statusConnection.AwaitingTopologyChanges = v.(int32)
+		}
 
 		if conn["loadBalanced"] != nil {
 			statusConnection.LoadBalanced = conn["loadBalanced"].(int32)
