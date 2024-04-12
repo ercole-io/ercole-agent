@@ -200,6 +200,12 @@ func (wf *WindowsFetcherImpl) GetHost() (*model.Host, error) {
 	return marshal.Host(out)
 }
 
+// GetCwVersion get
+func (wf *WindowsFetcherImpl) GetCwVersion() (string, error) {
+	wf.log.Error(notImplementedWindows)
+	return "", ercutils.NewError(notImplementedWindows)
+}
+
 // GetFilesystems get
 func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	out, err := wf.executeWithDeadline(20*time.Second, "win.ps1", "-s", "filesystem")

@@ -201,6 +201,16 @@ func (lf *LinuxFetcherImpl) GetHost() (*model.Host, error) {
 	return marshal.Host(out)
 }
 
+// GetCwVersion get
+func (lf *LinuxFetcherImpl) GetCwVersion() (string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "cwversion")
+	if err != nil {
+		return "", ercutils.NewError(err)
+	}
+
+	return marshal.CwVersion(out)
+}
+
 // GetFilesystems get
 func (lf *LinuxFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 	out, err := lf.executeWithDeadline(20*time.Second, "filesystem")
