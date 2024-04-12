@@ -35,6 +35,7 @@ type Fetcher interface {
 	// Operating system fetchers
 
 	GetHost() (*model.Host, error)
+	GetCwVersion() (string, error)
 	GetFilesystems() ([]model.Filesystem, error)
 	GetClustersMembershipStatus() (*model.ClusterMembershipStatus, error)
 	GetCpuConsumption() ([]model.CpuConsumption, error)

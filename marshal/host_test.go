@@ -37,8 +37,7 @@ KernelVersion: 2.6.32-754.25.1.el6.x86_64
 OS: Oracle Linux Server
 OSVersion: 7.8
 MemoryTotal: 189
-SwapTotal: 31
-CWVersion: 0.0.1`
+SwapTotal: 31`
 
 func TestHost(t *testing.T) {
 	cmdOutput := []byte(testHostData)
@@ -62,7 +61,6 @@ func TestHost(t *testing.T) {
 		OSVersion:                     "7.8",
 		MemoryTotal:                   189,
 		SwapTotal:                     31,
-		ClusterwareVersion:            "0.0.1",
 	}
 	assert.Nil(t, errs)
 	assert.Equal(t, expected, actual)

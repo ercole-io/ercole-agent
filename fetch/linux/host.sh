@@ -111,31 +111,6 @@ else
   HARDWARE_ABSTRACTION="PH"
 fi
 
-if [[ -f /etc/oraInst.loc ]]; then
-  INVENTORY=$(grep inventory_loc /etc/oraInst.loc|awk -F['='] '{print $2}')
-  GI_HOME=$(grep 'CRS="true"' ${INVENTORY}/ContentsXML/inventory.xml|awk -F['='] '{print $3'}|awk -F['"'] '{print $2}')
-  if [[ -d $GI_HOME ]]; then
-    CHECK_ASM=$(ps -ef|grep asm_pmon|grep -iv grep|wc -l)
-    if [[ $CHECK_ASM == 1 ]]; then
-      CWVERSION=$(${GI_HOME}/bin/asmcmd showversion| awk '{print $4}')
-    else
-      CHECK_PSU=$(${GI_HOME}/OPatch/opatch lspatches|grep 'Database Patch Set Update'|awk -F[:] '{print $2}'|awk -F ['('] {'print $1'})
-      CHECK_RU=$(${GI_HOME}/OPatch/opatch lspatches|grep 'Database Release Update'|awk -F[:] '{print $2}'|awk -F ['('] {'print $1'})
-      if [ ! -z $CHECK_PSU ] && [ -z $CHECK_RU ]; then 
-        CWVERSION=$CHECK_PSU
-      elif [ -z $CHECK_PSU ] && [ ! -z $CHECK_RU ]; then
-        CWVERSION=$CHECK_RU
-      else
-        CWVERSION=" "
-      fi
-    fi
-  else
-    CWVERSION=" "
-  fi
-else
-  CWVERSION=" "
-fi
-
 echo -n "Hostname: $HOSTNAME
 CPUModel: $CPU_MODEL
 CPUFrequency: $CPU_FREQUENCY
@@ -152,5 +127,4 @@ OS: $OS
 OSVersion: $OS_VERSION
 MemoryTotal: $MEM_TOTAL
 SwapTotal: $SWP_TOTAL
-CWVersion: $CWVERSION
 "
