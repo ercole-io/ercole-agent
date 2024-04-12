@@ -110,6 +110,7 @@ fi
 /opt/ercole-agent/fetch/linux/filesystem.sh
 /opt/ercole-agent/fetch/linux/grant_dba.sh
 /opt/ercole-agent/fetch/linux/host.sh
+/opt/ercole-agent/fetch/linux/cwversion.sh
 /opt/ercole-agent/fetch/linux/license.sh
 /opt/ercole-agent/fetch/linux/listpdb.sh
 /opt/ercole-agent/fetch/linux/opt.sh
