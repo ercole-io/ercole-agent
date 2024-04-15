@@ -71,12 +71,14 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 
 	var err error
 
-	if cwversion, err := b.fetcher.GetCwVersion(); err != nil {
-		b.log.Error(err)
-		hostData.AddErrors(err)
-	} else {
-		hostData.Info.ClusterwareVersion = cwversion
-	}
+	// waiting for cwversion.sh fix
+	//
+	// if cwversion, err := b.fetcher.GetCwVersion(); err != nil {
+	// 	b.log.Error(err)
+	// 	hostData.AddErrors(err)
+	// } else {
+	// 	hostData.Info.ClusterwareVersion = cwversion
+	// }
 
 	if hostData.Filesystems, err = b.fetcher.GetFilesystems(); err != nil {
 		hostData.Filesystems = []model.Filesystem{}
