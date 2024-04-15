@@ -203,7 +203,7 @@ func (lf *LinuxFetcherImpl) GetHost() (*model.Host, error) {
 
 // GetCwVersion get
 func (lf *LinuxFetcherImpl) GetCwVersion() (string, error) {
-	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "cwversion")
+	out, err := lf.executeWithDeadline(time.Second*60, "cwversion")
 	if err != nil {
 		return "", ercutils.NewError(err)
 	}
