@@ -21,7 +21,8 @@ if [[ -f /etc/oraInst.loc ]]; then
   if [[ -d $GI_HOME ]]; then
     CHECK_ASM=$(ps -ef|grep asm_pmon|grep -iv grep|wc -l)
     if [[ $CHECK_ASM == 1 ]]; then
-      CWVERSION=$(${GI_HOME}/bin/asmcmd showversion| awk '{print $4}')
+      CWVERSION=$(${GI_HOME}/bin/srvctl -version| awk '{print $3}')
+	  CWVERSION=$(echo $CWVERSION | grep -oE '[0-9]+[.]+[0-9]+' | head -1)
     else
       CHECK_PSU=$(${GI_HOME}/OPatch/opatch lspatches|grep 'Database Patch Set Update'|awk -F[:] '{print $2}'|awk -F ['('] {'print $1'})
       CHECK_RU=$(${GI_HOME}/OPatch/opatch lspatches|grep 'Database Release Update'|awk -F[:] '{print $2}'|awk -F ['('] {'print $1'})
