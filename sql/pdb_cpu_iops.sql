@@ -1,4 +1,4 @@
--- Copyright (c) 2023 Sorint.lab S.p.A.
+-- Copyright (c) 2024 Sorint.lab S.p.A.
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -12,8 +12,6 @@
 
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-set lines 8000 pages 0
 
 define SNAPDAYS = 30;
 define MONTH = 30;
@@ -42,7 +40,7 @@ alter session set container=&1;
 
 set serveroutput on
 
---Fetch the database dbid
+--Fetch the database dbids
 SELECT instance_number FROM v$instance;
 
 --Consering that DBA_HIST_CON_SYSMETRIC_SUMM and DBA_HIST_RSRC_PDB_METRIC tables contains records referenced to the pdb metric both with dbid of the CDB and dbid of the PDB
@@ -297,10 +295,12 @@ begin
 		END LOOP;
 		
 		--Daily series
-		FOR v_time_series_table_index IN v_time_series_table.FIRST..v_time_series_table.LAST
-		LOOP
-			DBMS_OUTPUT.PUT_LINE(v_time_series_table(v_time_series_table_index));
-		END LOOP;	
+		if v_time_series_table.COUNT > 0
+			FOR v_time_series_table_index IN v_time_series_table.FIRST..v_time_series_table.LAST
+			LOOP
+				DBMS_OUTPUT.PUT_LINE(v_time_series_table(v_time_series_table_index));
+			END LOOP;	
+		end if;
 		
 		--PLACEHOLDER end important output
 		DBMS_OUTPUT.PUT_LINE('ENDOUTPUT');
