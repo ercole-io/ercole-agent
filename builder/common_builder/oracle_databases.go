@@ -41,11 +41,48 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor
 
 	uniqueOratabEntries := b.RemoveDuplicatedOratabEntries(oratabEntries)
 
-	oracleDatabaseFeature.UnlistedRunningDatabases = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
+	runningDBs, err := b.fetcher.GetOracleDatabaseRunningDatabases()
+	if err != nil {
+		b.log.Errorf("Can't get running Oracle databases")
+		return nil, err
+	}
+
+	// UnlistedRunningDatabases is not needed at the moment accoridng to the team
+	_ = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
+
+	uniqueOratabEntries = b.getMatchedOratabEntriesToRunningDbs(uniqueOratabEntries, runningDBs)
 
 	oracleDatabaseFeature.Databases, oracleDatabaseFeature.UnretrievedDatabases, err = b.getOracleDBs(uniqueOratabEntries, host, hostCoreFactor)
 
+	missingRunningDbs := b.missingRunningDbs(uniqueOratabEntries, runningDBs)
+
+	oracleDatabaseFeature.UnretrievedDatabases = append(oracleDatabaseFeature.UnretrievedDatabases, missingRunningDbs...)
+
 	return oracleDatabaseFeature, err
+}
+
+func (b *CommonBuilder) getMatchedOratabEntriesToRunningDbs(oratabEntries []agentmodel.OratabEntry, runningDbs []string) []agentmodel.OratabEntry {
+	res := make([]agentmodel.OratabEntry, 0, len(oratabEntries))
+
+	for _, entry := range oratabEntries {
+		if ercutils.Contains(runningDbs, entry.DBName) {
+			res = append(res, entry)
+		}
+	}
+
+	return res
+}
+
+func (b *CommonBuilder) missingRunningDbs(oratabEntries []agentmodel.OratabEntry, runningDbs []string) []string {
+	res := make([]string, 0, len(runningDbs)-len(oratabEntries))
+
+	for _, rdb := range runningDbs {
+		if !containsDbName(oratabEntries, rdb) {
+			res = append(res, rdb)
+		}
+	}
+
+	return res
 }
 
 func (b *CommonBuilder) getUnlistedRunningOracleDBs(oratabEntries []agentmodel.OratabEntry) []string {
@@ -609,4 +646,14 @@ func checkVersion(dbName, dbVersion string) string {
 	}
 
 	return "Express Edition"
+}
+
+func containsDbName(oratabEntries []agentmodel.OratabEntry, s string) bool {
+	for _, entry := range oratabEntries {
+		if entry.DBName == s {
+			return true
+		}
+	}
+
+	return false
 }
