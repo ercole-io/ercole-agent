@@ -17,7 +17,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 
@@ -174,12 +173,16 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		return nil, nil
 
 	default:
-		if strings.Contains(dbStatus, "ORA-01034") {
-			msg := fmt.Sprintf("Connection Error: DBName: [%s] OracleHome: [%s]", entry.DBName, entry.OracleHome)
-			b.log.Debugf(msg)
+		_ = ""
+		// Commented for unretrieved running db
+		// move this comment below default to make it work again
+		//
+		// if strings.Contains(dbStatus, "ORA-01034") {
+		// 	msg := fmt.Sprintf("Connection Error: DBName: [%s] OracleHome: [%s]", entry.DBName, entry.OracleHome)
+		// 	b.log.Debugf(msg)
 
-			return nil, nil
-		}
+		// 	return nil, nil
+		// }
 
 		err := ercutils.NewErrorf("Unknown dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
 			dbStatus, entry.DBName, entry.OracleHome)
