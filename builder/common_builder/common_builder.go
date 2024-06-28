@@ -17,7 +17,6 @@ package common
 
 import (
 	"runtime"
-	"sort"
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/config"
@@ -117,31 +116,6 @@ func (b *CommonBuilder) Run(hostData *model.HostData) {
 	b.runMicrosoftSQLServer(hostData)
 
 	b.runVirtualization(hostData)
-
-	if hostData.ClusterMembershipStatus.VeritasClusterServer {
-		clusterinfos := make([]model.ClusterInfo, 0, 1)
-
-		vmnames := []string{}
-		vms := make([]model.VMInfo, 0, len(hostData.ClusterMembershipStatus.VeritasClusterHostnames))
-
-		for _, vm := range hostData.ClusterMembershipStatus.VeritasClusterHostnames {
-			vmnames = append(vmnames, vm)
-
-			vms = append(vms, model.VMInfo{
-				Hostname: vm,
-			})
-		}
-
-		sort.Strings(vmnames)
-
-		clusterInfo := model.ClusterInfo{
-			Name: strings.Join(vmnames, "-"),
-			VMs:  vms,
-		}
-
-		clusterinfos = append(clusterinfos, clusterInfo)
-		hostData.Clusters = clusterinfos
-	}
 
 	b.runMySQL(hostData)
 
