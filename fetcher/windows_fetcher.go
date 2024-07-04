@@ -241,6 +241,16 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, err
 	return []string{}, nil
 }
 
+// GetOraclePmonInstances get
+func (wf *WindowsFetcherImpl) GetOraclePmonInstances() (map[string]string, error) {
+	return map[string]string{}, nil
+}
+
+// GetOracleEntry get
+func (wf *WindowsFetcherImpl) GetOracleEntry(proc, instanceName string) (*agentmodel.OratabEntry, error) {
+	return nil, nil
+}
+
 // GetOracleDatabaseDbStatus get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) (string, error) {
 	out, err := wf.executeWithDeadline(FetcherStandardTimeOut, "win.ps1", wf.CreateOracleArgs("-s", "dbstatus", entry.DBName, entry.OracleHome)...)

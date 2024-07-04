@@ -32,32 +32,77 @@ func (b *CommonBuilder) getOracleDatabaseFeature(host model.Host, hostCoreFactor
 ) (*model.OracleDatabaseFeature, error) {
 	oracleDatabaseFeature := new(model.OracleDatabaseFeature)
 
+	var err error
+
+	var oratabEntries []agentmodel.OratabEntry
+
+	var missingRunningDbs []string
+
+	if b.configuration.Features.OracleDatabase.OratabLess {
+		pmonInstances, err := b.fetcher.GetOraclePmonInstances()
+		if err != nil {
+			b.log.Errorf("Can't get running Oracle databases")
+			return nil, err
+		}
+
+		for proc, instanceName := range pmonInstances {
+			oracleEntry, err := b.fetcher.GetOracleEntry(proc, instanceName)
+			if err != nil {
+				b.log.Errorf("Can't get oratab entries")
+				return nil, err
+			}
+
+			if oracleEntry != nil {
+				oratabEntries = append(oratabEntries, *oracleEntry)
+			}
+		}
+	} else {
+		runningDbs, err := b.getRunningDbs()
+		if err != nil {
+			b.log.Errorf("Can't get running Oracle databases")
+			return nil, err
+		}
+
+		oratabEntries, err = b.getOracleEntries(runningDbs)
+		if err != nil {
+			b.log.Errorf("Can't get oratab entries")
+			return nil, err
+		}
+
+		missingRunningDbs = b.getMissingRunningDbs(oratabEntries, runningDbs)
+	}
+
+	oracleDatabaseFeature.Databases, oracleDatabaseFeature.UnretrievedDatabases, err = b.getOracleDBs(oratabEntries, host, hostCoreFactor)
+
+	oracleDatabaseFeature.UnretrievedDatabases = append(oracleDatabaseFeature.UnretrievedDatabases, missingRunningDbs...)
+
+	return oracleDatabaseFeature, err
+}
+
+func (b *CommonBuilder) getRunningDbs() ([]string, error) {
+	return b.fetcher.GetOracleDatabaseRunningDatabases()
+}
+
+func (b *CommonBuilder) getOracleEntries(runningDbs []string) ([]agentmodel.OratabEntry, error) {
 	oratabEntries, err := b.fetcher.GetOracleDatabaseOratabEntries()
 	if err != nil {
-		b.log.Errorf("Can't get oratab entries")
 		return nil, err
 	}
 
 	uniqueOratabEntries := b.RemoveDuplicatedOratabEntries(oratabEntries)
 
-	runningDBs, err := b.fetcher.GetOracleDatabaseRunningDatabases()
-	if err != nil {
-		b.log.Errorf("Can't get running Oracle databases")
-		return nil, err
-	}
+	uniqueOratabEntries = b.getMatchedOratabEntriesToRunningDbs(uniqueOratabEntries, runningDbs)
+
+	return uniqueOratabEntries, nil
+}
+
+func (b *CommonBuilder) getMissingRunningDbs(oratabEntries []agentmodel.OratabEntry, runningDbs []string) []string {
+	missingRunningDbs := b.missingRunningDbs(oratabEntries, runningDbs)
 
 	// UnlistedRunningDatabases is not needed at the moment accoridng to the team
-	_ = b.getUnlistedRunningOracleDBs(uniqueOratabEntries)
+	_ = b.getUnlistedRunningOracleDBs(oratabEntries)
 
-	uniqueOratabEntries = b.getMatchedOratabEntriesToRunningDbs(uniqueOratabEntries, runningDBs)
-
-	oracleDatabaseFeature.Databases, oracleDatabaseFeature.UnretrievedDatabases, err = b.getOracleDBs(uniqueOratabEntries, host, hostCoreFactor)
-
-	missingRunningDbs := b.missingRunningDbs(uniqueOratabEntries, runningDBs)
-
-	oracleDatabaseFeature.UnretrievedDatabases = append(oracleDatabaseFeature.UnretrievedDatabases, missingRunningDbs...)
-
-	return oracleDatabaseFeature, err
+	return missingRunningDbs
 }
 
 func (b *CommonBuilder) getMatchedOratabEntriesToRunningDbs(oratabEntries []agentmodel.OratabEntry, runningDbs []string) []agentmodel.OratabEntry {

@@ -68,6 +68,7 @@ type OracleDatabaseFeature struct {
 	AWR         int
 	Forcestats  bool
 	OracleUser  OracleUser
+	OratabLess  bool
 }
 
 func (odf *OracleDatabaseFeature) IsOracleUser() bool {
