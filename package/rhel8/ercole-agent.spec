@@ -153,6 +153,8 @@ fi
 /opt/ercole-agent/fetch/linux/postgresql/psql_schema.sh
 
 /opt/ercole-agent/fetch/linux/suggest_oratab.sh
+/opt/ercole-agent/fetch/linux/oracle_running_database_home_oratabless.sh
+/opt/ercole-agent/fetch/linux/oracle_running_databases_oratabless.sh
 
 /opt/ercole-agent/sql/addm.sql
 /opt/ercole-agent/sql/backup_schedule.sql

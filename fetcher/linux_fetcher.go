@@ -279,6 +279,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseRunningDatabases() ([]string, error
 	return ret, nil
 }
 
+// GetOraclePmonInstances get
+func (lf *LinuxFetcherImpl) GetOraclePmonInstances() (map[string]string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "oracle_running_databases_oratabless")
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.PmonInstances(out), nil
+}
+
 func (lf *LinuxFetcherImpl) CreateOracleArgs(args ...string) []string {
 	if lf.configuration.Features.OracleDatabase.IsOracleUser() {
 		args = append(args, lf.configuration.Features.OracleDatabase.OracleUser.Username, lf.configuration.Features.OracleDatabase.OracleUser.Password)
@@ -293,6 +303,16 @@ func (lf *LinuxFetcherImpl) CreatePostgresqlArgs(instance config.PostgreSQLInsta
 	args = append(args, elems...)
 
 	return args
+}
+
+// GetOracleEntry get
+func (lf *LinuxFetcherImpl) GetOracleEntry(proc, instanceName string) (*agentmodel.OratabEntry, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "oracle_running_database_home_oratabless", lf.CreateOracleArgs(proc, instanceName)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.OracleEntry(out), nil
 }
 
 // GetOracleDatabaseDbStatus get

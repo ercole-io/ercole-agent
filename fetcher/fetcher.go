@@ -50,6 +50,8 @@ type Fetcher interface {
 
 	GetOracleDatabaseOratabEntries() ([]agentmodel.OratabEntry, error)
 	GetOracleDatabaseRunningDatabases() ([]string, error)
+	GetOraclePmonInstances() (map[string]string, error)
+	GetOracleEntry(proc, instanceName string) (*agentmodel.OratabEntry, error)
 	GetOracleDatabaseDbStatus(entry agentmodel.OratabEntry) (string, error)
 	GetOracleDatabaseRac(entry agentmodel.OratabEntry) (string, error)
 	GetOracleDatabaseMountedDb(entry agentmodel.OratabEntry) (*model.OracleDatabase, error)

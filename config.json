@@ -29,7 +29,8 @@
             "OracleUser": {
                 "Username": "",
                 "Password": ""
-            }
+            },
+            "OratabLess": false
         },
         "Virtualization": {
             "Enabled": false,
