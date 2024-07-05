@@ -51,7 +51,7 @@ func ExadataComponents(cmdOutput []byte) ([]model.OracleExadataComponent, error)
 
 		switch splitted[0] {
 		case "KVM_HOST", "DOM0", "BARE_METAL":
-			if len(splitted) == 16 {
+			if len(splitted) == 18 {
 				component, merr = parseKvmHost(splitted)
 				components = append(components, *component)
 			}
@@ -218,6 +218,14 @@ func parseKvmHost(sl []string) (*model.OracleExadataComponent, error) {
 
 	res.MsStatus = strings.TrimSpace(sl[14])
 	res.RsStatus = strings.TrimSpace(sl[15])
+
+	if res.ReservedCPU, err = marshal.TrimParseInt(sl[16]); err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
+
+	if res.ReservedMemory, err = marshal.TrimParseInt(sl[17]); err != nil {
+		merr = multierror.Append(merr, ercutils.NewError(err))
+	}
 
 	return res, merr
 }

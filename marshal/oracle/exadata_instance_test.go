@@ -22,28 +22,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testExadataComponentData string = `HOST_TYPE|||RACK_ID|||HOSTNAME|||HOST_ID|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS
-KVM_HOST|||AK00467954|||exafakedatav01|||2043XCB05P|||96|||96|||1510|||21.2.12.0.0.220513|||4.14.35-2047.511.5.5.1.el7uek.x86_64|||Exadata Database Machine X8M-2|||16|||16|||2|||2|||running|||running`
+const testExadataComponentData string = `HOST_TYPE|||RACK_ID|||HOSTNAME|||HOST_ID|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS|||RESERVED_CPU|||RESERVED_MEMORY_GB
+KVM_HOST|||AK00467954|||exafakedatav01|||2043XCB05P|||96|||96|||1510|||21.2.12.0.0.220513|||4.14.35-2047.511.5.5.1.el7uek.x86_64|||Exadata Database Machine X8M-2|||16|||16|||2|||2|||running|||running|||2|||2`
 
 func TestExadataComponents(t *testing.T) {
 	expected := []model.OracleExadataComponent{
 		{
-			HostType:     "KVM_HOST",
-			RackID:       "AK00467954",
-			Hostname:     "exafakedatav01",
-			HostID: "2043XCB05P",
-			CPUEnabled:   96,
-			TotalCPU:     96,
-			Memory:       1510,
-			ImageVersion: "21.2.12.0.0.220513",
-			Kernel:       "4.14.35-2047.511.5.5.1.el7uek.x86_64",
-			Model:        "Exadata Database Machine X8M-2",
-			FanUsed:      16,
-			FanTotal:     16,
-			PsuUsed:      2,
-			PsuTotal:     2,
-			MsStatus:     "running",
-			RsStatus:     "running",
+			HostType:       "KVM_HOST",
+			RackID:         "AK00467954",
+			Hostname:       "exafakedatav01",
+			HostID:         "2043XCB05P",
+			CPUEnabled:     96,
+			TotalCPU:       96,
+			Memory:         1510,
+			ImageVersion:   "21.2.12.0.0.220513",
+			Kernel:         "4.14.35-2047.511.5.5.1.el7uek.x86_64",
+			Model:          "Exadata Database Machine X8M-2",
+			FanUsed:        16,
+			FanTotal:       16,
+			PsuUsed:        2,
+			PsuTotal:       2,
+			MsStatus:       "running",
+			RsStatus:       "running",
+			ReservedCPU:    2,
+			ReservedMemory: 2,
 		},
 	}
 

@@ -9,6 +9,8 @@
 # 20231003: added configuration to allow the script to be executed as non-root user. Added summary function fullRun. Added field 'HOST_ID' for both cells and dbnodes
 # 20231122: modified checks on non-root users to allow even LDAP managed users to be used
 # 20240131: fix call to vm_maker (with sudo) and inverted RACK_ID-HOST_TYPE in nodes output
+# 20240509: fix CellGetDetails, iormShare not available anymore for cell after el8
+# 20240509: added reserved CPU and reserved MEMORY for OVM and KVM in HostGetDetails
 
 ### Variables
 APP_DIR=/tmp
@@ -126,7 +128,7 @@ function preRunFunction {
 
 ### Physical nodes functions
 function HostGetDetails {
-    echo "HOST_TYPE|||RACK_ID|||HOSTNAME|||HOST_ID|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS"
+    echo "HOST_TYPE|||RACK_ID|||HOSTNAME|||HOST_ID|||CPU_ENABLED|||CPU_TOT|||MEMORY_GB|||IMAGEVERSION|||KERNEL|||MODEL|||FAN_USED|||FAN_TOTAL|||PSU_USED|||PSU_TOTAL|||MS_STATUS|||RS_STATUS|||RESERVED_CPU|||RESERVED_MEMORY_GB"
     while read NHOST
     do
         INFO=$(dcli -c $NHOST -l $NONROOT "sudo dbmcli -e list dbserver attributes name,cpuCount,fanCount,kernelVersion,powerCount,releaseVersion,msStatus,rsStatus,id"| sed "s/${NHOST}: //g")
@@ -152,12 +154,20 @@ function HostGetDetails {
         if [[ "$HOST_TYPE" == "DOM0" ]]; then
             MEMORY_MB=$(dcli -c $NHOST -l $NONROOT "sudo xm info|grep total_memory"|awk '{print $4}')
             MEMORY_GB=$(expr $MEMORY_MB / 1024)
-            
+			RESERVED_CPU=$(xl list | grep -i Domain-0 | awk '{print $4}')
+            RESERVED_MEMORY_GB=$(expr $(xl list | grep -i Domain-0 | awk '{print $3}') / 1024)           
         else
             MEMORY_KB=$(dcli -c $NHOST -l $NONROOT "sudo cat /proc/meminfo|grep MemTotal"|awk '{print $3}')
             MEMORY_GB=$(expr $MEMORY_KB / 1048576)
+			if [[ "$HOST_TYPE" == "KVM_HOST" ]]; then
+				RESERVED_CPU=$(sudo vm_maker --list --vcpu | grep -i reserved | awk '{print $5}')
+				RESERVED_MEMORY_GB=$(expr $(sudo vm_maker --list --memory | grep -i reserved | awk '{print $5}') / 1024)
+			else
+				RESERVED_CPU=0
+				RESERVED_MEMORY_GB=0
+			fi
         fi               
-        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$HOSTID|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS|||$RS"
+        echo "$HOST_TYPE|||$RACK_ID|||$HOST|||$HOSTID|||$CPU_ENABLED|||$CPU_TOT|||$MEMORY_GB|||$IMAGEVERSION|||$KERNEL|||$MODEL|||$FAN_USED|||$FAN_TOTAL|||$PSU_USED|||$PSU_TOTAL|||$MS|||$RS|||$RESERVED_CPU|||$RESERVED_MEMORY_GB"
     done < $DBS_LST
 }
 
@@ -232,16 +242,25 @@ function CellGetDetails {
                 echo "$TYPE|||$GD_NAME|||$CDISK|||$GD_SIZE|||$GD_STATUS|||$GD_ERRCOUNT|||$GD_FCPOL|||$GD_ASMDISKNAME|||$GD_ASMDGNAME|||$GD_ASMDISKSIZE|||$GD_ASMSTATUS"
             done; echo " "
         done
-        echo " ";echo "TYPE|||DB_NAME|||CELL|||DBID|||FLASHCACHE_LIMIT|||IORM_SHARE|||LAST_IO_REQ"
+        CELL_OS_VERSION=$(echo $(dcli -c $CELL -l root "awk -F'=' '/VERSION_ID/{ print $2}' /etc/os-release") | awk -F\" '{ print $2 }')
+		OS_8_OR_ABOVE=$(echo "$CELL_OS_VERSION>8.0" | bc -l)
+	echo "TYPE|||DB_NAME|||CELL|||DBID|||FLASHCACHE_LIMIT|||IORM_SHARE|||LAST_IO_REQ"
         for DB in $DBS 
         do
+	    if [ $OS_8_OR_ABOVE -eq 1 ]
+	    then
+	    	DB_INFO=$(dcli -c $CELL -l root "cellcli -e list database attributes name,databaseID,flashCacheLimit,lastRequestTime where name=$DB"|sed "s/${CELL}: //g"|sort)
+			DB_IORMSHARE=-1
+			DB_LASTREQ=$(echo $DB_INFO|awk '{print $4}')
+	    else
+			DB_INFO=$(dcli -c $CELL -l root "cellcli -e list database attributes name,databaseID,flashCacheLimit,iormShare,lastRequestTime where name=$DB"|sed "s/${CELL}: //g"|sort)
+			DB_IORMSHARE=$(echo $DB_INFO|awk '{print $4}')
+			DB_LASTREQ=$(echo $DB_INFO|awk '{print $5}')	
+	    fi
             TYPE=DATABASE
-            DB_INFO=$(dcli -c $CELL -l root "cellcli -e list database attributes name,databaseID,flashCacheLimit,iormShare,lastRequestTime where name=$DB"|sed "s/${CELL}: //g"|sort)
             DB_NAME=$(echo $DB_INFO|awk '{print $1}')
             DB_ID=$(echo $DB_INFO|awk '{print $2}')
             DB_FCLIMIT=$(echo $DB_INFO|awk '{print $3}')
-            DB_IORMSHARE=$(echo $DB_INFO|awk '{print $4}')
-            DB_LASTREQ=$(echo $DB_INFO|awk '{print $5}')
             echo "$TYPE|||$DB_NAME|||$HOST|||$DB_ID|||$DB_FCLIMIT|||$DB_IORMSHARE|||$DB_LASTREQ"
         done; echo " "
     done < $CELL_LST

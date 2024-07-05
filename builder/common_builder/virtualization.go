@@ -18,7 +18,7 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -105,6 +105,7 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 				if err != nil {
 					errsChan <- err
 					clustersChan <- nil
+
 					return
 				}
 
@@ -116,6 +117,7 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 				if err != nil {
 					errsChan <- err
 					vmsChan <- nil
+
 					return
 				}
 
@@ -127,6 +129,7 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 				if err != nil {
 					errsChan <- err
 					clustersChan <- nil
+
 					return
 				}
 
@@ -138,6 +141,7 @@ func (b *CommonBuilder) getClustersInfos() ([]model.ClusterInfo, error) {
 				if err != nil {
 					errsChan <- err
 					vmsChan <- nil
+
 					return
 				}
 
@@ -393,7 +397,7 @@ func getBodyResponse(url string, username string, password string) ([]byte, erro
 
 	defer resp.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, ercutils.NewError(err)
 	}
