@@ -1,10 +1,11 @@
 run:
-  go: '1.18'
+  go: '1.21'
   timeout: 5m
   tests: false
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   sort-results: true
 
 linters-settings:
@@ -13,7 +14,6 @@ linters-settings:
 
 linters:
   enable:
-    - deadcode
     - errcheck
     - gosimple
     - govet
@@ -21,7 +21,6 @@ linters:
     - staticcheck
     - typecheck
     - unused
-    - varcheck
     - wsl
 
 severity:

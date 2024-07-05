@@ -17,7 +17,6 @@ package config
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -252,7 +251,7 @@ func checkFeatureOracleDatabase(log logger.Logger, config *Configuration) {
 		config.Features.OracleDatabase.Oratab = "/etc/oratab"
 	}
 
-	_, err := ioutil.ReadFile(config.Features.OracleDatabase.Oratab)
+	_, err := os.ReadFile(config.Features.OracleDatabase.Oratab)
 	if err != nil {
 		log.Fatalf("Oracle Database: oratab file \"%s\" can't be opened: %s", config.Features.OracleDatabase.Oratab, err)
 	}
@@ -288,7 +287,7 @@ func checkFeatureVirtualization(log logger.Logger, config *Configuration) {
 	}
 }
 
-func checkMySQLFeature(log logger.Logger, config *Configuration) {
+func checkMySQLFeature(_ logger.Logger, config *Configuration) {
 	for i, instance := range config.Features.MySQL.Instances {
 		if instance.DataDirectory == "" {
 			config.Features.MySQL.Instances[i].DataDirectory = "/var/lib/mysql"

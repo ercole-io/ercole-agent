@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -161,7 +160,7 @@ func ping(log logger.Logger, client *client.Client) {
 	}
 
 	if resp.StatusCode != 200 {
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err)
 			return

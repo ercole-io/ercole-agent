@@ -8,7 +8,7 @@ local go_runtime(version, arch) = {
 
 local task_build_go(setup) = {
   name: 'build go ' + setup.goos,
-  runtime: go_runtime('1.18', 'amd64'),
+  runtime: go_runtime('1.21', 'amd64'),
   environment: {
     GOOS: setup.goos,
     BIN: setup.bin,
@@ -272,14 +272,14 @@ steps: [
             type: 'pod',
             arch: 'amd64',
             containers: [
-              { image: 'golang:1.18' },
+              { image: 'golang:1.21' },
             ],
           },
           steps: [
             { type: 'clone' },
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
 
-            { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.2' },
+            { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.1' },
             { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
 
             { type: 'run', name: '', command: 'go install go.uber.org/mock/mockgen@latest' },
