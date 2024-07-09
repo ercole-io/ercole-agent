@@ -295,7 +295,7 @@ begin
 		END LOOP;
 		
 		--Daily series
-		if v_time_series_table.COUNT > 0
+		if v_time_series_table.COUNT > 0 then
 			FOR v_time_series_table_index IN v_time_series_table.FIRST..v_time_series_table.LAST
 			LOOP
 				DBMS_OUTPUT.PUT_LINE(v_time_series_table(v_time_series_table_index));
