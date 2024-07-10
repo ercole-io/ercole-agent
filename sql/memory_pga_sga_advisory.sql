@@ -20,17 +20,17 @@ set serveroutput on
 DECLARE
 has_memory_target_enabled number := 0;
 memory_size_lower number := 0;
-exists_lower_pga_cache_hit_100 number := 0;
-exists_lower_pga_cache_hit_95 number := 0;
+exists_low_pga_cachehit_100 number := 0;
+exists_low_pga_cachehit_95 number := 0;
 pga_target_lower number := 0;
-exists_lower_est_db_time_factor_105 number := 0;
+exists_low_est_dbtime_105 number := 0;
 sga_size_lower number := 0;
 begin
 --Check if exists a record in v$memory_target_advice -> if yes automatic memory management is enabled
 select count(*) into has_memory_target_enabled from v$memory_target_advice;
 if (has_memory_target_enabled>0) then
-	select count(*) into exists_lower_est_db_time_factor_105 from v$memory_target_advice where ESTD_DB_TIME_FACTOR<=1.05 and MEMORY_SIZE_FACTOR<1;
-	if (exists_lower_est_db_time_factor_105>0) then
+	select count(*) into exists_low_est_dbtime_105 from v$memory_target_advice where ESTD_DB_TIME_FACTOR<=1.05 and MEMORY_SIZE_FACTOR<1;
+	if (exists_low_est_dbtime_105>0) then
 		select MEMORY_SIZE into memory_size_lower from
 		(select MEMORY_SIZE
 		from v$memory_target_advice
@@ -40,7 +40,7 @@ if (has_memory_target_enabled>0) then
 	end if;
 	DBMS_OUTPUT.PUT_LINE('BEGINOUTPUT');
 	memory_size_lower := round(memory_size_lower/1024,3);
-	if (exists_lower_est_db_time_factor_105=0) then
+	if (exists_low_est_dbtime_105=0) then
 		DBMS_OUTPUT.PUT_LINE('MEMORY_SIZE_LOWER_GB|||' || 'N/A');
 	else
 		DBMS_OUTPUT.PUT_LINE('MEMORY_SIZE_LOWER_GB|||' || memory_size_lower);
@@ -48,16 +48,16 @@ if (has_memory_target_enabled>0) then
 	DBMS_OUTPUT.PUT_LINE('ENDOUTPUT');
 else
 	--Check if exist a pga_aggregate_target size lower than the actual that have pga_cache_hit_precentage = 100 or at least >=95
-	select count(*) into exists_lower_pga_cache_hit_100 from v$pga_target_advice where ESTD_PGA_CACHE_HIT_PERCENTAGE=100 and PGA_TARGET_FACTOR<1;
-	select count(*) into exists_lower_pga_cache_hit_95 from v$pga_target_advice where ESTD_PGA_CACHE_HIT_PERCENTAGE>=95 and PGA_TARGET_FACTOR<1;
-	if (exists_lower_pga_cache_hit_100>0) then
+	select count(*) into exists_low_pga_cachehit_100 from v$pga_target_advice where ESTD_PGA_CACHE_HIT_PERCENTAGE=100 and PGA_TARGET_FACTOR<1;
+	select count(*) into exists_low_pga_cachehit_95 from v$pga_target_advice where ESTD_PGA_CACHE_HIT_PERCENTAGE>=95 and PGA_TARGET_FACTOR<1;
+	if (exists_low_pga_cachehit_100>0) then
 		select PGA_TARGET_FOR_ESTIMATE into pga_target_lower from
 		(select PGA_TARGET_FOR_ESTIMATE
 		from v$pga_target_advice 
 		where ESTD_PGA_CACHE_HIT_PERCENTAGE=100 and PGA_TARGET_FACTOR<1
 		order by ESTD_PGA_CACHE_HIT_PERCENTAGE,PGA_TARGET_FACTOR)
 		where rownum=1;
-	elsif (exists_lower_pga_cache_hit_95>0) then
+	elsif (exists_low_pga_cachehit_95>0) then
 		select PGA_TARGET_FOR_ESTIMATE into pga_target_lower from
 		(select PGA_TARGET_FOR_ESTIMATE 
 		from v$pga_target_advice 
@@ -66,8 +66,8 @@ else
 		where rownum=1;
 	end if;
 	--Check if exist a sga_target size lower than the actual that have est_db_time_factor at least 0.05 % greater than the actual 
-	select count(*) into exists_lower_est_db_time_factor_105 from v$sga_target_advice where ESTD_DB_TIME_FACTOR<=1.05 and SGA_SIZE_FACTOR<1;
-	if (exists_lower_est_db_time_factor_105>0) then
+	select count(*) into exists_low_est_dbtime_105 from v$sga_target_advice where ESTD_DB_TIME_FACTOR<=1.05 and SGA_SIZE_FACTOR<1;
+	if (exists_low_est_dbtime_105>0) then
 		select SGA_SIZE into sga_size_lower from
 		(select SGA_SIZE
 		from v$sga_target_advice 
@@ -77,13 +77,13 @@ else
 	end if;
 	DBMS_OUTPUT.PUT_LINE('BEGINOUTPUT');
 	pga_target_lower := round(pga_target_lower/1024/1024/1024,3);
-	if (exists_lower_pga_cache_hit_100=0 and exists_lower_pga_cache_hit_95=0) then
+	if (exists_low_pga_cachehit_100=0 and exists_low_pga_cachehit_95=0) then
 		DBMS_OUTPUT.PUT_LINE('PGA_TARGET_AGGREGATE_LOWER_GB|||' || 'N/A');
 	else
 		DBMS_OUTPUT.PUT_LINE('PGA_TARGET_AGGREGATE_LOWER_GB|||' || pga_target_lower);
 	end if;
 	sga_size_lower := round(sga_size_lower/1024,3);
-	if (exists_lower_est_db_time_factor_105=0) then
+	if (exists_low_est_dbtime_105=0) then
 		DBMS_OUTPUT.PUT_LINE('SGA_SIZE_LOWER_GB|||' || 'N/A');
 	else
 		DBMS_OUTPUT.PUT_LINE('SGA_SIZE_LOWER_GB|||' || sga_size_lower);
