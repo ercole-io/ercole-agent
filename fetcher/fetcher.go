@@ -84,6 +84,8 @@ type Fetcher interface {
 	GetOracleDatabaseMemoryAdvisor(entry agentmodel.OratabEntry) (*model.OracleDatabaseMemoryAdvisor, error)
 	GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.PgsqlMigrability, error)
 	GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error)
+	GetOracleDatabasePoliciesAudit(entry agentmodel.OratabEntry) ([]string, error)
+	GetOracleDatabasePoliciesAuditPdbs(entry agentmodel.OratabEntry, pdb string) ([]string, error)
 
 	// Oracle/Exadata fetchers
 	GetOracleExadataComponents() ([]model.OracleExadataComponent, error)

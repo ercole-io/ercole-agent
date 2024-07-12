@@ -493,6 +493,18 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseMemoryAdvisor(entry agentmodel.Or
 	return nil, ercutils.NewError(notImplementedWindows)
 }
 
+// GetOracleDatabasePoliciesAudit get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePoliciesAudit(entry agentmodel.OratabEntry) ([]string, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
+// GetOracleDatabasePoliciesAuditPdbs get
+func (wf *WindowsFetcherImpl) GetOracleDatabasePoliciesAuditPdbs(entry agentmodel.OratabEntry, pdb string) ([]string, error) {
+	wf.log.Error(notImplementedWindows)
+	return nil, ercutils.NewError(notImplementedWindows)
+}
+
 // GetOracleDatabasePdbServices get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error) {
 	wf.log.Error(notImplementedWindows)

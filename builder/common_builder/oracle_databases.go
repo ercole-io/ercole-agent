@@ -445,6 +445,14 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		}
 	}, &wg)
 
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.PoliciesAudit, err = b.fetcher.GetOracleDatabasePoliciesAudit(entry); err != nil {
+			b.log.Warnf("Oracle db [%s]: can't get policies audit", entry.DBName)
+
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
 	wg.Wait()
 	close(blockingErrs)
 	close(nonBlockingErrs)
@@ -591,6 +599,13 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if pdb.Services, err = b.fetcher.GetOracleDatabasePdbServices(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] services", entry.DBName, pdb.Name)
+				errChan <- err
+			}
+		}, &wg)
+
+		utils.RunRoutineInGroup(b.configuration, func() {
+			if pdb.PoliciesAudit, err = b.fetcher.GetOracleDatabasePoliciesAuditPdbs(entry, pdb.Name); err != nil {
+				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] policies audit", entry.DBName, pdb.Name)
 				errChan <- err
 			}
 		}, &wg)

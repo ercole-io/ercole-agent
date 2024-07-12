@@ -603,6 +603,26 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseMemoryAdvisor(entry agentmodel.Orat
 	return marshal_oracle.MemoryAdvisor(out)
 }
 
+// GetOracleDatabasePoliciesAudit get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePoliciesAudit(entry agentmodel.OratabEntry) ([]string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "unified_audit", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.PoliciesAudit(out)
+}
+
+// GetOracleDatabasePoliciesAuditPdbs get
+func (lf *LinuxFetcherImpl) GetOracleDatabasePoliciesAuditPdbs(entry agentmodel.OratabEntry, pdb string) ([]string, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "unified_audit_pdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.PoliciesAudit(out)
+}
+
 // GetOracleDatabasePDBTablespaces get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "pdb_cpu_iops", lf.CreateOracleArgs(entry.DBName, entry.OracleHome, pdb)...)
