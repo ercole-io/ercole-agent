@@ -1,4 +1,4 @@
--- Copyright (c) 2022 Sorint.lab S.p.A.
+-- Copyright (c) 2024 Sorint.lab S.p.A.
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -38,7 +38,13 @@ SELECT
         FROM dba_temp_files)+
         (SELECT round(sum(bytes/1024/1024/1024))
         FROM v$log)
-    )
+    ),
+	(
+		select value/1024/1024/1024 from v$system_parameter where name = 'sga_target'
+	),
+	(
+		select value/1024/1024/1024 from v$system_parameter where name = 'pga_aggregate_target'
+	)
 FROM dual;
 
 exit

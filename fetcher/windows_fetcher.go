@@ -442,9 +442,9 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.Orata
 }
 
 // GetOracleDatabasePDBSize get
-func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (float64, float64, float64, error) {
+func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (model.OracleDatabasePdbSize, error) {
 	wf.log.Error(notImplementedWindows)
-	return 0, 0, 0, ercutils.NewError(notImplementedWindows)
+	return model.OracleDatabasePdbSize{}, ercutils.NewError(notImplementedWindows)
 }
 
 // GetOracleDatabasePDBCharset get
