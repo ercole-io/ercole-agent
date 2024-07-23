@@ -491,7 +491,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 
 	var err error
 
-	var segmentsSize, datafileSize, allocable, totalSegmentsSize, totalDatafileSize, totalAllocable float64
+	var totalSegmentsSize, totalDatafileSize, totalAllocable float64
 
 	var charset string
 
@@ -523,20 +523,24 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 			continue
 		}
 
+		pdbsize := model.OracleDatabasePdbSize{}
+
 		utils.RunRoutineInGroup(b.configuration, func() {
-			if segmentsSize, datafileSize, allocable, err = b.fetcher.GetOracleDatabasePDBSize(entry, pdb.Name); err != nil {
+			if pdbsize, err = b.fetcher.GetOracleDatabasePDBSize(entry, pdb.Name); err != nil {
 				b.log.Warnf("Oracle db [%s]: can't get PDB [%s] size", entry.DBName, pdb.Name)
 				errChan <- err
 			}
 		}, &wg)
 
-		pdb.SegmentsSize = segmentsSize
-		pdb.DatafileSize = datafileSize
-		pdb.Allocable = allocable
+		pdb.SegmentsSize = pdbsize.SegmentsSize
+		pdb.DatafileSize = pdbsize.DatafileSize
+		pdb.Allocable = pdbsize.Allocable
+		pdb.SGATarget = pdbsize.SGATarget
+		pdb.PGAAggregateTarget = pdbsize.PGAAggregateTarget
 
-		totalSegmentsSize += segmentsSize
-		totalDatafileSize += datafileSize
-		totalAllocable += allocable
+		totalSegmentsSize += pdbsize.SegmentsSize
+		totalDatafileSize += pdbsize.DatafileSize
+		totalAllocable += pdbsize.Allocable
 
 		utils.RunRoutineInGroup(b.configuration, func() {
 			if charset, err = b.fetcher.GetOracleDatabasePDBCharset(entry, pdb.Name); err != nil {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Sorint.lab S.p.A.
+// Copyright (c) 2024 Sorint.lab S.p.A.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 package oracle
 
 import (
@@ -21,42 +20,59 @@ import (
 	"strings"
 
 	"github.com/ercole-io/ercole-agent/v2/marshal"
+	"github.com/ercole-io/ercole/v2/model"
 	ercutils "github.com/ercole-io/ercole/v2/utils"
-	"github.com/hashicorp/go-multierror"
 )
 
-func SizePDB(cmdOutput []byte) (float64, float64, float64, error) {
+func SizePDB(cmdOutput []byte) (model.OracleDatabasePdbSize, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(cmdOutput))
 
-	var segmentsSize, datafileSize, allocable float64
-
-	var merr, err error
+	pdbsize := model.OracleDatabasePdbSize{}
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitted := strings.Split(line, "|||")
 		iter := marshal.NewIter(splitted)
 
-		if len(splitted) != 3 {
-			return 0, 0, 0, ercutils.NewErrorf("Invalid line")
+		if len(splitted) != 5 {
+			return pdbsize, ercutils.NewErrorf("invalid line")
 		}
 
-		if segmentsSize, err = marshal.TrimParseFloat64(iter()); err != nil {
-			merr = multierror.Append(merr, ercutils.NewError(err))
+		segmentsSize, err := marshal.TrimParseFloat64(iter())
+		if err != nil {
+			return pdbsize, err
 		}
 
-		if datafileSize, err = marshal.TrimParseFloat64(iter()); err != nil {
-			merr = multierror.Append(merr, ercutils.NewError(err))
+		pdbsize.SegmentsSize = segmentsSize
+
+		datafileSize, err := marshal.TrimParseFloat64(iter())
+		if err != nil {
+			return pdbsize, err
 		}
 
-		if allocable, err = marshal.TrimParseFloat64(iter()); err != nil {
-			merr = multierror.Append(merr, ercutils.NewError(err))
+		pdbsize.DatafileSize = datafileSize
+
+		allocable, err := marshal.TrimParseFloat64(iter())
+		if err != nil {
+			return pdbsize, err
 		}
+
+		pdbsize.Allocable = allocable
+
+		sgatarget, err := marshal.TrimParseFloat64(iter())
+		if err != nil {
+			return pdbsize, err
+		}
+
+		pdbsize.SGATarget = sgatarget
+
+		pgaAggregateTarget, err := marshal.TrimParseFloat64(iter())
+		if err != nil {
+			return pdbsize, err
+		}
+
+		pdbsize.PGAAggregateTarget = pgaAggregateTarget
 	}
 
-	if merr != nil {
-		return 0, 0, 0, merr
-	}
-
-	return segmentsSize, datafileSize, allocable, nil
+	return pdbsize, nil
 }
