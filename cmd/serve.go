@@ -87,6 +87,8 @@ func (p *program) run() {
 			AgentPassword:          configuration.AgentPassword,
 			EnableServerValidation: configuration.EnableServerValidation,
 		})
+
+		configuration.Queue.RetryLimit = 1
 	}
 
 	for _, dataservice := range configuration.Queue.DataServices {
