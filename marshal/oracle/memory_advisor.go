@@ -18,8 +18,10 @@ package oracle
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 
+	"github.com/ercole-io/ercole-agent/v2/marshal"
 	"github.com/ercole-io/ercole/v2/model"
 )
 
@@ -54,15 +56,45 @@ func MemoryAdvisor(cmdOutput []byte) (*model.OracleDatabaseMemoryAdvisor, error)
 			switch splitted[0] {
 			case "MEMORY_SIZE_LOWER_GB":
 				res.AutomaticMemoryManagement = true
-				res.MemorySizeLowerGb = splitted[1]
+
+				val, err := marshal.TrimParseUnsafeFloat64Pointer(splitted[1], marshal.TrimParseFloat64)
+				if err != nil {
+					return nil, err
+				}
+
+				if val == nil {
+					res.MemorySizeLowerGb = "N/A"
+				} else {
+					res.MemorySizeLowerGb = fmt.Sprintf("%.3f", *val)
+				}
 
 			case "PGA_TARGET_AGGREGATE_LOWER_GB":
 				res.AutomaticMemoryManagement = false
-				res.PgaTargetAggregateLowerGb = splitted[1]
+
+				val, err := marshal.TrimParseUnsafeFloat64Pointer(splitted[1], marshal.TrimParseFloat64)
+				if err != nil {
+					return nil, err
+				}
+
+				if val == nil {
+					res.PgaTargetAggregateLowerGb = "N/A"
+				} else {
+					res.PgaTargetAggregateLowerGb = fmt.Sprintf("%.3f", *val)
+				}
 
 			case "SGA_SIZE_LOWER_GB":
 				res.AutomaticMemoryManagement = false
-				res.SgaSizeLowerGb = splitted[1]
+
+				val, err := marshal.TrimParseUnsafeFloat64Pointer(splitted[1], marshal.TrimParseFloat64)
+				if err != nil {
+					return nil, err
+				}
+
+				if val == nil {
+					res.SgaSizeLowerGb = "N/A"
+				} else {
+					res.SgaSizeLowerGb = fmt.Sprintf("%.3f", *val)
+				}
 			}
 		}
 	}
