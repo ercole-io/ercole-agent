@@ -26,7 +26,7 @@ import (
 const (
 	testMemoryAdvisorData01 = `
 BEGINOUTPUT
-MEMORY_SIZE_LOWER_GB|||1.078
+MEMORY_SIZE_LOWER_GB|||.078
 ENDOUTPUT
 `
 	testMemoryAdvisorData02 = `
@@ -40,7 +40,7 @@ ENDOUTPUT
 func TestMemoryAdvisor_Output01(t *testing.T) {
 	expected := &model.OracleDatabaseMemoryAdvisor{
 		AutomaticMemoryManagement: true,
-		MemorySizeLowerGb:         "1.078",
+		MemorySizeLowerGb:         "0.078",
 	}
 
 	actual, err := MemoryAdvisor([]byte(testMemoryAdvisorData01))
@@ -52,7 +52,7 @@ func TestMemoryAdvisor_Output01(t *testing.T) {
 func TestMemoryAdvisor_Output02(t *testing.T) {
 	expected := &model.OracleDatabaseMemoryAdvisor{
 		AutomaticMemoryManagement: false,
-		PgaTargetAggregateLowerGb: "7.5",
+		PgaTargetAggregateLowerGb: "7.500",
 		SgaSizeLowerGb:            "N/A",
 	}
 
