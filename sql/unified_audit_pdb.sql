@@ -34,10 +34,6 @@ set colsep "|||"
 
 alter session set container=&1;
 
-define IS12ORABOVE = '1=0'
-col :IS12ORABOVE_ new_val IS12ORABOVE noprint
-variable IS12ORABOVE_ varchar2(100) 
-
 define FIELDNAME = '1=0'
 col :FIELDNAME_ new_val FIELDNAME noprint
 variable FIELDNAME_ varchar2(30) 
@@ -51,19 +47,17 @@ DB_VERSION number;
 begin
 	DB_VERSION := dbms_db_version.version + (dbms_db_version.release / 10);
 	if DB_VERSION >= 12.0 then
-		:IS12ORABOVE_ := '(SELECT value FROM v$option WHERE parameter = ''Unified Auditing'')=''TRUE''';
 		:FIELDNAME_ := 'POLICY_NAME';
 		:TABLENAME_ := 'audit_unified_enabled_policies';
 	ELSE
-		:IS12ORABOVE_ := '1=0';
 		:FIELDNAME_ := '''''';
 		:TABLENAME_ := 'dual';
 	end if;	
 end;
 /
 
-select :IS12ORABOVE_, :FIELDNAME_, :TABLENAME_  from dual;
+select :FIELDNAME_, :TABLENAME_  from dual;
 
-select &FIELDNAME from &TABLENAME where &IS12ORABOVE;
+select &FIELDNAME from &TABLENAME;
 
 exit
