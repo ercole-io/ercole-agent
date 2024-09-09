@@ -13,6 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+--If the query runs very slow in PDB have a check on this note (Doc ID 2745111.1)
+
 set feedback off heading off pages 0 serverout on verify off lines 1234 timing off
 
 column 1 new_value 1 noprint
@@ -24,6 +26,19 @@ begin
         if '&param' <> '-1' then
                 execute immediate 'alter session set container=&param';
         end if;
+end;
+/
+
+
+--Piece of code added in relation to (Doc ID 2745111.1), if the parameter container_data exists the value of the parameter will be modified in the current session
+DECLARE
+exists_container_data_parameter number := 0;
+
+begin
+	select count(*) into exists_container_data_parameter from v$parameter where name='container_data';
+	if (exists_container_data_parameter>0) then
+		execute immediate 'alter session set CONTAINER_DATA=CURRENT_DICTIONARY';
+	end if;
 end;
 /
 
@@ -44,6 +59,8 @@ begin
 	end if;	
 end;
 /
+
+
 
 select :COMPRESS_FOR_ from dual;
 
