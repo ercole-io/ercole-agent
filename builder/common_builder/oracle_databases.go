@@ -615,9 +615,9 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 		}, &wg)
 	}
 
-	database.SegmentsSize = totalSegmentsSize
-	database.DatafileSize = totalDatafileSize
-	database.Allocable = totalAllocable
+	database.SegmentsSize += totalSegmentsSize
+	database.DatafileSize += totalDatafileSize
+	database.Allocable += totalAllocable
 
 	wg.Wait()
 
