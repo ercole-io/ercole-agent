@@ -282,7 +282,7 @@ steps: [
             { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.1' },
             { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
 
-            { type: 'run', name: '', command: 'go install go.uber.org/mock/mockgen@latest' },
+            { type: 'run', name: '', command: 'go install go.uber.org/mock/mockgen@v0.3.0' },
             { type: 'run', name: '', command: 'go generate -v ./...' },
             { type: 'run', name: '', command: 'go test -race -coverprofile=coverage.txt -covermode=atomic ./...' },
 
