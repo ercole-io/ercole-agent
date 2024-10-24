@@ -16,12 +16,10 @@
 set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
 
---column "TOTMB" format 9,999,990
---column "TBMB" format 9,999,990
---column "INDMB" format 9,999,990
---column "LOBMB" format 9,999,990
-column "Nome_Acronimo" for a8
-column "DB_Name" for a10
+column username for a100
+column Hostname for a100
+column Nome_DB for a50
+column DB_Unique_name for a50
 
 alter session set container=&1;
 
@@ -34,6 +32,7 @@ lista_users as
 'SPATIAL_CSW_ADMIN_USR','LBACSYS','APEX_040200','APEX_PUBLIC_USER','FLOWS_FILES',
 'DVSYS','DVF','SCOTT','EXFSYS','XS\$NULL','CMDB_USR','CPFI0_APPPRD','SYSMAN','SYSADMIN',
 'MGMT_VIEW','DMSYS','WCCREPUSER','WCCUSER','WFADMIN','OWF_MGR','KWALKER','BLEWIS','CDOUGLAS','SPIERSON')
+and username not like '% %'
 ),
 tbmb as
 (select owner,round(sum(bytes/1024/1024)) as "A" from dba_segments where segment_type like 'TABLE%' group by owner),
@@ -43,8 +42,8 @@ lobmb as
 (select owner,round(sum(bytes/1024/1024)) as "C" from dba_segments where segment_type like 'LOB%' group by owner)
 select 
 	   (select host_name from v$instance) as Hostname,
-           (select value from v$parameter where name='db_name') as Nome_DB,
-           (select db_unique_name from v$database) as DB_Unique_name,
+       (select value from v$parameter where name='db_name') as Nome_DB,
+       (select db_unique_name from v$database) as DB_Unique_name,
 	   u.username,
 	   nvl(round(sum(s.bytes/1024/1024)),0) as "TOTMB",
 	   nvl(t.A,0) as "TBMB",
