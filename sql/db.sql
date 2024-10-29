@@ -206,7 +206,7 @@ SELECT
                                     FROM v$log)), (
                                                      (SELECT round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024)))
                                                       FROM dba_data_files)+
-                                                     (SELECT round(sum(bytes/1024/1024/1024))
+                                                     (SELECT round(sum(decode(autoextensible,'NO',bytes/1024/1024/1024,'YES',maxbytes/1024/1024/1024)))
                                                       FROM dba_temp_files)+
                                                      (SELECT round(sum(bytes/1024/1024/1024))
                                                       FROM v$log)),
