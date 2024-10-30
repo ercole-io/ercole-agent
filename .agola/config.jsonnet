@@ -356,9 +356,6 @@ steps: [
       ] + [
         task_deploy_repository(dist)
         for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb', 'rhel9']
-      ] + [
-        task_upload_asset(dist)
-        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb', 'rhel9']
       ],
     },
   ],
