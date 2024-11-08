@@ -40,10 +40,10 @@ SELECT
         FROM v$log)
     ),
 	(
-		select value/1024/1024/1024 from v$system_parameter where name = 'sga_target'
+		select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'sga_target'
 	),
 	(
-		select value/1024/1024/1024 from v$system_parameter where name = 'pga_aggregate_target'
+		select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'pga_aggregate_target'
 	)
 FROM dual;
 
