@@ -41,7 +41,7 @@ type WindowsFetcherImpl struct {
 	log           logger.Logger
 }
 
-var notImplementedWindows = errors.New("Not yet implemented for windows")
+var errNotImplementedWindows = errors.New("Not yet implemented for windows")
 
 // NewWindowsFetcherImpl constructor
 func NewWindowsFetcherImpl(conf config.Configuration, log logger.Logger) *WindowsFetcherImpl {
@@ -150,32 +150,32 @@ func (wf *WindowsFetcherImpl) CreateOracleArgs(args ...string) []string {
 
 // SetUser not implemented
 func (wf *WindowsFetcherImpl) SetUser(username string) error {
-	wf.log.Error(notImplementedWindows)
-	return ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return ercutils.NewError(errNotImplementedWindows)
 }
 
 // SetUserAsCurrent set user used by fetcher to run commands as current process user
 func (wf *WindowsFetcherImpl) SetUserAsCurrent() error {
-	wf.log.Error(notImplementedWindows)
-	return ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetClusters not implemented
 func (wf *WindowsFetcherImpl) GetClusters(hv config.Hypervisor) ([]model.ClusterInfo, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetVirtualMachines return VMWare virtual machines infos from the given hyperVisor
 func (wf *WindowsFetcherImpl) GetVirtualMachines(hv config.Hypervisor) (map[string][]model.VMInfo, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleExadataComponents get
 func (wf *WindowsFetcherImpl) GetOracleExadataComponents() ([]model.OracleExadataComponent, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetClustersMembershipStatus get
@@ -202,8 +202,8 @@ func (wf *WindowsFetcherImpl) GetHost() (*model.Host, error) {
 
 // GetCwVersion get
 func (wf *WindowsFetcherImpl) GetCwVersion() (string, error) {
-	wf.log.Error(notImplementedWindows)
-	return "", ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return "", ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetFilesystems get
@@ -217,13 +217,13 @@ func (wf *WindowsFetcherImpl) GetFilesystems() ([]model.Filesystem, error) {
 }
 
 func (wf *WindowsFetcherImpl) GetCpuConsumption() ([]model.CpuConsumption, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetDiskConsumption() ([]model.DiskConsumption, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabaseOratabEntries get
@@ -263,8 +263,8 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseDbStatus(entry agentmodel.OratabE
 
 // GetOracleDatabaseRac get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseRac(entry agentmodel.OratabEntry) (string, error) {
-	wf.log.Error(notImplementedWindows)
-	return "", ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return "", ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabaseMountedDb get
@@ -409,14 +409,14 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEn
 
 // GetOracleDatabaseCheckPDB get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) (bool, error) {
-	wf.log.Error(notImplementedWindows)
-	return false, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return false, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBs get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBs(entry agentmodel.OratabEntry) ([]model.OracleDatabasePluggableDatabase, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePartitionings get
@@ -431,32 +431,32 @@ func (wf *WindowsFetcherImpl) GetOracleDatabasePartitionings(entry agentmodel.Or
 
 // GetOracleDatabasePDBPartitionings get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBPartitionings(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePartitioning, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBSchemas get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSchemas(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSchema, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBSize get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSize(entry agentmodel.OratabEntry, pdb string) (model.OracleDatabasePdbSize, error) {
-	wf.log.Error(notImplementedWindows)
-	return model.OracleDatabasePdbSize{}, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return model.OracleDatabasePdbSize{}, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBCharset get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBCharset(entry agentmodel.OratabEntry, pdb string) (string, error) {
-	wf.log.Error(notImplementedWindows)
-	return "", ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return "", ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBSegmentAdvisors get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBSegmentAdvisors(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseSegmentAdvisor, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabaseServices get
@@ -471,56 +471,56 @@ func (wf *WindowsFetcherImpl) GetOracleDatabaseServices(entry agentmodel.OratabE
 
 // GetOracleDatabasePDBTablespaces get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePDBTablespaces(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabaseTablespace, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabaseStorageProvisionings get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptions(entry agentmodel.OratabEntry) ([]model.CpuDiskConsumption, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePgsqlMigrability get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePgsqlMigrability(entry agentmodel.OratabEntry) ([]model.PgsqlMigrability, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabaseMemoryAdvisor get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseMemoryAdvisor(entry agentmodel.OratabEntry) (*model.OracleDatabaseMemoryAdvisor, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePoliciesAudit get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePoliciesAudit(entry agentmodel.OratabEntry) ([]string, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePoliciesAuditPdbs get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePoliciesAuditPdbs(entry agentmodel.OratabEntry, pdb string) ([]string, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePdbServices get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePDBTablespaces get
 func (wf *WindowsFetcherImpl) GetOracleDatabaseCpuDiskConsumptionPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.CpuDiskConsumptionPdb, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetOracleDatabasePgsqlMigrabilityPdbs get
 func (wf *WindowsFetcherImpl) GetOracleDatabasePgsqlMigrabilityPdbs(entry agentmodel.OratabEntry, pdb string) ([]model.PgsqlMigrability, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 // GetMicrosoftSQLServerInstances get
@@ -632,53 +632,53 @@ func (wf *WindowsFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) 
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error) {
-	wf.log.Error(notImplementedWindows)
-	return "", ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return "", ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLOldInstance(connection config.MySQLInstanceConnection) (*model.MySQLInstance, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLDatabases(connection config.MySQLInstanceConnection) ([]model.MySQLDatabase, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLTableSchemas(connection config.MySQLInstanceConnection) ([]model.MySQLTableSchema, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLSegmentAdvisors(connection config.MySQLInstanceConnection) ([]model.MySQLSegmentAdvisor, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLHighAvailability(connection config.MySQLInstanceConnection) (bool, error) {
-	wf.log.Error(notImplementedWindows)
-	return false, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return false, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLUUID(dataDirectory string) (string, error) {
-	wf.log.Error(notImplementedWindows)
-	return "", ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return "", ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLSlaveHosts(connection config.MySQLInstanceConnection) (bool, []string, error) {
-	wf.log.Error(notImplementedWindows)
-	return false, nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return false, nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetMySQLSlaveStatus(connection config.MySQLInstanceConnection) (bool, *string, error) {
-	wf.log.Error(notImplementedWindows)
-	return false, nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return false, nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetCloudMembership() (string, error) {
@@ -686,28 +686,28 @@ func (wf *WindowsFetcherImpl) GetCloudMembership() (string, error) {
 }
 
 func (wf *WindowsFetcherImpl) GetPostgreSQLSetting(instanceConnection config.PostgreSQLInstanceConnection) (*model.PostgreSQLSetting, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetPostgreSQLInstance(instanceConnection config.PostgreSQLInstanceConnection, v10 bool) (*model.PostgreSQLInstance, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 
 func (wf *WindowsFetcherImpl) GetPostgreSQLDbNameList(instanceConnection config.PostgreSQLInstanceConnection) ([]string, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 func (wf *WindowsFetcherImpl) GetPostgreSQLDbSchemaNameList(instanceConnection config.PostgreSQLInstanceConnection, dbname string) ([]string, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 func (wf *WindowsFetcherImpl) GetPostgreSQLDatabase(instanceConnection config.PostgreSQLInstanceConnection, dbname string, v10 bool) (*model.PostgreSQLDatabase, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }
 func (wf *WindowsFetcherImpl) GetPostgreSQLSchema(instanceConnection config.PostgreSQLInstanceConnection, dbname string, schemaName string, v10 bool) (*model.PostgreSQLSchema, error) {
-	wf.log.Error(notImplementedWindows)
-	return nil, ercutils.NewError(notImplementedWindows)
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
 }

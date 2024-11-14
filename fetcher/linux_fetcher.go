@@ -44,7 +44,7 @@ type LinuxFetcherImpl struct {
 	fetcherUser   *User
 }
 
-var notImplementedLinux = errors.New("Not yet implemented for GNU/Linux")
+var errNotImplementedLinux = errors.New("Not yet implemented for GNU/Linux")
 
 // NewLinuxFetcherImpl constructor
 func NewLinuxFetcherImpl(conf config.Configuration, log logger.Logger) *LinuxFetcherImpl {
@@ -736,62 +736,62 @@ func (lf *LinuxFetcherImpl) GetClustersMembershipStatus() (*model.ClusterMembers
 
 // GetMicrosoftSQLServerInstances get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstances() ([]agentmodel.ListInstanceOutputModel, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceInfo get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	lf.log.Error(notImplementedLinux)
-	return ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceEdition get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceEdition(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	lf.log.Error(notImplementedLinux)
-	return ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceLicensingInfo get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceLicensingInfo(conn string, inst *model.MicrosoftSQLServerInstance) error {
-	lf.log.Error(notImplementedLinux)
-	return ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabase get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabase(conn string) ([]model.MicrosoftSQLServerDatabase, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseBackups get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseBackups(conn string) ([]agentmodel.DbBackupsModel, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseSchemas get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseSchemas(conn string) ([]agentmodel.DbSchemasModel, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstanceDatabaseTablespaces get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstanceDatabaseTablespaces(conn string) ([]agentmodel.DbTablespacesModel, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerInstancePatches get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerInstancePatches(conn string) ([]model.MicrosoftSQLServerPatch, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 // GetMicrosoftSQLServerProductFeatures get
 func (lf *LinuxFetcherImpl) GetMicrosoftSQLServerProductFeatures(conn string) ([]model.MicrosoftSQLServerProductFeature, error) {
-	lf.log.Error(notImplementedLinux)
-	return nil, ercutils.NewError(notImplementedLinux)
+	lf.log.Error(errNotImplementedLinux)
+	return nil, ercutils.NewError(errNotImplementedLinux)
 }
 
 func (lf *LinuxFetcherImpl) GetMySQLVersion(connection config.MySQLInstanceConnection) (string, error) {
