@@ -51,7 +51,7 @@ local task_build_go(setup) = {
       }],
     },
   ],
-  depends: ['test'],
+  depends: ['staticcheck'],
 };
 
 local task_pkg_build_deb() = {
@@ -289,6 +289,23 @@ steps: [
             { type: 'save_cache', key: 'cache-sum-{{ md5sum "go.sum" }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
             { type: 'save_cache', key: 'cache-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
           ],
+        },
+      ] + [
+        {
+          name: 'staticcheck',
+          runtime: {
+            type: 'pod',
+            arch: 'amd64',
+            containers: [
+              { image: 'golang:1.22' },
+            ],
+          },
+          steps: [
+            { type: 'clone' },
+            { type: 'run', name: 'install staticcheck', command: 'go install honnef.co/go/tools/cmd/staticcheck@latest' },
+            { type: 'run', name: 'run staticcheck', command: 'staticcheck -f=stylish -tests=false ./...' },
+          ],
+          depends: ['test'],
         },
       ] + [
         task_build_go(setup)
