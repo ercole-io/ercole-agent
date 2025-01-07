@@ -43,19 +43,19 @@ func Tablespaces(cmdOutput []byte) ([]model.OracleDatabaseTablespace, error) {
 
 			tablespace.Name = strings.TrimSpace(splitted[3])
 
-			if tablespace.MaxSize, err = marshal.TrimParseFloat64SafeComma(splitted[4]); err != nil {
+			if tablespace.MaxSize, err = marshal.TrimParseUnsafeFloat64(splitted[4], marshal.TrimParseFloat64SafeComma); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.Total, err = marshal.TrimParseFloat64SafeComma(splitted[5]); err != nil {
+			if tablespace.Total, err = marshal.TrimParseUnsafeFloat64(splitted[5], marshal.TrimParseFloat64SafeComma); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.Used, err = marshal.TrimParseFloat64SafeComma(splitted[6]); err != nil {
+			if tablespace.Used, err = marshal.TrimParseUnsafeFloat64(splitted[6], marshal.TrimParseFloat64SafeComma); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if tablespace.UsedPerc, err = marshal.TrimParseFloat64SafeComma(splitted[7]); err != nil {
+			if tablespace.UsedPerc, err = marshal.TrimParseUnsafeFloat64(splitted[7], marshal.TrimParseFloat64SafeComma); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
