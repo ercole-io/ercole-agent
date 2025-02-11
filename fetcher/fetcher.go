@@ -86,7 +86,7 @@ type Fetcher interface {
 	GetOracleDatabasePdbServices(entry agentmodel.OratabEntry, pdb string) ([]model.OracleDatabasePdbService, error)
 	GetOracleDatabasePoliciesAudit(entry agentmodel.OratabEntry) ([]string, error)
 	GetOracleDatabasePoliciesAuditPdbs(entry agentmodel.OratabEntry, pdb string) ([]string, error)
-
+	GetOracleDatabaseDiskGroups(entry agentmodel.OratabEntry) ([]model.OracleDatabaseDiskGroup, error)
 	// Oracle/Exadata fetchers
 	GetOracleExadataComponents() ([]model.OracleExadataComponent, error)
 
