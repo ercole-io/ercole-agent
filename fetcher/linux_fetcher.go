@@ -468,6 +468,16 @@ func (lf *LinuxFetcherImpl) GetOracleDatabaseBackups(entry agentmodel.OratabEntr
 	return marshal_oracle.Backups(out)
 }
 
+// GetOracleDatabaseDiskGroups get
+func (lf *LinuxFetcherImpl) GetOracleDatabaseDiskGroups(entry agentmodel.OratabEntry) ([]model.OracleDatabaseDiskGroup, error) {
+	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "asm_diskgroups", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)
+	if err != nil {
+		return nil, ercutils.NewError(err)
+	}
+
+	return marshal_oracle.DiskGroups(out)
+}
+
 // GetOracleDatabaseCheckPDB get
 func (lf *LinuxFetcherImpl) GetOracleDatabaseCheckPDB(entry agentmodel.OratabEntry) (bool, error) {
 	out, err := lf.executeWithDeadline(FetcherStandardTimeOut, "checkpdb", lf.CreateOracleArgs(entry.DBName, entry.OracleHome)...)

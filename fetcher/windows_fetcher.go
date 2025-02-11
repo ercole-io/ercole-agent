@@ -711,3 +711,8 @@ func (wf *WindowsFetcherImpl) GetPostgreSQLSchema(instanceConnection config.Post
 	wf.log.Error(errNotImplementedWindows)
 	return nil, ercutils.NewError(errNotImplementedWindows)
 }
+
+func (wf *WindowsFetcherImpl) GetOracleDatabaseDiskGroups(entry agentmodel.OratabEntry) ([]model.OracleDatabaseDiskGroup, error) {
+	wf.log.Error(errNotImplementedWindows)
+	return nil, ercutils.NewError(errNotImplementedWindows)
+}

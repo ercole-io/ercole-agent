@@ -99,6 +99,7 @@ fi
 /opt/ercole-agent/ercole-setup
 
 /opt/ercole-agent/fetch/linux/addm.sh
+/opt/ercole-agent/fetch/linux/asm_diskgroups.sh
 /opt/ercole-agent/fetch/linux/backup.sh
 /opt/ercole-agent/fetch/linux/checkpdb.sh
 /opt/ercole-agent/fetch/linux/cloud_membership_aws.sh
@@ -159,6 +160,7 @@ fi
 /opt/ercole-agent/fetch/linux/oracle_running_databases_oratabless.sh
 
 /opt/ercole-agent/sql/addm.sql
+/opt/ercole-agent/sql/asm_diskgroups.sql
 /opt/ercole-agent/sql/backup_schedule.sql
 /opt/ercole-agent/sql/checkpdb.sql
 /opt/ercole-agent/sql/db.sql

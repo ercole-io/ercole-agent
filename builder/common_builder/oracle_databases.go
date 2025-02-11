@@ -453,6 +453,14 @@ func (b *CommonBuilder) getOpenDatabase(entry agentmodel.OratabEntry, hardwareAb
 		}
 	}, &wg)
 
+	utils.RunRoutineInGroup(b.configuration, func() {
+		if database.DiskGroups, err = b.fetcher.GetOracleDatabaseDiskGroups(entry); err != nil {
+			b.log.Errorf("Oracle db [%s]: can't get diskgroups, failed", entry.DBName)
+
+			nonBlockingErrs <- err
+		}
+	}, &wg)
+
 	wg.Wait()
 	close(blockingErrs)
 	close(nonBlockingErrs)
