@@ -8,7 +8,7 @@ local go_runtime(version, arch) = {
 
 local task_build_go(setup) = {
   name: 'build go ' + setup.goos,
-  runtime: go_runtime('1.21', 'amd64'),
+  runtime: go_runtime('1.19', 'amd64'),
   environment: {
     GOOS: setup.goos,
     BIN: setup.bin,
@@ -267,33 +267,20 @@ steps: [
       name: 'ercole-agent',
       tasks: [
         {
-          name: 'linters',
-          runtime: {
-            type: 'pod',
-            arch: 'amd64',
-            containers: [
-              { image: 'golangci/golangci-lint:v1.63.4' },
-            ],
-          },
-          steps: [
-            { type: 'clone' },
-            { type: 'run', name: 'clean cache golangci-lint', command: 'golangci-lint cache clean' },
-            { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
-          ],
-        },
-      ] + [
-        {
           name: 'test',
           runtime: {
             type: 'pod',
             arch: 'amd64',
             containers: [
-              { image: 'golang:1.21' },
+              { image: 'golang:1.19' },
             ],
           },
           steps: [
             { type: 'clone' },
             { type: 'restore_cache', keys: ['cache-sum-{{ md5sum "go.sum" }}', 'cache-date-'], dest_dir: '/go/pkg/mod/cache' },
+
+            { type: 'run', name: 'install golangci-lint', command: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.1' },
+            { type: 'run', name: 'run golangci-lint', command: 'golangci-lint run' },
 
             { type: 'run', name: '', command: 'go install go.uber.org/mock/mockgen@v0.3.0' },
             { type: 'run', name: '', command: 'go generate -v ./...' },
@@ -302,7 +289,6 @@ steps: [
             { type: 'save_cache', key: 'cache-sum-{{ md5sum "go.sum" }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
             { type: 'save_cache', key: 'cache-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: '/go/pkg/mod/cache' }] },
           ],
-          depends: ['linters'],
         },
       ] + [
         {
@@ -316,7 +302,7 @@ steps: [
           },
           steps: [
             { type: 'clone' },
-            { type: 'run', name: 'install staticcheck', command: 'go install honnef.co/go/tools/cmd/staticcheck@latest' },
+            { type: 'run', name: 'install staticcheck', command: 'go install honnef.co/go/tools/cmd/staticcheck@2024.1.1' },
             { type: 'run', name: 'run staticcheck', command: 'staticcheck -f=stylish -tests=false ./...' },
           ],
           depends: ['test'],

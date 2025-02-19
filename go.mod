@@ -1,9 +1,9 @@
 module github.com/ercole-io/ercole-agent/v2
 
-go 1.21
+go 1.18
 
 require (
-	github.com/ercole-io/ercole/v2 v2.0.0-20250210142122-31c08bb154db
+	github.com/ercole-io/ercole/v2 v2.0.0-20250219113300-564927753337
 	github.com/fatih/color v1.15.0
 	github.com/go-co-op/gocron v1.18.0
 	github.com/goraz/onion v0.1.3
@@ -26,10 +26,9 @@ require (
 	cloud.google.com/go/compute v1.26.0 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
-	github.com/aws/aws-sdk-go v1.44.231 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.156.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/rds v1.76.1 // indirect
-	github.com/aws/smithy-go v1.22.1 // indirect
+	github.com/aws/smithy-go v1.20.2 // indirect
 	github.com/bsm/redislock v0.7.2 // indirect
 	github.com/capnm/sysinfo v0.0.0-20130621111458-5909a53897f3 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
