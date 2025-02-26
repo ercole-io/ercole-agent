@@ -43,20 +43,17 @@ func TestDiskGroups(t *testing.T) {
 				{
 					DiskGroupName: "DATA",
 					TotalSpace:    349452,
-					UsedSpace:     124002,
-					FreeSpace:     35.48,
+					FreeSpace:     124002,
 				},
 				{
 					DiskGroupName: "DATA",
 					TotalSpace:    2048,
-					UsedSpace:     346,
-					FreeSpace:     16.91,
+					FreeSpace:     346,
 				},
 				{
 					DiskGroupName: "RECO",
 					TotalSpace:    512,
-					UsedSpace:     442,
-					FreeSpace:     86.24,
+					FreeSpace:     442,
 				},
 			},
 			checkRsponse: func(t *testing.T, expected, actual []model.OracleDatabaseDiskGroup, err error) {
@@ -67,6 +64,15 @@ func TestDiskGroups(t *testing.T) {
 		{
 			name:     "Empty",
 			data:     "",
+			expected: []model.OracleDatabaseDiskGroup{},
+			checkRsponse: func(t *testing.T, expected, actual []model.OracleDatabaseDiskGroup, err error) {
+				assert.Nil(t, err)
+				assert.Empty(t, actual)
+			},
+		},
+		{
+			name:     "Short output",
+			data:     "DATA                          |||         349452|||         124002",
 			expected: []model.OracleDatabaseDiskGroup{},
 			checkRsponse: func(t *testing.T, expected, actual []model.OracleDatabaseDiskGroup, err error) {
 				assert.Nil(t, err)

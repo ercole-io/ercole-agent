@@ -45,11 +45,7 @@ func DiskGroups(cmdOutput []byte) ([]model.OracleDatabaseDiskGroup, error) {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
-			if diskgroup.UsedSpace, err = marshal.TrimParseUnsafeFloat64(splitted[2], marshal.TrimParseFloat64SafeComma); err != nil {
-				merr = multierror.Append(merr, ercutils.NewError(err))
-			}
-
-			if diskgroup.FreeSpace, err = marshal.TrimParseUnsafeFloat64(splitted[3], marshal.TrimParseFloat64SafeComma); err != nil {
+			if diskgroup.FreeSpace, err = marshal.TrimParseUnsafeFloat64(splitted[2], marshal.TrimParseFloat64SafeComma); err != nil {
 				merr = multierror.Append(merr, ercutils.NewError(err))
 			}
 
