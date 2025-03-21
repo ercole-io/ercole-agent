@@ -49,11 +49,23 @@ New-VIProperty -Name NumSockets -ObjectType Cluster -Value {
 switch ($s.ToUpper()) {
         "VMS" {
                 # OUTPUT FORMAT: cluster name, vm name, guest os hostname
-                Get-VM | Select @{N="Cluster";E={Get-Cluster -VM $_}}, Name, @{N="guestHostname";E={$_.ExtensionData.Guest.HostName}}, @{N="ESX Host";E={Get-VMHost -VM $_}} | ConvertTo-CSV | % { $_ -replace '"', ""}
-        }
+        	Get-VM | Select @{N="Cluster";E={if($c=Get-Cluster -VM $_){$c.name}else{Get-VMHost -VM $_}}}, Name, @{N="guestHostname";E={$_.ExtensionData.Guest.HostName}}, @{N="ESX Host";E={Get-VMHost -VM $_}} | ConvertTo-CSV | % { $_ -replace '"', ""}
+	}
         "CLUSTER" {
                 # OUTPUT FORMAT: cluster name, core sum, socket sum
                 Get-Cluster | Select Name, NumCPU, NumSockets | ConvertTo-CSV | % { $_ -replace '"', ""}
+		# OUTPUT (single node not in a Cluster): node name, core, socket
+		Get-VMHost | ForEach-Object {
+			$vmhost = $_
+			$cluster = $vmhost | Get-Cluster
+			if (-not $cluster) { # Check for hosts without clusters
+				[PSCustomObject]@{
+					Name = $vmhost.Name
+					NumCPU = $_.NumCPU
+					NumSockets = $_.ExtensionData.Hardware.CpuInfo.NumCpuPackages			
+				}
+			}
+		} | Where-Object {$_.Name -ne $null} | ConvertTo-CSV | Select-Object -Skip 1 | % { $_ -replace '"', ""}
         }
         Default { Write-Host "wrong switch selection" }
 }
