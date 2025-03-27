@@ -39,12 +39,13 @@ SELECT
         (SELECT round(sum(bytes/1024/1024/1024))
         FROM v$log)
     ),
-	(
-		select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'sga_target'
-	),
-	(
-		select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'pga_aggregate_target'
-	)
+    (
+        select
+        rtrim(TRIM(TRAILING FROM to_char((SELECT value FROM v$system_parameter WHERE name = 'sga_target')/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,''')),',') 
+		|| '|||' || 
+		rtrim(TRIM(TRAILING FROM to_char((SELECT value FROM v$system_parameter WHERE name = 'pga_aggregate_target')/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,''')),',')
+        from dual
+     )
 FROM dual;
 
 exit
