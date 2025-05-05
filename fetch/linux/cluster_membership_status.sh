@@ -23,9 +23,14 @@ else
 fi
 
 CHECK_VERITAS_CLUSTER_SERVER=$(ps -eo cmd | grep -v grep | grep "/had\b" | wc -l)
+HOSTNAME=$(hostname)
 if [ $CHECK_VERITAS_CLUSTER_SERVER = 1 ]; then
     VERITAS_CLUSTER_SERVER=Y
-    VERITAS_CLUSTER_HOSTNAMES=$( tr '\n' ';' < /etc/llthosts)
+    if [ -f /etc/llthosts ]; then
+        VERITAS_CLUSTER_HOSTNAMES=$( tr '\n' ';' < /etc/llthosts)
+    else
+        VERITAS_CLUSTER_HOSTNAMES="0 $HOSTNAME;"
+    fi
 else
     VERITAS_CLUSTER_SERVER=N
 fi
@@ -36,7 +41,6 @@ if [ $CHECK_SUN_CLUSTER = 1 ]; then
 else
     SUN_CLUSTER=N
 fi
-
 echo "OracleClusterware: $ORACLE_CLUSTERWARE
 VeritasClusterServer: $VERITAS_CLUSTER_SERVER
 VeritasClusterHostnames: $VERITAS_CLUSTER_HOSTNAMES
