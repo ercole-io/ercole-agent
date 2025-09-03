@@ -15,6 +15,8 @@
 
 set lines 8000 pages 0 feedback off verify off timing off
 set colsep "|||"
+col sga_target for a10
+col pga_aggregate_target for a10
 
 alter session set container=&1;
 
@@ -40,12 +42,11 @@ SELECT
         FROM v$log)
     ),
     (
-        select
-        rtrim(TRIM(TRAILING FROM to_char((SELECT value FROM v$system_parameter WHERE name = 'sga_target')/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,''')),',') 
-		|| '|||' || 
-		rtrim(TRIM(TRAILING FROM to_char((SELECT value FROM v$system_parameter WHERE name = 'pga_aggregate_target')/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,''')),',')
-        from dual
-     )
+        select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'sga_target'
+	) as sga_target,
+	(
+		select rtrim(to_char(value/1024/1024/1024, 'FM9G999G999D999', 'NLS_NUMERIC_CHARACTERS=''.,'''),',') from v$system_parameter where name = 'pga_aggregate_target'
+    ) as pga_aggregate_target
 FROM dual;
 
 exit

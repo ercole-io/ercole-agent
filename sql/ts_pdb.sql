@@ -25,6 +25,9 @@ alter session set container=&1;
 column "% USED" format 990.00
 column "Nome_Acronimo" for a8
 column "DB_Name" for a10
+col Hostname for a50
+col Nome_DB for a50
+col DB_Unique_name for a50
 
 select 
 	   (select host_name from v$instance) as Hostname,
