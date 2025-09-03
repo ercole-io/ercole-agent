@@ -20,6 +20,9 @@ column "TOTAL ALLOC (MB)" for 9999999999.00
 column "TOTAL PHYS ALLOC (MB)" for 9999999999.00 
 column "USED (MB)" for 9999999999.00
 column "% USED" format 99990.00
+col Hostname for a50
+col Nome_DB for a50
+col DB_Unique_name for a50
 
 select 
 	   (select host_name from v$instance) as Hostname,
