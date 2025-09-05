@@ -15,6 +15,12 @@
 
 set lines 32767 pages 0 feedback off verify off timing off
 set colsep "|||"
+col Blocksize for a10
+col Cpu_count for a10
+col Sga_Target for a20
+col Pga_Target for a20
+col Memory_Target for a20
+col sga_max_size for a20
 
 select 
 (select value from v$parameter where name='db_name') as Nome_DB,
