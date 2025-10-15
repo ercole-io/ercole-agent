@@ -18,29 +18,41 @@ Ercole Agent collects information about the Oracle DB instances
 running on the local machine and send information to a central server
 
 %pre
-getent passwd ercole >/dev/null || \
-    useradd -r -d /home/ercole-agent -m -s /bin/bash \
-    -c "Ercole agent user" ercole
-getent passwd ercole >/dev/null || \
-    useradd -r -d /home/ercole-agent -m -s /bin/bash \
-    -c "Ercole agent user" ercole
-getent passwd ercole >/dev/null || \
-    useradd -r -d /home/ercole-agent -m -s /bin/bash \
-    -c "Ercole agent user" ercole
-getent passwd ercole >/dev/null || \
-    useradd -r -d /home/ercole-agent -m -s /bin/bash \
-    -c "Ercole agent user" ercole
+CONFIG_FILE="/etc/sysconfig/ercole"
 
-if getent group oinstall >/dev/null; then
-    usermod -aG oinstall ercole
+if [ -f "$CONFIG_FILE" ]; then
+    . "$CONFIG_FILE"
+else
+    NO_CREATE_USER=0
 fi
 
-if getent group dba >/dev/null; then
-    usermod -aG dba ercole
-fi
+if [ "${NO_CREATE_USER}" = "1" ]; then
+    echo "Skipping user creation (per configuration)"
+else
+  getent passwd ercole >/dev/null || \
+  useradd -r -d /home/ercole-agent -m -s /bin/bash \
+  -c "Ercole agent user" ercole
+  getent passwd ercole >/dev/null || \
+      useradd -r -d /home/ercole-agent -m -s /bin/bash \
+      -c "Ercole agent user" ercole
+  getent passwd ercole >/dev/null || \
+      useradd -r -d /home/ercole-agent -m -s /bin/bash \
+      -c "Ercole agent user" ercole
+  getent passwd ercole >/dev/null || \
+      useradd -r -d /home/ercole-agent -m -s /bin/bash \
+      -c "Ercole agent user" ercole
 
-if getent group mysql >/dev/null; then
-    usermod -aG mysql ercole
+  if getent group oinstall >/dev/null; then
+      usermod -aG oinstall ercole
+  fi
+
+  if getent group dba >/dev/null; then
+      usermod -aG dba ercole
+  fi
+
+  if getent group mysql >/dev/null; then
+      usermod -aG mysql ercole
+  fi
 fi
 
 exit 0
