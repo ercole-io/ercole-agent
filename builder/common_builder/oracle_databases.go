@@ -685,7 +685,13 @@ func (b *CommonBuilder) getMountedDatabase(dbStatus string, entry agentmodel.Ora
 	}
 
 	if dbStatus == "READ ONLY WITH APPLY" {
-		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, database.Version)
+		stringDbVersion, err := b.fetcher.GetOracleDatabaseDbVersion(entry)
+		if err != nil {
+			b.log.Errorf("oracle db [%s]: can't get db version, failed", entry.DBName)
+			return nil, err
+		}
+
+		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, stringDbVersion)
 		if err != nil {
 			b.log.Errorf("oracle db [%s]: failed to get patches information", entry.DBName)
 		}
