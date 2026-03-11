@@ -213,7 +213,7 @@ func (b *CommonBuilder) getOracleDB(entry agentmodel.OratabEntry, host model.Hos
 		database, err = b.getOpenDatabase(entry, host.HardwareAbstractionTechnology, hostCoreFactor)
 
 	case dbStatus == "MOUNTED" || dbStatus == "READ ONLY WITH APPLY" || strings.Contains(dbStatus, "ORA-03170") || strings.Contains(dbStatus, "ORA-01555"):
-		database, err = b.getMountedDatabase(entry, host, hostCoreFactor)
+		database, err = b.getMountedDatabase(dbStatus, entry, host, hostCoreFactor)
 
 	case dbStatus == "unreachable!":
 		b.log.Infof("dbStatus: [%s] DBName: [%s] OracleHome: [%s]",
@@ -642,7 +642,7 @@ func (b *CommonBuilder) setPDBs(database *model.OracleDatabase, dbVersion versio
 	return nil
 }
 
-func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host model.Host, hostCoreFactor float64,
+func (b *CommonBuilder) getMountedDatabase(dbStatus string, entry agentmodel.OratabEntry, host model.Host, hostCoreFactor float64,
 ) (*model.OracleDatabase, error) {
 	database, err := b.fetcher.GetOracleDatabaseMountedDb(entry)
 	if err != nil {
@@ -682,6 +682,13 @@ func (b *CommonBuilder) getMountedDatabase(entry agentmodel.OratabEntry, host mo
 		}
 
 		database.Licenses = computeLicenses(database.Edition(), coreFactor, host.CPUCores)
+	}
+
+	if dbStatus == "READ ONLY WITH APPLY" {
+		database.Patches, err = b.fetcher.GetOracleDatabasePatches(entry, database.Version)
+		if err != nil {
+			b.log.Errorf("oracle db [%s]: failed to get patches information", entry.DBName)
+		}
 	}
 
 	return database, nil
