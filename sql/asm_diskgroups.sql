@@ -16,7 +16,12 @@
 set feedback off heading off pages 0 serverout on verify off lines 1234 timing off
 set colsep "|||"
 
-select name,round(total_mb/1024) as total_gb,round(usable_file_mb/1024) free_gb,round(usable_file_mb/total_mb*100,2) as free_percentage  from v$asm_diskgroup where name in (
+SELECT 
+name,ROUND((total_mb - required_mirror_free_mb) / NULLIF((free_mb - required_mirror_free_mb) / NULLIF(usable_file_mb, 0), 0)/ 1024) as total_net_gb,
+ROUND(usable_file_mb / 1024) as free_net_gb, 
+ROUND(usable_file_mb / NULLIF((total_mb - required_mirror_free_mb) / NULLIF((free_mb - required_mirror_free_mb) / NULLIF(usable_file_mb, 0), 0), 0) * 100, 2) as free_pct
+FROM v$asm_diskgroup 
+WHERE name IN (
 select substr(value, 2, length(value)-1) from v$parameter where name='db_recovery_file_dest'
 union
 select distinct substr(name, 2, instr(name,'/')-2) from v$datafile where name like '+%'
