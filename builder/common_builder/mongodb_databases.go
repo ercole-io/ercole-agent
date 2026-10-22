@@ -97,32 +97,32 @@ func (b *CommonBuilder) getMongoDBFeature(hostname string) (*model.MongoDBFeatur
 		statusConnection := model.ServerStatusConnection{}
 
 		conn := commandResultServerStatus["connections"].(primitive.M)
-		statusConnection.Current = conn["current"].(int32)
-		statusConnection.Available = conn["available"].(int32)
-		statusConnection.TotalCreated = conn["totalCreated"].(int32)
+		statusConnection.Current = toInt32(conn["current"])
+		statusConnection.Available = toInt32(conn["available"])
+		statusConnection.TotalCreated = toInt32(conn["totalCreated"])
 
 		if v, ok := conn["active"]; ok {
-			statusConnection.Active = v.(int32)
+			statusConnection.Active = toInt32(v)
 		}
 
 		if v, ok := conn["threaded"]; ok {
-			statusConnection.Threaded = v.(int32)
+			statusConnection.Threaded = toInt32(v)
 		}
 
 		if v, ok := conn["exhaustIsMaster"]; ok {
-			statusConnection.ExhaustIsMaster = v.(int32)
+			statusConnection.ExhaustIsMaster = toInt32(v)
 		}
 
 		if v, ok := conn["exhaustHello"]; ok {
-			statusConnection.ExhaustHello = v.(int32)
+			statusConnection.ExhaustHello = toInt32(v)
 		}
 
 		if v, ok := conn["awaitingTopologyChanges"]; ok {
-			statusConnection.AwaitingTopologyChanges = v.(int32)
+			statusConnection.AwaitingTopologyChanges = toInt32(v)
 		}
 
 		if conn["loadBalanced"] != nil {
-			statusConnection.LoadBalanced = conn["loadBalanced"].(int32)
+			statusConnection.LoadBalanced = toInt32(conn["loadBalanced"])
 		}
 
 		instance.StatusConnection = statusConnection
@@ -165,34 +165,34 @@ func (b *CommonBuilder) getMongoDBFeature(hostname string) (*model.MongoDBFeatur
 					raw := commandResultDBStats["raw"].(primitive.M)
 					for k := range raw {
 						rawContent := raw[k].(primitive.M)
-						dbStats.Collections = rawContent["collections"].(int32)
-						dbStats.Views = rawContent["views"].(int32)
-						dbStats.FsUsedSize = rawContent["fsUsedSize"].(float64)
-						dbStats.FsTotalSize = rawContent["fsTotalSize"].(float64)
-						dbStats.FreeStorageSize = rawContent["freeStorageSize"].(float64)
-						dbStats.IndexFreeStorageSize = rawContent["indexFreeStorageSize"].(float64)
-						dbStats.TotalFreeStorageSize = rawContent["totalFreeStorageSize"].(float64)
-						dbStats.DataSize = float64(commandResultDBStats["dataSize"].(int32))
-						dbStats.IndexSize = float64(commandResultDBStats["indexSize"].(int32))
-						dbStats.StorageSize = float64(commandResultDBStats["storageSize"].(int32))
-						dbStats.TotalSize = float64(commandResultDBStats["totalSize"].(int32))
+						dbStats.Collections = toInt32(rawContent["collections"])
+						dbStats.Views = toInt32(rawContent["views"])
+						dbStats.FsUsedSize = toFloat64(rawContent["fsUsedSize"])
+						dbStats.FsTotalSize = toFloat64(rawContent["fsTotalSize"])
+						dbStats.FreeStorageSize = toFloat64(rawContent["freeStorageSize"])
+						dbStats.IndexFreeStorageSize = toFloat64(rawContent["indexFreeStorageSize"])
+						dbStats.TotalFreeStorageSize = toFloat64(rawContent["totalFreeStorageSize"])
+						dbStats.DataSize = toFloat64(commandResultDBStats["dataSize"])
+						dbStats.IndexSize = toFloat64(commandResultDBStats["indexSize"])
+						dbStats.StorageSize = toFloat64(commandResultDBStats["storageSize"])
+						dbStats.TotalSize = toFloat64(commandResultDBStats["totalSize"])
 					}
 				} else {
-					dbStats.Collections = commandResultDBStats["collections"].(int32)
-					dbStats.Views = commandResultDBStats["views"].(int32)
-					dbStats.FsUsedSize = commandResultDBStats["fsUsedSize"].(float64)
-					dbStats.FsTotalSize = commandResultDBStats["fsTotalSize"].(float64)
-					dbStats.FreeStorageSize = commandResultDBStats["freeStorageSize"].(float64)
-					dbStats.IndexFreeStorageSize = commandResultDBStats["indexFreeStorageSize"].(float64)
-					dbStats.TotalFreeStorageSize = commandResultDBStats["totalFreeStorageSize"].(float64)
-					dbStats.DataSize = commandResultDBStats["dataSize"].(float64)
-					dbStats.IndexSize = commandResultDBStats["indexSize"].(float64)
-					dbStats.StorageSize = commandResultDBStats["storageSize"].(float64)
-					dbStats.TotalSize = commandResultDBStats["totalSize"].(float64)
+					dbStats.Collections = toInt32(commandResultDBStats["collections"])
+					dbStats.Views = toInt32(commandResultDBStats["views"])
+					dbStats.FsUsedSize = toFloat64(commandResultDBStats["fsUsedSize"])
+					dbStats.FsTotalSize = toFloat64(commandResultDBStats["fsTotalSize"])
+					dbStats.FreeStorageSize = toFloat64(commandResultDBStats["freeStorageSize"])
+					dbStats.IndexFreeStorageSize = toFloat64(commandResultDBStats["indexFreeStorageSize"])
+					dbStats.TotalFreeStorageSize = toFloat64(commandResultDBStats["totalFreeStorageSize"])
+					dbStats.DataSize = toFloat64(commandResultDBStats["dataSize"])
+					dbStats.IndexSize = toFloat64(commandResultDBStats["indexSize"])
+					dbStats.StorageSize = toFloat64(commandResultDBStats["storageSize"])
+					dbStats.TotalSize = toFloat64(commandResultDBStats["totalSize"])
 				}
 
-				dbStats.Objects = commandResultDBStats["objects"].(int32)
-				dbStats.Indexes = commandResultDBStats["indexes"].(int32)
+				dbStats.Objects = toInt32(commandResultDBStats["objects"])
+				dbStats.Indexes = toInt32(commandResultDBStats["indexes"])
 
 				errUserInfo := client.Database(db).RunCommand(ctx, commandUsersInfo).Decode(&commandResultUsersInfo)
 				if errUserInfo != nil {
@@ -251,4 +251,42 @@ func connection(ctx context.Context, conf config.MongoDBInstanceConnection, b *C
 	}
 
 	return client
+}
+
+func toInt32(v any) int32 {
+	switch n := v.(type) {
+	case int32:
+		return n
+	case int64:
+		return int32(n)
+	case float64:
+		return int32(n)
+	case primitive.Decimal128:
+		f, err := strconv.ParseFloat(n.String(), 64)
+		if err != nil {
+			return 0
+		}
+		return int32(f)
+	default:
+		return 0
+	}
+}
+
+func toFloat64(v any) float64 {
+	switch n := v.(type) {
+	case float64:
+		return n
+	case int32:
+		return float64(n)
+	case int64:
+		return float64(n)
+	case primitive.Decimal128:
+		f, err := strconv.ParseFloat(n.String(), 64)
+		if err != nil {
+			return 0
+		}
+		return f
+	default:
+		return 0
+	}
 }
