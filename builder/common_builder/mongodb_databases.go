@@ -266,6 +266,7 @@ func toInt32(v any) int32 {
 		if err != nil {
 			return 0
 		}
+
 		return int32(f)
 	default:
 		return 0
@@ -285,6 +286,7 @@ func toFloat64(v any) float64 {
 		if err != nil {
 			return 0
 		}
+
 		return f
 	default:
 		return 0
