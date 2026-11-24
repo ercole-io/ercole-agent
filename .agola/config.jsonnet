@@ -156,6 +156,7 @@ local task_pkg_build_rhel(setup) = {
         source /tmp/variables
 
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel9/ercole-agent.spec
+        sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel10/ercole-agent.spec
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel8/ercole-agent.spec
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel7/ercole-agent.spec
         sed -i "s|ERCOLE_VERSION|${VERSION}|g" package/rhel6/ercole-agent.spec
@@ -320,6 +321,7 @@ steps: [
           { pkg_build_image: 'amreo/rpmbuild-centos7', dist: 'rhel7', distfamily: 'rhel' },
           { pkg_build_image: 'amreo/rpmbuild-centos8', dist: 'rhel8', distfamily: 'rhel' },
           { pkg_build_image: 'fra.ocir.io/fremyxlx6yog/rpmbuildrhel9', dist: 'rhel9', distfamily: 'rhel' },
+          { pkg_build_image: 'fra.ocir.io/fremyxlx6yog/rpmbuildrhel10', dist: 'rhel10', distfamily: 'rhel' },
         ]
       ] + [
         task_pkg_build_deb()
@@ -372,7 +374,7 @@ steps: [
         },
       ] + [
         task_deploy_repository(dist)
-        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb', 'rhel9']
+        for dist in ['rhel6', 'rhel7', 'rhel8', 'windows', 'deb', 'rhel9', 'rhel10']
       ],
     },
   ],
